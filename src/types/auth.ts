@@ -1,13 +1,7 @@
-
 export interface User {
   id: string;
   email: string;
   name: string;
-  phone?: string;
-  role: 'user' | 'admin';
-  plan: 'standard' | 'premium';
-  trial_end_date?: string;
-  created_at: string;
 }
 
 export interface AuthState {
@@ -21,11 +15,8 @@ export interface LoginData {
   password: string;
 }
 
-export interface RegisterData {
+export interface RegisterData extends LoginData {
   name: string;
-  email: string;
-  phone: string;
-  password: string;
   confirmPassword: string;
 }
 

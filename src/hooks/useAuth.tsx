@@ -1,76 +1,67 @@
-
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, AuthState, LoginData, RegisterData } from '@/types/auth';
 import { toast } from 'sonner';
 
-interface AuthContextType extends AuthState {
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
   login: (data: LoginData) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   resetPassword: (email: string) => Promise<boolean>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    error: null
-  });
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for existing session
-    const savedUser = localStorage.getItem('iuscalc_user');
+    // Verificar se há um usuário salvo no localStorage
+    const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      const user = JSON.parse(savedUser);
-      setAuthState({
-        user,
-        loading: false,
-        error: null
-      });
-    } else {
-      setAuthState(prev => ({ ...prev, loading: false }));
+      setUser(JSON.parse(savedUser));
     }
+    setLoading(false);
   }, []);
 
   const login = async (data: LoginData): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+    setLoading(true);
+    setError(null);
     
     try {
-      // Simulate API call - replace with actual Supabase integration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Demo user for testing
-      if (data.email === 'demo@iuscalc.com' && data.password === 'demo123') {
-        const user: User = {
+      // Simulação de autenticação
+      if (data.email && data.password) {
+        const user = {
           id: '1',
           email: data.email,
-          name: 'Usuário Demo',
-          phone: '(11) 99999-9999',
-          role: 'user',
-          plan: 'standard',
-          trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date().toISOString()
+          name: data.email.split('@')[0]
         };
-        
-        localStorage.setItem('iuscalc_user', JSON.stringify(user));
-        setAuthState({ user, loading: false, error: null });
+        setUser(user);
+        localStorage.setItem('user', JSON.stringify(user));
+        navigate('/calculadora');
         toast.success('Login realizado com sucesso!');
         return true;
       }
-      
-      throw new Error('Credenciais inválidas');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro no login';
-      setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
-      toast.error(errorMessage);
       return false;
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      setError('Erro no login');
+      toast.error('Erro no login');
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
   const register = async (data: RegisterData): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+    setLoading(true);
+    setError(null);
     
     try {
       if (data.password !== data.confirmPassword) {
@@ -84,20 +75,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setAuthState(prev => ({ ...prev, loading: false }));
+      setLoading(false);
       toast.success('Registro realizado! Verifique seu email para confirmar a conta.');
       return true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro no registro';
-      setAuthState(prev => ({ ...prev, loading: false, error: errorMessage }));
+      setError(errorMessage);
       toast.error(errorMessage);
       return false;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('iuscalc_user');
-    setAuthState({ user: null, loading: false, error: null });
+    setUser(null);
+    localStorage.removeItem('user');
+    navigate('/auth');
     toast.success('Logout realizado com sucesso!');
   };
 
@@ -115,7 +107,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{
-      ...authState,
+      user,
+      loading,
+      error,
       login,
       register,
       logout,
@@ -124,12 +118,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
-};
+}
