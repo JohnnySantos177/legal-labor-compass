@@ -22,7 +22,7 @@ export function CalculadoraPage() {
       const resultados = calcular(stateCopy);
       
       // Atualizar o estado com os resultados
-      updateState({ resultados });
+    updateState({ resultados });
       
       console.log('Estado para cálculo:', stateCopy);
       console.log('Resultados calculados:', resultados);
@@ -86,10 +86,10 @@ export function CalculadoraPage() {
                 }
                 
                 updateState({
-                  dadosContrato: {
-                    ...state.dadosContrato,
+                    dadosContrato: {
+                      ...state.dadosContrato,
                     ...dadosContratoUpdates
-                  }
+                    }
                 });
               }}
             />

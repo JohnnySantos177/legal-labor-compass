@@ -25,7 +25,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
       <div className="space-y-4">
         {/* Salário Base */}
         <div>
-          <Label htmlFor="baseSalary">Salário Base</Label>
+          <Label htmlFor="baseSalary">Salário</Label>
           <Input
             id="baseSalary"
             type="text"

@@ -1,4 +1,3 @@
-
 // Utility functions for handling calculation data
 
 /**
@@ -17,7 +16,7 @@ export const prepararMetadados = (calculos: any) => {
   const logoUrl = localStorage.getItem('userLogoUrl');
   
   // Obter o nome do escritório do usuário atual ou dos cálculos
-  const nomeEscritorio = calculos?.nomeEscritorio || localStorage.getItem('userName') || 'JurisCalc Trabalhista';
+  const nomeEscritorio = calculos?.nomeEscritorio || localStorage.getItem('userName') || 'IusCalc Trabalhista';
 
   return {
     dataCalculo,
