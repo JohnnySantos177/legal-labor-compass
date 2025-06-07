@@ -17,9 +17,13 @@ interface AdditionsFormProps {
 }
 
 export const AdditionsForm = ({ additions, onAdd, onRemove, onToggle }: AdditionsFormProps) => {
-  const [newAddition, setNewAddition] = useState({
+  const [newAddition, setNewAddition] = useState<{
+    name: string;
+    type: 'percentage' | 'fixed';
+    value: number;
+  }>({
     name: '',
-    type: 'percentage' as const,
+    type: 'percentage',
     value: 0
   });
 
