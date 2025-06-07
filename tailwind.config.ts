@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,10 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				'juriscalc-blue': '#1e40af',
+				'juriscalc-navy': '#1e3a8a',
+				'juriscalc-gold': '#d97706'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -89,6 +93,10 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			fontFamily: {
+				'merriweather': ['Merriweather', 'serif'],
+				'inter': ['Inter', 'sans-serif']
 			}
 		}
 	},
