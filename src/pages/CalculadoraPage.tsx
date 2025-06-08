@@ -1,34 +1,66 @@
-import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
-import { useCalculos } from '@/hooks/calculadora/useCalculos';
-import { AdicionaisBasicos } from '@/components/calculadora/AdicionaisBasicos';
-import { VerbasAdicionais } from '@/components/calculadora/VerbasAdicionais';
-import { MultasOutrosAdicionais } from '@/components/calculadora/MultasOutrosAdicionais';
-import { ResultadosCalculo } from '@/components/calculadora/ResultadosCalculo';
+
+import { useCalculadora } from '@/hooks/useCalculadora';
+import { useCalculosSalvos } from '@/hooks/useCalculosSalvos';
 import { ContractDataForm } from '@/components/calculadora/ContractDataForm';
+import { AdditionsForm } from '@/components/calculadora/AdditionsForm';
+import { CalculationResult } from '@/components/calculadora/CalculationResult';
+import { SavedCalculations } from '@/components/calculadora/SavedCalculations';
+import { CalculationViewer } from '@/components/calculadora/CalculationViewer';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { SavedCalculation } from '@/hooks/useCalculosSalvos';
+import { toast } from 'sonner';
 
 export function CalculadoraPage() {
-  const { state, updateState } = useCalculadoraState();
-  const { calcular } = useCalculos();
+  const { 
+    contractData, 
+    additions, 
+    result, 
+    loading, 
+    updateContractData, 
+    addAddition, 
+    removeAddition, 
+    toggleAddition, 
+    calculate, 
+    reset 
+  } = useCalculadora();
 
-  const handleCalcular = () => {
-    try {
-      // Criar uma cópia do estado para não modificá-lo diretamente
-      const stateCopy = JSON.parse(JSON.stringify(state));
-      
-      // Garantir que o salário base seja um número
-      stateCopy.dadosContrato.salarioBase = Number(stateCopy.dadosContrato.salarioBase) || 0;
-      
-      // Calcular os resultados
-      const resultados = calcular(stateCopy);
-      
-      // Atualizar o estado com os resultados
-    updateState({ resultados });
-      
-      console.log('Estado para cálculo:', stateCopy);
-      console.log('Resultados calculados:', resultados);
-    } catch (error) {
-      console.error('Erro ao calcular resultados:', error);
+  const {
+    savedCalculations,
+    saveCalculation,
+    updateCalculationName,
+    toggleEditName,
+    deleteCalculation
+  } = useCalculosSalvos();
+
+  const [viewingCalculation, setViewingCalculation] = useState<SavedCalculation | null>(null);
+
+  const handleSaveCalculation = () => {
+    if (!result) {
+      toast.error('Realize um cálculo antes de salvar');
+      return;
     }
+    saveCalculation(result);
+  };
+
+  const handleViewCalculation = (calculation: SavedCalculation) => {
+    setViewingCalculation(calculation);
+  };
+
+  const handleEditCalculation = (calculation: SavedCalculation) => {
+    // Load the calculation data into the form
+    // For now, we'll just show a message since we need to implement data loading
+    toast.info('Funcionalidade de edição será implementada em breve');
+  };
+
+  const handleExportPDF = (calculation: SavedCalculation) => {
+    // Implement PDF export
+    toast.info('Exportação em PDF será implementada em breve');
+  };
+
+  const handleShare = (calculation: SavedCalculation) => {
+    // Implement sharing functionality
+    toast.info('Compartilhamento será implementado em breve');
   };
 
   return (
@@ -37,102 +69,78 @@ export function CalculadoraPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          {/* Dados do Contrato */}
+          {/* Contract Data Form */}
           <div className="bg-white p-6 rounded-lg shadow">
             <ContractDataForm 
-              data={{
-                daysWorked: parseInt(state.dadosContrato.diasTrabalhados) || 0,
-                monthsWorked: parseInt(state.dadosContrato.mesesTrabalhados) || 0,
-                fixedTermContract: state.dadosContrato.contratoTempoDeterminado || false,
-                noticePeriodFulfilled: state.dadosContrato.avisoPrevioCumprido || false,
-                fgtsDeposited: state.dadosContrato.fgtsDepositado || false,
-                admissionDate: state.dadosContrato.dataAdmissao,
-                terminationDate: state.dadosContrato.dataDemissao,
-                baseSalary: state.dadosContrato.salarioBase,
-                terminationType: state.dadosContrato.motivoDemissao
-              }}
-              onUpdate={(field, value) => {
-                const dadosContratoUpdates: any = {};
-                
-                switch (field) {
-                  case 'daysWorked':
-                    dadosContratoUpdates.diasTrabalhados = String(value);
-                    break;
-                  case 'monthsWorked':
-                    dadosContratoUpdates.mesesTrabalhados = String(value);
-                    break;
-                  case 'fixedTermContract':
-                    dadosContratoUpdates.contratoTempoDeterminado = value;
-                    break;
-                  case 'noticePeriodFulfilled':
-                    dadosContratoUpdates.avisoPrevioCumprido = value;
-                    break;
-                  case 'fgtsDeposited':
-                    dadosContratoUpdates.fgtsDepositado = value;
-                    break;
-                  case 'admissionDate':
-                    dadosContratoUpdates.dataAdmissao = value;
-                    break;
-                  case 'terminationDate':
-                    dadosContratoUpdates.dataDemissao = value;
-                    break;
-                  case 'baseSalary':
-                    // Garantir que o salário base seja um número
-                    dadosContratoUpdates.salarioBase = Number(value) || 0;
-                    break;
-                  case 'terminationType':
-                    dadosContratoUpdates.motivoDemissao = value;
-                    break;
-                }
-                
-                updateState({
-                    dadosContrato: {
-                      ...state.dadosContrato,
-                    ...dadosContratoUpdates
-                    }
-                });
-              }}
+              data={contractData} 
+              onUpdate={updateContractData} 
             />
           </div>
 
-          {/* Adicionais Básicos */}
+          {/* Additions Form */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <AdicionaisBasicos state={state} updateState={updateState} />
-          </div>
-
-          {/* Verbas e Benefícios */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <VerbasAdicionais state={state} updateState={updateState} />
+            <AdditionsForm 
+              additions={additions}
+              onAdd={addAddition}
+              onRemove={removeAddition}
+              onToggle={toggleAddition}
+            />
           </div>
         </div>
 
         <div className="space-y-8">
-          {/* Multas e Outros Adicionais */}
+          {/* Calculate Button */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <MultasOutrosAdicionais state={state} updateState={updateState} />
+            <div className="flex gap-4">
+              <Button
+                className="flex-1 py-3 bg-juriscalc-blue text-white rounded-lg hover:bg-juriscalc-navy transition-colors"
+                onClick={calculate}
+                disabled={loading}
+              >
+                {loading ? 'Calculando...' : 'Calcular'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={reset}
+                className="px-6"
+              >
+                Limpar
+              </Button>
+            </div>
           </div>
 
-          {/* Botão Calcular */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <button
-              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              onClick={handleCalcular}
-            >
-              Calcular
-            </button>
-          </div>
-
-          {/* Resultados */}
-          {state.resultados && (
+          {/* Results */}
+          {result && (
             <div className="bg-white p-6 rounded-lg shadow sticky top-4">
-              <ResultadosCalculo 
-                resultados={state.resultados} 
-                horasExtras={state.adicionais.horasExtras}
+              <CalculationResult 
+                result={result} 
+                onSave={handleSaveCalculation}
               />
             </div>
           )}
         </div>
       </div>
+
+      {/* Saved Calculations */}
+      <div className="mt-8">
+        <SavedCalculations
+          savedCalculations={savedCalculations}
+          onView={handleViewCalculation}
+          onEdit={handleEditCalculation}
+          onRename={updateCalculationName}
+          onToggleEditName={toggleEditName}
+          onExportPDF={handleExportPDF}
+          onShare={handleShare}
+          onDelete={deleteCalculation}
+        />
+      </div>
+
+      {/* Calculation Viewer Modal */}
+      <CalculationViewer
+        calculation={viewingCalculation}
+        isOpen={!!viewingCalculation}
+        onClose={() => setViewingCalculation(null)}
+      />
     </div>
   );
 }
