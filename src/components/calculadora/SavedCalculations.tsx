@@ -40,6 +40,15 @@ export const SavedCalculations = ({
   const [novoNome, setNovoNome] = useState('');
   const [calculoVisualizando, setCalculoVisualizando] = useState<CalculoSalvo | null>(null);
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+
   const iniciarEdicaoNome = (calculo: CalculoSalvo) => {
     setEditandoNome(calculo.id);
     setNovoNome(calculo.nome);
@@ -67,7 +76,7 @@ export const SavedCalculations = ({
         <h2>Dados do Contrato</h2>
         <div class="result-item">
           <span class="result-label">Salário Base:</span>
-          <span class="result-value">R$ ${calculo.dadosContrato.salarioBase.toFixed(2)}</span>
+          <span class="result-value">${formatCurrency(calculo.dadosContrato.salarioBase)}</span>
         </div>
         <div class="result-item">
           <span class="result-label">Data Admissão:</span>
@@ -83,13 +92,13 @@ export const SavedCalculations = ({
         <h2>Resultados do Cálculo</h2>
         <div class="result-item total">
           <span class="result-label">Total Geral:</span>
-          <span class="result-value">R$ ${calculo.resultados.total.toFixed(2)}</span>
+          <span class="result-value">${formatCurrency(calculo.resultados.total)}</span>
         </div>
       </div>
       
       <div class="valor-total">
         <span class="titulo">Valor Total da Reclamação</span>
-        <span class="valor">R$ ${calculo.resultados.total.toFixed(2)}</span>
+        <span class="valor">${formatCurrency(calculo.resultados.total)}</span>
       </div>
     `;
     
@@ -185,7 +194,7 @@ export const SavedCalculations = ({
                     {new Date(calculo.dataCriacao).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell>
-                    R$ {calculo.resultados?.total?.toFixed(2) || '0,00'}
+                    {formatCurrency(calculo.resultados?.total || 0)}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
