@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Resultados } from '@/types/calculadora';
 import { Button } from '@/components/ui/button';
@@ -15,9 +16,10 @@ interface ResultadosCalculoProps {
       valor?: number;
     }>;
   };
+  onSalvar: () => void;
 }
 
-export function ResultadosCalculo({ resultados, horasExtras }: ResultadosCalculoProps) {
+export function ResultadosCalculo({ resultados, horasExtras, onSalvar }: ResultadosCalculoProps) {
   const { total, detalhamento } = resultados;
 
   return (
@@ -26,7 +28,7 @@ export function ResultadosCalculo({ resultados, horasExtras }: ResultadosCalculo
         <CardTitle className="text-xl text-juriscalc-navy flex items-center justify-between">
           Resultados do Cálculo
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-juriscalc-blue">
+            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={onSalvar}>
               <Save className="w-4 h-4 mr-1" />
               Salvar
             </Button>

@@ -8,8 +8,6 @@ import { MultasOutrosAdicionais } from '@/components/calculadora/MultasOutrosAdi
 import { ResultadosCalculo } from '@/components/calculadora/ResultadosCalculo';
 import { ContractDataForm } from '@/components/calculadora/ContractDataForm';
 import { SavedCalculations } from '@/components/calculadora/SavedCalculations';
-import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function CalculadoraPage() {
@@ -166,26 +164,14 @@ export function CalculadoraPage() {
             <MultasOutrosAdicionais state={state} updateState={updateState} />
           </div>
 
-          {/* Botões de Ação */}
+          {/* Botão de Calcular */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex gap-3">
-              <button
-                className="flex-1 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                onClick={handleCalcular}
-              >
-                Calcular
-              </button>
-              {state.resultados && (
-                <Button
-                  onClick={handleSalvarCalculo}
-                  className="px-6 py-3"
-                  variant="outline"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Salvar
-                </Button>
-              )}
-            </div>
+            <button
+              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              onClick={handleCalcular}
+            >
+              Calcular
+            </button>
           </div>
 
           {/* Resultados */}
@@ -194,6 +180,7 @@ export function CalculadoraPage() {
               <ResultadosCalculo 
                 resultados={state.resultados} 
                 horasExtras={state.adicionais.horasExtras}
+                onSalvar={handleSalvarCalculo}
               />
             </div>
           )}
