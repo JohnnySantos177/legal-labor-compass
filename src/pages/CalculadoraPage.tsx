@@ -1,14 +1,27 @@
+
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
+import { useCalculosSalvos } from '@/hooks/useCalculosSalvos';
 import { AdicionaisBasicos } from '@/components/calculadora/AdicionaisBasicos';
 import { VerbasAdicionais } from '@/components/calculadora/VerbasAdicionais';
 import { MultasOutrosAdicionais } from '@/components/calculadora/MultasOutrosAdicionais';
 import { ResultadosCalculo } from '@/components/calculadora/ResultadosCalculo';
 import { ContractDataForm } from '@/components/calculadora/ContractDataForm';
+import { SavedCalculations } from '@/components/calculadora/SavedCalculations';
+import { Button } from '@/components/ui/button';
+import { Save } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function CalculadoraPage() {
   const { state, updateState } = useCalculadoraState();
   const { calcular } = useCalculos();
+  const { 
+    calculosSalvos, 
+    salvarCalculo, 
+    removerCalculo, 
+    renomearCalculo, 
+    carregarCalculo 
+  } = useCalculosSalvos();
 
   const handleCalcular = () => {
     try {
@@ -22,13 +35,54 @@ export function CalculadoraPage() {
       const resultados = calcular(stateCopy);
       
       // Atualizar o estado com os resultados
-    updateState({ resultados });
+      updateState({ resultados });
       
       console.log('Estado para cálculo:', stateCopy);
       console.log('Resultados calculados:', resultados);
     } catch (error) {
       console.error('Erro ao calcular resultados:', error);
     }
+  };
+
+  const handleSalvarCalculo = () => {
+    if (!state.resultados) {
+      toast.error('Realize um cálculo antes de salvar!');
+      return;
+    }
+
+    if (!state.dadosContrato.salarioBase || state.dadosContrato.salarioBase <= 0) {
+      toast.error('É necessário informar um salário base válido!');
+      return;
+    }
+
+    if (!state.dadosContrato.dataAdmissao || !state.dadosContrato.dataDemissao) {
+      toast.error('É necessário informar as datas de admissão e demissão!');
+      return;
+    }
+
+    // Nome personalizado opcional
+    const nomePersonalizado = prompt('Digite um nome para este cálculo (opcional):');
+    
+    salvarCalculo(state, state.resultados, nomePersonalizado || undefined);
+  };
+
+  const handleEditarCalculo = (calculo: any) => {
+    // Carregar os dados do cálculo no formulário
+    updateState({
+      dadosContrato: calculo.dadosContrato,
+      adicionais: calculo.adicionais,
+      verbas: calculo.verbas,
+      multas: calculo.multas,
+      salarioFamilia: calculo.salarioFamilia,
+      seguroDesemprego: calculo.seguroDesemprego,
+      calculosPersonalizados: calculo.calculosPersonalizados,
+      resultados: calculo.resultados
+    });
+    
+    toast.success('Cálculo carregado para edição!');
+    
+    // Scroll para o topo da página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -112,14 +166,26 @@ export function CalculadoraPage() {
             <MultasOutrosAdicionais state={state} updateState={updateState} />
           </div>
 
-          {/* Botão Calcular */}
+          {/* Botões de Ação */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <button
-              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              onClick={handleCalcular}
-            >
-              Calcular
-            </button>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                onClick={handleCalcular}
+              >
+                Calcular
+              </button>
+              {state.resultados && (
+                <Button
+                  onClick={handleSalvarCalculo}
+                  className="px-6 py-3"
+                  variant="outline"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Salvar
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Resultados */}
@@ -132,6 +198,16 @@ export function CalculadoraPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Área de Cálculos Salvos */}
+      <div className="mt-8">
+        <SavedCalculations
+          calculosSalvos={calculosSalvos}
+          onRemover={removerCalculo}
+          onRenomear={renomearCalculo}
+          onEditar={handleEditarCalculo}
+        />
       </div>
     </div>
   );
