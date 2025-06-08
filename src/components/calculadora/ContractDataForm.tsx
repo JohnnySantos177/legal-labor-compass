@@ -1,3 +1,4 @@
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -33,7 +34,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
             value={data.baseSalary || ''}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9.]/g, '');
-              onUpdate('baseSalary', value);
+              onUpdate('baseSalary', parseFloat(value) || 0);
             }}
             placeholder="0,00"
           />
@@ -82,27 +83,29 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
           </Select>
         </div>
 
-        {/* Dias Trabalhados */}
+        {/* Dias Trabalhados - Calculado automaticamente */}
         <div>
           <Label htmlFor="daysWorked">Dias Trabalhados no Último Mês</Label>
           <Input
             id="daysWorked"
             type="number"
             value={data.daysWorked}
-            onChange={(e) => onUpdate('daysWorked', parseInt(e.target.value))}
-            disabled
+            readOnly
+            className="bg-gray-100"
+            title="Calculado automaticamente com base nas datas"
           />
         </div>
 
-        {/* Meses Trabalhados */}
+        {/* Meses Trabalhados - Calculado automaticamente */}
         <div>
           <Label htmlFor="monthsWorked">Total de Meses Trabalhados</Label>
           <Input
             id="monthsWorked"
             type="number"
             value={data.monthsWorked}
-            onChange={(e) => onUpdate('monthsWorked', parseInt(e.target.value))}
-            disabled
+            readOnly
+            className="bg-gray-100"
+            title="Calculado automaticamente com base nas datas"
           />
         </div>
 

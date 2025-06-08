@@ -48,18 +48,17 @@ export function CalculadoraPage() {
   };
 
   const handleEditCalculation = (calculation: SavedCalculation) => {
-    // Load the calculation data into the form
-    // For now, we'll just show a message since we need to implement data loading
+    // Placeholder: Load the calculation data into the form
     toast.info('Funcionalidade de edição será implementada em breve');
   };
 
   const handleExportPDF = (calculation: SavedCalculation) => {
-    // Implement PDF export
+    // Placeholder: Implement PDF export
     toast.info('Exportação em PDF será implementada em breve');
   };
 
   const handleShare = (calculation: SavedCalculation) => {
-    // Implement sharing functionality
+    // Placeholder: Implement sharing functionality
     toast.info('Compartilhamento será implementado em breve');
   };
 
@@ -93,7 +92,7 @@ export function CalculadoraPage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex gap-4">
               <Button
-                className="flex-1 py-3 bg-juriscalc-blue text-white rounded-lg hover:bg-juriscalc-navy transition-colors"
+                className="flex-1 py-3"
                 onClick={calculate}
                 disabled={loading}
               >

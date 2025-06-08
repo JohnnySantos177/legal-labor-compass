@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ContractData, Addition, CalculationResult } from '@/types/calculadora';
 import { toast } from 'sonner';
 
@@ -7,7 +7,7 @@ const initialContractData: ContractData = {
   admissionDate: '',
   terminationDate: '',
   baseSalary: 0,
-  terminationType: 'dismissal',
+  terminationType: '',
   daysWorked: 0,
   monthsWorked: 0,
   noticePeriodFulfilled: false,
@@ -20,6 +20,33 @@ export const useCalculadora = () => {
   const [additions, setAdditions] = useState<Addition[]>([]);
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Função para calcular dias e meses trabalhados automaticamente
+  useEffect(() => {
+    if (contractData.admissionDate && contractData.terminationDate) {
+      const admissionDate = new Date(contractData.admissionDate);
+      const terminationDate = new Date(contractData.terminationDate);
+      
+      // Calcular meses trabalhados
+      const yearDiff = terminationDate.getFullYear() - admissionDate.getFullYear();
+      const monthDiff = terminationDate.getMonth() - admissionDate.getMonth();
+      let totalMonths = yearDiff * 12 + monthDiff;
+      
+      // Ajustar se o dia de demissão for antes do dia de admissão
+      if (terminationDate.getDate() < admissionDate.getDate()) {
+        totalMonths--;
+      }
+      
+      // Calcular dias trabalhados no último mês
+      let daysWorked = terminationDate.getDate() + 1; // +1 para incluir o dia da demissão
+      
+      setContractData(prev => ({
+        ...prev,
+        monthsWorked: Math.max(0, totalMonths),
+        daysWorked: Math.max(1, Math.min(30, daysWorked)) // Entre 1 e 30 dias
+      }));
+    }
+  }, [contractData.admissionDate, contractData.terminationDate]);
 
   const updateContractData = useCallback((field: keyof ContractData, value: any) => {
     setContractData(prev => ({ ...prev, [field]: value }));
