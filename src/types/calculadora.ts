@@ -2,7 +2,7 @@ export interface ContractData {
   admissionDate: string;
   terminationDate: string;
   baseSalary: number;
-  terminationType: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
+  terminationType: 'dismissal' | 'resignation' | 'mutual' | 'just_cause';
   daysWorked: number;
   monthsWorked: number;
   noticePeriodFulfilled: boolean;
@@ -60,7 +60,6 @@ export interface DadosContrato {
   contratoTempoDeterminado: boolean;
   avisoPrevioCumprido: boolean;
   fgtsDepositado: boolean;
-  tipoRescisao: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
 }
 
 export interface HoraExtra {
@@ -68,15 +67,6 @@ export interface HoraExtra {
   percentual: number;
   quantidade: number;
   valor?: number;
-}
-
-export interface HorasExtrasCalculo extends HoraExtra {}
-
-export interface CustomCalculo {
-  id: string;
-  nome: string;
-  valor: number;
-  ativo: boolean;
 }
 
 export interface Adicionais {
