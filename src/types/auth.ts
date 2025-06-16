@@ -2,6 +2,11 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role: 'user' | 'admin' | 'super_admin';
+  plan: 'standard' | 'premium';
+  phone?: string;
+  created_at: string;
+  trial_end_date?: string;
 }
 
 export interface AuthState {

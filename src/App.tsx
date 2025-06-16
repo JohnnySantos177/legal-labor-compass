@@ -10,6 +10,7 @@ import { AuthPage } from "@/pages/AuthPage";
 import { HomePage } from "@/pages/HomePage";
 import { CalculadoraPage } from "@/pages/CalculadoraPage";
 import { MinhaContaPage } from "@/pages/MinhaContaPage";
+import { SuperAdminPanel } from "@/pages/SuperAdminPanel";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import './App.css';
@@ -26,6 +27,15 @@ const App = () => (
           <Route path="/" element={<AuthPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/cadastro" element={<AuthPage />} />
+          <Route 
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="super_admin">
+                <Navigation />
+                <SuperAdminPanel />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/home" 
             element={

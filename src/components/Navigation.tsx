@@ -17,7 +17,7 @@ export const Navigation = () => {
     { path: '/minha-conta', label: 'Minha Conta', icon: User },
   ];
 
-  if (user.role === 'admin') {
+  if (user.role === 'admin' || user.role === 'super_admin') {
     navItems.push({ path: '/admin', label: 'Admin', icon: Crown });
   }
 

@@ -25,7 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Verificar se há um usuário salvo no localStorage
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser: User = JSON.parse(savedUser);
+      // Garante que johnnysantos_177@msn.com seja sempre super_admin
+      if (parsedUser.email === 'johnnysantos_177@msn.com') {
+        setUser({
+          ...parsedUser,
+          role: 'super_admin',
+          plan: 'premium',
+        });
+      } else {
+        setUser(parsedUser);
+      }
     }
     setLoading(false);
   }, []);
@@ -37,11 +47,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Simulação de autenticação
       if (data.email && data.password) {
-        const user = {
-          id: '1',
-          email: data.email,
-          name: data.email.split('@')[0]
-        };
+        let user: User;
+        if (data.email === 'johnnysantos_177@msn.com') {
+          user = {
+            id: 'super_admin_id',
+            email: data.email,
+            name: 'Johnny Santos',
+            role: 'super_admin',
+            plan: 'premium',
+            phone: '(00) 00000-0000',
+            created_at: new Date().toISOString(),
+            trial_end_date: undefined // Super Admin não tem trial
+          };
+        } else {
+          user = {
+            id: 'user_id_' + Math.random().toString(36).substr(2, 9),
+            email: data.email,
+            name: data.email.split('@')[0],
+            role: 'user',
+            plan: 'standard',
+            phone: 'Não informado',
+            created_at: new Date().toISOString(),
+            trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 dias de trial
+          };
+        }
         setUser(user);
         localStorage.setItem('user', JSON.stringify(user));
         navigate('/calculadora');
