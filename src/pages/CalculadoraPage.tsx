@@ -1,4 +1,3 @@
-
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
 import { useCalculosSalvos } from '@/hooks/useCalculosSalvos';
@@ -180,6 +179,7 @@ export function CalculadoraPage() {
               <ResultadosCalculo 
                 resultados={state.resultados} 
                 horasExtras={state.adicionais.horasExtras}
+                dadosContrato={state.dadosContrato}
                 onSalvar={handleSalvarCalculo}
               />
             </div>
@@ -190,10 +190,9 @@ export function CalculadoraPage() {
       {/* Área de Cálculos Salvos */}
       <div className="mt-8">
         <SavedCalculations
-          calculosSalvos={calculosSalvos}
-          onRemover={removerCalculo}
-          onRenomear={renomearCalculo}
-          onEditar={handleEditarCalculo}
+          calculos={calculosSalvos}
+          onDelete={removerCalculo}
+          onLoad={handleEditarCalculo}
         />
       </div>
     </div>

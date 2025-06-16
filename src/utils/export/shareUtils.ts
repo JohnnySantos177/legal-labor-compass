@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Enhanced function to share via WhatsApp with complete calculation details
@@ -15,10 +14,14 @@ export const shareViaEmail = (subject: string, body: string) => {
 };
 
 // Generate calculation text for sharing
-export const generateCalculationText = (resultados: any) => {
-  if (!resultados || (!resultados.verbasRescisorias && !resultados.adicionais)) {
+export const generateCalculationText = (resultados: any, metadata?: { dataCalculo: string; nomeEscritorio: string; nomeCalculo?: string }) => {
+  // Assume 'resultados' is of type 'ResultadosCalculo' or compatible structure
+  // that has 'detalhamento' and 'total' properties.
+  if (!resultados || !resultados.detalhamento) {
     return "Nenhum cálculo disponível.";
   }
+
+  const detalhamento = resultados.detalhamento;
 
   // Format values as currency
   const formatValue = (value: number) => {
@@ -26,73 +29,118 @@ export const generateCalculationText = (resultados: any) => {
   };
 
   // Start building the text
-  let text = "*Cálculos Trabalhistas*\n\n";
-  text += "Demonstrativo de cálculos trabalhistas\n\n";
+  let text = "DEMONSTRATIVO DE CÁLCULOS TRABALHISTAS\n";
+
+  if (metadata) {
+    if (metadata.nomeCalculo) {
+      text += `NOME DO CÁLCULO: *${metadata.nomeCalculo}*\n`;
+    }
+    if (metadata.nomeEscritorio) {
+      text += `ESCRITÓRIO: *${metadata.nomeEscritorio}*\n`;
+    }
+    if (metadata.dataCalculo) {
+      text += `DATA: *${metadata.dataCalculo}*\n`;
+    }
+    text += `--------------------\n`;
+  }
+
+  // Add Dados do Contrato
+  if (resultados.dadosContrato) {
+    text += "DADOS DO CONTRATO\n";
+    text += `Salário Base: *${formatValue(resultados.dadosContrato.salarioBase)}*\n`;
+    text += `Data de Admissão: *${new Date(resultados.dadosContrato.dataAdmissao).toLocaleDateString('pt-BR')}*\n`;
+    text += `Data de Demissão: *${new Date(resultados.dadosContrato.dataDemissao).toLocaleDateString('pt-BR')}*\n`;
+    text += `--------------------\n`;
+  }
 
   // Add verbas rescisórias
-  const verbas = resultados.verbasRescisorias || {};
-  if (Object.keys(verbas).length > 0) {
-    text += "*Verbas Rescisórias:*\n";
-    
-    if (verbas.saldoSalario > 0) text += `• Saldo de Salário: ${formatValue(verbas.saldoSalario)}\n`;
-    if (verbas.avisoPrevia > 0) text += `• Aviso Prévio: ${formatValue(verbas.avisoPrevia)}\n`;
-    if (verbas.decimoTerceiro > 0) text += `• 13º Salário Proporcional: ${formatValue(verbas.decimoTerceiro)}\n`;
-    if (verbas.ferias > 0) text += `• Férias Proporcionais: ${formatValue(verbas.ferias)}\n`;
-    if (verbas.tercoConstitucional > 0) text += `• 1/3 Constitucional: ${formatValue(verbas.tercoConstitucional)}\n`;
-    if (verbas.fgts > 0) text += `• FGTS sobre verbas: ${formatValue(verbas.fgts)}\n`;
-    if (verbas.multaFgts > 0) text += `• Multa FGTS (40%): ${formatValue(verbas.multaFgts)}\n`;
-    
-    if (verbas.descontoAvisoPrevio > 0) {
-      text += `• Desconto Aviso Prévio: -${formatValue(verbas.descontoAvisoPrevio)}\n`;
+  const verbas = detalhamento.verbas || {};
+  if (Object.keys(verbas).filter(key => (verbas[key] as number) > 0).length > 0) {
+    text += "VERBAS RESCISÓRIAS:\n";
+    for (const [key, value] of Object.entries(verbas)) {
+      if ((value as number) > 0) {
+        text += `${getVerbaDisplayName(key)}: *${formatValue(value as number)}*\n`;
+      }
     }
-    
-    text += `• *Subtotal Verbas Rescisórias: ${formatValue(verbas.total)}*\n\n`;
+    text += `--------------------\n`;
   }
 
   // Add adicionais
-  const adicionais = resultados.adicionais || {};
-  const adicionaisValidos = Object.entries(adicionais).filter(
-    ([key, value]) => typeof value === 'number' && value > 0 && key !== 'total'
-  );
-  
-  if (adicionaisValidos.length > 0) {
-    text += "*Adicionais e Multas:*\n";
-    
-    for (const [key, value] of adicionaisValidos) {
-      const label = 
-        key === 'adicionalInsalubridade' ? 'Adicional de Insalubridade' :
-        key === 'adicionalPericulosidade' ? 'Adicional de Periculosidade' :
-        key === 'multa467' ? 'Multa Art. 467 CLT' :
-        key === 'multa477' ? 'Multa Art. 477 CLT' :
-        key === 'adicionalNoturno' ? 'Adicional Noturno' :
-        key === 'horasExtras' ? 'Horas Extras' :
-        key === 'feriasVencidas' ? 'Férias Vencidas' :
-        key === 'indenizacaoDemissao' ? 'Indenização por Demissão' :
-        key === 'valeTransporte' ? 'Vale Transporte' :
-        key === 'valeAlimentacao' ? 'Vale Alimentação' :
-        key === 'adicionalTransferencia' ? 'Adicional de Transferência' :
-        key === 'descontosIndevidos' ? 'Descontos Indevidos' :
-        key === 'diferencasSalariais' ? 'Diferenças Salariais' :
-        key === 'customCalculo' ? 'Cálculo Personalizado' :
-        key === 'seguroDesemprego' ? 'Seguro Desemprego' : key;
-      
-      text += `• ${label}: ${formatValue(value as number)}\n`;
+  const adicionais = detalhamento.adicionais || {};
+  if (Object.keys(adicionais).filter(key => (adicionais[key] as number) > 0).length > 0) {
+    text += "ADICIONAIS:\n";
+    for (const [key, value] of Object.entries(adicionais)) {
+      if ((value as number) > 0) {
+        text += `${getAdicionalDisplayName(key)}: *${formatValue(value as number)}*\n`;
+      }
     }
-    
-    // Calculate total adicionais
-    const totalAdicionais = adicionaisValidos.reduce((sum, [_, value]) => sum + (value as number), 0);
-    text += `• *Subtotal Adicionais: ${formatValue(totalAdicionais)}*\n\n`;
+    text += `--------------------\n`;
   }
 
-  // Add total geral with special formatting
-  const totalGeral = resultados.totalGeral || verbas.total + 
-    Object.values(adicionais).reduce((sum: number, value: any) => 
-      sum + (typeof value === 'number' ? value : 0), 0
-    );
+  // Add multas
+  const multas = detalhamento.multas || {};
+  if (Object.keys(multas).filter(key => (multas[key] as number) > 0).length > 0) {
+    text += "MULTAS:\n";
+    for (const [key, value] of Object.entries(multas)) {
+      if ((value as number) > 0) {
+        text += `${getMultaDisplayName(key)}: *${formatValue(value as number)}*\n`;
+      }
+    }
+    text += `--------------------\n`;
+  }
+
+  // Add outros valores
+  if (detalhamento.salarioFamilia > 0 || detalhamento.seguroDesemprego > 0 || detalhamento.calculosPersonalizados > 0) {
+    text += "OUTROS VALORES:\n";
+    if (detalhamento.salarioFamilia > 0) text += `Salário-Família: *${formatValue(detalhamento.salarioFamilia)}*\n`;
+    if (detalhamento.seguroDesemprego > 0) text += `Seguro-Desemprego: *${formatValue(detalhamento.seguroDesemprego)}*\n`;
+    if (detalhamento.calculosPersonalizados > 0) text += `Cálculos Personalizados: *${formatValue(detalhamento.calculosPersonalizados)}*\n`;
+    text += `--------------------\n`;
+  }
+
+  // Add total geral with special emphasis
+  const totalGeral = resultados.total; 
   
-  // Formatted with special emphasis
-  text += "*VALOR TOTAL DA RECLAMAÇÃO*\n";
-  text += `*${formatValue(totalGeral)}*\n\n`;
+  text += "VALOR TOTAL DA RECLAMAÇÃO:\n";
+  text += `*${formatValue(totalGeral)}*\n`;
   
   return text;
+};
+
+// Helper functions for display names
+const getVerbaDisplayName = (key: string) => {
+  const nomes: { [key: string]: string } = {
+    'salarioProporcional': 'Saldo de Salário',
+    'decimoTerceiro': '13º Salário Proporcional',
+    'feriasProporcionais': 'Férias Proporcionais + 1/3',
+    'avisoPrevio': 'Aviso Prévio',
+    'fgts': 'FGTS sobre Verbas',
+    'multaFgts': 'Multa do FGTS (40%)',
+    'feriasVencidas': 'Férias Vencidas + 1/3',
+    'indenizacaoDemissaoIndevida': 'Indenização por Demissão Indevida',
+    'valeTransporteNaoPago': 'Vale Transporte Não Pago',
+    'valeAlimentacaoNaoPago': 'Vale Alimentação Não Pago',
+    'adicionalTransferencia': 'Adicional de Transferência',
+    'descontosIndevidos': 'Descontos Indevidos',
+    'diferencasSalariais': 'Diferenças Salariais'
+  };
+  return nomes[key] || key;
+};
+
+const getAdicionalDisplayName = (key: string) => {
+  const nomes: { [key: string]: string } = {
+    'insalubridade': 'Adicional de Insalubridade',
+    'periculosidade': 'Adicional de Periculosidade',
+    'noturno': 'Adicional Noturno',
+    'horasExtras': 'Horas Extras'
+  };
+  return nomes[key] || key;
+};
+
+const getMultaDisplayName = (key: string) => {
+  const nomes: { [key: string]: string } = {
+    'art467': 'Multa Art. 467 CLT',
+    'art477': 'Multa Art. 477 CLT'
+  };
+  return nomes[key] || key;
 };

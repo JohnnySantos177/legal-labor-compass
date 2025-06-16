@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,32 +21,42 @@ import { CalculoSalvo } from '@/hooks/useCalculosSalvos';
 import { CalculationViewer } from './CalculationViewer';
 import { exportToPDF } from '@/utils/export/pdfExport';
 import { shareViaWhatsApp, shareViaEmail, generateCalculationText } from '@/utils/export/shareUtils';
+import { formatCurrency } from '@/utils/format';
+
+interface DetalhamentoCalculo {
+  verbas: {
+    [key: string]: number;
+  };
+  adicionais: {
+    [key: string]: number;
+  };
+  multas: {
+    [key: string]: number;
+  };
+  salarioFamilia: number;
+  seguroDesemprego: number;
+  calculosPersonalizados: number;
+}
+
+interface ResultadosCalculo {
+  total: number;
+  detalhamento: DetalhamentoCalculo;
+}
 
 interface SavedCalculationsProps {
-  calculosSalvos: CalculoSalvo[];
-  onRemover: (id: string) => void;
-  onRenomear: (id: string, novoNome: string) => void;
-  onEditar: (calculo: CalculoSalvo) => void;
+  calculos: CalculoSalvo[];
+  onDelete: (id: string) => void;
+  onLoad: (calculo: CalculoSalvo) => void;
 }
 
 export const SavedCalculations = ({ 
-  calculosSalvos, 
-  onRemover, 
-  onRenomear, 
-  onEditar 
+  calculos, 
+  onDelete, 
+  onLoad 
 }: SavedCalculationsProps) => {
   const [editandoNome, setEditandoNome] = useState<string | null>(null);
   const [novoNome, setNovoNome] = useState('');
   const [calculoVisualizando, setCalculoVisualizando] = useState<CalculoSalvo | null>(null);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(value);
-  };
 
   const iniciarEdicaoNome = (calculo: CalculoSalvo) => {
     setEditandoNome(calculo.id);
@@ -56,7 +65,11 @@ export const SavedCalculations = ({
 
   const salvarNome = (id: string) => {
     if (novoNome.trim()) {
-      onRenomear(id, novoNome.trim());
+      const calculoAtualizado = calculos.find(c => c.id === id);
+      if (calculoAtualizado) {
+        calculoAtualizado.nome = novoNome.trim();
+        onLoad(calculoAtualizado);
+      }
       setEditandoNome(null);
       setNovoNome('');
     }
@@ -68,32 +81,98 @@ export const SavedCalculations = ({
   };
 
   const exportarPDF = (calculo: CalculoSalvo) => {
-    // Simular a criação de um elemento print-results-only para o PDF
+    // Criar o elemento para impressão
     const printDiv = document.createElement('div');
     printDiv.id = 'print-results-only';
+    
+    // Formatar a data atual
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    
+    // Obter o nome do escritório
+    const nomeEscritorio = localStorage.getItem('userName') || 'IusCalc';
+
+    // Criar o HTML para impressão
     printDiv.innerHTML = `
       <div class="section">
-        <h2>Dados do Contrato</h2>
-        <div class="result-item">
-          <span class="result-label">Salário Base:</span>
-          <span class="result-value">${formatCurrency(calculo.dadosContrato.salarioBase)}</span>
-        </div>
-        <div class="result-item">
-          <span class="result-label">Data Admissão:</span>
-          <span class="result-value">${new Date(calculo.dadosContrato.dataAdmissao).toLocaleDateString('pt-BR')}</span>
-        </div>
-        <div class="result-item">
-          <span class="result-label">Data Demissão:</span>
-          <span class="result-value">${new Date(calculo.dadosContrato.dataDemissao).toLocaleDateString('pt-BR')}</span>
-        </div>
+        <h2>DEMONSTRATIVO DE CÁLCULOS TRABALHISTAS</h2>
+        <p class="text-sm text-gray-500">Cálculos: ${nomeEscritorio}</p>
+        <p class="text-sm text-gray-500">Data: ${dataAtual}</p>
+      </div>
+
+      <div class="section">
+        <h3>Dados do Contrato</h3>
+        ${calculo.dadosContrato ? `
+          <div class="result-item">
+            <span class="result-label">Salário Base:</span>
+            <span class="result-value">${formatCurrency(calculo.dadosContrato.salarioBase)}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Data de Admissão:</span>
+            <span class="result-value">${new Date(calculo.dadosContrato.dataAdmissao).toLocaleDateString('pt-BR')}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Data de Demissão:</span>
+            <span class="result-value">${new Date(calculo.dadosContrato.dataDemissao).toLocaleDateString('pt-BR')}</span>
+          </div>
+        ` : `<p class="text-gray-500">Dados do contrato não disponíveis para este cálculo.</p>`}
       </div>
       
       <div class="section">
-        <h2>Resultados do Cálculo</h2>
-        <div class="result-item total">
-          <span class="result-label">Total Geral:</span>
-          <span class="result-value">${formatCurrency(calculo.resultados.total)}</span>
-        </div>
+        <h3>Verbas Rescisórias</h3>
+        ${Object.entries(calculo.resultados.detalhamento.verbas as { [key: string]: number })
+          .filter(([_, value]) => value > 0)
+          .map(([key, value]) => `
+            <div class="result-item">
+              <span class="result-label">${getVerbaDisplayName(key)}:</span>
+              <span class="result-value">${formatCurrency(value)}</span>
+            </div>
+          `).join('')}
+      </div>
+      
+      <div class="section">
+        <h3>Adicionais</h3>
+        ${Object.entries(calculo.resultados.detalhamento.adicionais as { [key: string]: number })
+          .filter(([_, value]) => value > 0)
+          .map(([key, value]) => `
+            <div class="result-item">
+              <span class="result-label">${getAdicionalDisplayName(key)}:</span>
+              <span class="result-value">${formatCurrency(value)}</span>
+            </div>
+          `).join('')}
+      </div>
+      
+      <div class="section">
+        <h3>Multas</h3>
+        ${Object.entries(calculo.resultados.detalhamento.multas as { [key: string]: number })
+          .filter(([_, value]) => value > 0)
+          .map(([key, value]) => `
+            <div class="result-item">
+              <span class="result-label">${getMultaDisplayName(key)}:</span>
+              <span class="result-value">${formatCurrency(value)}</span>
+            </div>
+          `).join('')}
+      </div>
+      
+      <div class="section">
+        <h3>Outros Valores</h3>
+        ${calculo.resultados.detalhamento.salarioFamilia > 0 ? `
+          <div class="result-item">
+            <span class="result-label">Salário-Família:</span>
+            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.salarioFamilia)}</span>
+          </div>
+        ` : ''}
+        ${calculo.resultados.detalhamento.seguroDesemprego > 0 ? `
+          <div class="result-item">
+            <span class="result-label">Seguro-Desemprego:</span>
+            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.seguroDesemprego)}</span>
+          </div>
+        ` : ''}
+        ${calculo.resultados.detalhamento.calculosPersonalizados > 0 ? `
+          <div class="result-item">
+            <span class="result-label">Cálculos Personalizados:</span>
+            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.calculosPersonalizados)}</span>
+          </div>
+        ` : ''}
       </div>
       
       <div class="valor-total">
@@ -102,13 +181,64 @@ export const SavedCalculations = ({
       </div>
     `;
     
+    // Adicionar o elemento ao documento
     document.body.appendChild(printDiv);
+    
+    // Exportar para PDF
     exportToPDF();
-    document.body.removeChild(printDiv);
+    
+    // Remover o elemento após a exportação
+    setTimeout(() => {
+      document.body.removeChild(printDiv);
+    }, 1000);
+  };
+
+  // Funções auxiliares para formatar os nomes dos itens
+  const getVerbaDisplayName = (key: string) => {
+    const nomes: { [key: string]: string } = {
+      'salarioProporcional': 'Saldo de Salário',
+      'decimoTerceiro': '13º Salário Proporcional',
+      'feriasProporcionais': 'Férias Proporcionais + 1/3',
+      'avisoPrevio': 'Aviso Prévio',
+      'fgts': 'FGTS sobre Verbas',
+      'multaFgts': 'Multa do FGTS (40%)',
+      'feriasVencidas': 'Férias Vencidas + 1/3',
+      'indenizacaoDemissaoIndevida': 'Indenização por Demissão Indevida',
+      'valeTransporteNaoPago': 'Vale Transporte Não Pago',
+      'valeAlimentacaoNaoPago': 'Vale Alimentação Não Pago',
+      'adicionalTransferencia': 'Adicional de Transferência',
+      'descontosIndevidos': 'Descontos Indevidos',
+      'diferencasSalariais': 'Diferenças Salariais'
+    };
+    return nomes[key] || key;
+  };
+
+  const getAdicionalDisplayName = (key: string) => {
+    const nomes: { [key: string]: string } = {
+      'insalubridade': 'Adicional de Insalubridade',
+      'periculosidade': 'Adicional de Periculosidade',
+      'noturno': 'Adicional Noturno',
+      'horasExtras': 'Horas Extras'
+    };
+    return nomes[key] || key;
+  };
+
+  const getMultaDisplayName = (key: string) => {
+    const nomes: { [key: string]: string } = {
+      'art467': 'Multa Art. 467 CLT',
+      'art477': 'Multa Art. 477 CLT'
+    };
+    return nomes[key] || key;
   };
 
   const compartilharCalculo = (calculo: CalculoSalvo) => {
-    const textoCalculo = generateCalculationText(calculo.resultados);
+    const dataCalculo = new Date(calculo.dataCriacao).toLocaleDateString('pt-BR');
+    const nomeEscritorio = localStorage.getItem('userName') || 'IusCalc';
+
+    const textoCalculo = generateCalculationText(
+      { ...calculo.resultados, dadosContrato: calculo.dadosContrato },
+      { dataCalculo: dataCalculo, nomeEscritorio: nomeEscritorio, nomeCalculo: calculo.nome }
+    );
     const confirmacao = window.confirm('Escolha o método de compartilhamento:\nOK = WhatsApp\nCancelar = Email');
     
     if (confirmacao) {
@@ -118,7 +248,7 @@ export const SavedCalculations = ({
     }
   };
 
-  if (calculosSalvos.length === 0) {
+  if (calculos.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -137,7 +267,7 @@ export const SavedCalculations = ({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Cálculos Salvos ({calculosSalvos.length})</CardTitle>
+          <CardTitle>Cálculos Salvos ({calculos.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -150,7 +280,7 @@ export const SavedCalculations = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {calculosSalvos.map((calculo) => (
+              {calculos.map((calculo) => (
                 <TableRow key={calculo.id}>
                   <TableCell>
                     {editandoNome === calculo.id ? (
@@ -209,7 +339,7 @@ export const SavedCalculations = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => onEditar(calculo)}
+                        onClick={() => onLoad(calculo)}
                         title="Editar"
                       >
                         <Edit className="w-4 h-4" />
@@ -235,7 +365,7 @@ export const SavedCalculations = ({
                         variant="destructive"
                         onClick={() => {
                           if (window.confirm('Tem certeza que deseja remover este cálculo?')) {
-                            onRemover(calculo.id);
+                            onDelete(calculo.id);
                           }
                         }}
                         title="Remover"

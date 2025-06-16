@@ -204,38 +204,41 @@ export function useCalculos() {
 
     console.log('Total calculado:', total);
 
-    const resultados = {
-      total,
-      detalhamento: {
-        verbas: {
-          salarioProporcional,
-          decimoTerceiro: valorDecimoTerceiro,
-          feriasProporcionais: valorFeriasProporcionais,
-          avisoPrevio: valorAvisoPrevio,
-          fgts: valorFGTS,
-          multaFgts: multaFGTS,
-          feriasVencidas: valorFeriasVencidas,
-          indenizacaoDemissaoIndevida: valorIndenizacao,
-          valeTransporteNaoPago: valorValeTransporte,
-          valeAlimentacaoNaoPago: valorValeAlimentacao,
-          adicionalTransferencia: valorAdicionalTransferencia,
-          descontosIndevidos: valorDescontosIndevidos,
-          diferencasSalariais: valorDiferencasSalariais
-        },
-        adicionais: {
-          insalubridade: valorInsalubridade,
-          periculosidade: valorPericulosidade,
-          noturno: valorAdicionalNoturno,
-          horasExtras: valorHorasExtras
-        },
-        multas: {
-          art467: valorMulta467,
-          art477: valorMulta477
-        },
-        salarioFamilia: valorSalarioFamilia,
-        seguroDesemprego: valorSeguroDesemprego,
-        calculosPersonalizados: valorCalculosPersonalizados
-      }
+    const detalhamentoCalculo = {
+      verbas: {
+        salarioProporcional,
+        decimoTerceiro: valorDecimoTerceiro,
+        feriasProporcionais: valorFeriasProporcionais,
+        avisoPrevio: valorAvisoPrevio,
+        fgts: valorFGTS,
+        multaFgts: multaFGTS,
+        feriasVencidas: valorFeriasVencidas,
+        indenizacaoDemissaoIndevida: valorIndenizacao,
+        valeTransporteNaoPago: valorValeTransporte,
+        valeAlimentacaoNaoPago: valorValeAlimentacao,
+        adicionalTransferencia: valorAdicionalTransferencia,
+        descontosIndevidos: valorDescontosIndevidos,
+        diferencasSalariais: valorDiferencasSalariais
+      },
+      adicionais: {
+        insalubridade: valorInsalubridade,
+        periculosidade: valorPericulosidade,
+        noturno: valorAdicionalNoturno,
+        horasExtras: valorHorasExtras
+      },
+      multas: {
+        art467: valorMulta467,
+        art477: valorMulta477
+      },
+      salarioFamilia: valorSalarioFamilia,
+      seguroDesemprego: valorSeguroDesemprego,
+      calculosPersonalizados: valorCalculosPersonalizados
+    };
+
+    const resultados: Resultados = {
+      total: total,
+      detalhamento: detalhamentoCalculo,
+      dadosContrato: dadosContrato
     };
 
     console.log('Resultados finais:', resultados);

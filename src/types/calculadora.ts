@@ -200,6 +200,7 @@ export interface Resultados {
     seguroDesemprego: number;
     calculosPersonalizados: number;
   };
+  dadosContrato: DadosContrato;
 }
 
 export interface CalculadoraState {

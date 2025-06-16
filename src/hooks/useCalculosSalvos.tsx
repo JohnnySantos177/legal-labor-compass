@@ -1,19 +1,19 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { Resultados, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CalculoPersonalizado } from '@/types/calculadora';
 
 export interface CalculoSalvo {
   id: string;
   nome: string;
   dataCriacao: string;
-  dadosContrato: any;
-  adicionais: any;
-  verbas: any;
-  multas: any;
-  salarioFamilia: any;
-  seguroDesemprego: any;
-  calculosPersonalizados: any[];
-  resultados: any;
+  dadosContrato?: DadosContrato;
+  adicionais: Adicionais;
+  verbas: Verbas;
+  multas: Multas;
+  salarioFamilia: SalarioFamilia;
+  seguroDesemprego: SeguroDesemprego;
+  calculosPersonalizados: CalculoPersonalizado[];
+  resultados: Resultados;
 }
 
 export const useCalculosSalvos = () => {
@@ -22,7 +22,15 @@ export const useCalculosSalvos = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const salvarCalculo = useCallback((dadosCompletos: any, resultados: any, nome?: string) => {
+  const salvarCalculo = useCallback((dadosCompletos: { 
+    dadosContrato: DadosContrato;
+    adicionais: Adicionais;
+    verbas: Verbas;
+    multas: Multas;
+    salarioFamilia: SalarioFamilia;
+    seguroDesemprego: SeguroDesemprego;
+    calculosPersonalizados: CalculoPersonalizado[];
+  }, resultados: Resultados, nome?: string) => {
     const novoCalculo: CalculoSalvo = {
       id: Date.now().toString(),
       nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
