@@ -4,6 +4,8 @@ import { Resultados } from '@/types/calculadora';
 import { Button } from '@/components/ui/button';
 import { Download, Save, Share2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
+import { exportToPDF } from '@/utils/export/pdfExport';
+import { shareViaWhatsApp, shareViaEmail, generateCalculationText } from '@/utils/export/shareUtils';
 
 interface ResultadosCalculoProps {
   resultados: Resultados;
@@ -22,6 +24,41 @@ interface ResultadosCalculoProps {
 export function ResultadosCalculo({ resultados, horasExtras, onSalvar }: ResultadosCalculoProps) {
   const { total, detalhamento } = resultados;
 
+  const handleExportar = () => {
+    // Simular a criação de um elemento print-results-only para o PDF
+    const printDiv = document.createElement('div');
+    printDiv.id = 'print-results-only';
+    printDiv.innerHTML = `
+      <div class="section">
+        <h2>Resultados do Cálculo</h2>
+        <div class="result-item total">
+          <span class="result-label">Total Geral:</span>
+          <span class="result-value">${formatCurrency(total)}</span>
+        </div>
+      </div>
+      
+      <div class="valor-total">
+        <span class="titulo">Valor Total da Reclamação</span>
+        <span class="valor">${formatCurrency(total)}</span>
+      </div>
+    `;
+    
+    document.body.appendChild(printDiv);
+    exportToPDF();
+    document.body.removeChild(printDiv);
+  };
+
+  const handleCompartilhar = () => {
+    const textoCalculo = generateCalculationText(resultados);
+    const confirmacao = window.confirm('Escolha o método de compartilhamento:\nOK = WhatsApp\nCancelar = Email');
+    
+    if (confirmacao) {
+      shareViaWhatsApp(textoCalculo);
+    } else {
+      shareViaEmail('Resultado do Cálculo Trabalhista', textoCalculo);
+    }
+  };
+
   return (
     <Card className="bg-white shadow-lg">
       <CardHeader className="border-b">
@@ -32,11 +69,11 @@ export function ResultadosCalculo({ resultados, horasExtras, onSalvar }: Resulta
               <Save className="w-4 h-4 mr-1" />
               Salvar
             </Button>
-            <Button variant="outline" size="sm" className="text-juriscalc-blue">
+            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={handleExportar}>
               <Download className="w-4 h-4 mr-1" />
               Exportar
             </Button>
-            <Button variant="outline" size="sm" className="text-juriscalc-blue">
+            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={handleCompartilhar}>
               <Share2 className="w-4 h-4 mr-1" />
               Compartilhar
             </Button>
