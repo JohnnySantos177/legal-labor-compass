@@ -1,11 +1,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Resultados } from '@/types/calculadora';
-import { Button } from '@/components/ui/button';
-import { Download, Save, Share2 } from 'lucide-react';
-import { formatCurrency } from '@/utils/format';
 import { exportToPDF } from '@/utils/export/pdfExport';
 import { shareViaWhatsApp, shareViaEmail, generateCalculationText } from '@/utils/export/shareUtils';
+import { formatCurrency } from '@/utils/format';
+import { ResultsActions } from './results/ResultsActions';
+import { CalculationSection } from './results/CalculationSection';
+import { TotalDisplay } from './results/TotalDisplay';
+import { HorasExtrasSection } from './results/HorasExtrasSection';
 
 interface ResultadosCalculoProps {
   resultados: Resultados;
@@ -25,7 +27,6 @@ export function ResultadosCalculo({ resultados, horasExtras, onSalvar }: Resulta
   const { total, detalhamento } = resultados;
 
   const handleExportar = () => {
-    // Simular a criação de um elemento print-results-only para o PDF
     const printDiv = document.createElement('div');
     printDiv.id = 'print-results-only';
     printDiv.innerHTML = `
@@ -59,213 +60,83 @@ export function ResultadosCalculo({ resultados, horasExtras, onSalvar }: Resulta
     }
   };
 
+  const verbasRescisoriasItems = [
+    { label: 'Saldo de Salário', value: detalhamento.verbas.salarioProporcional },
+    { label: '13º Salário Proporcional', value: detalhamento.verbas.decimoTerceiro },
+    { label: 'Férias Proporcionais + 1/3', value: detalhamento.verbas.feriasProporcionais },
+    { label: 'Aviso Prévio', value: detalhamento.verbas.avisoPrevio },
+    { label: 'FGTS sobre Verbas', value: detalhamento.verbas.fgts },
+    { label: 'Multa do FGTS', value: detalhamento.verbas.multaFgts }
+  ];
+
+  const adicionaisItems = [
+    { label: 'Insalubridade', value: detalhamento.adicionais.insalubridade },
+    { label: 'Periculosidade', value: detalhamento.adicionais.periculosidade },
+    { label: 'Adicional Noturno', value: detalhamento.adicionais.noturno }
+  ];
+
+  const verbasBeneficiosItems = [
+    { label: 'Férias Vencidas + 1/3', value: detalhamento.verbas.feriasVencidas },
+    { label: 'Indenização por Demissão Indevida', value: detalhamento.verbas.indenizacaoDemissaoIndevida },
+    { label: 'Vale Transporte Não Pago', value: detalhamento.verbas.valeTransporteNaoPago },
+    { label: 'Vale Alimentação Não Pago', value: detalhamento.verbas.valeAlimentacaoNaoPago },
+    { label: 'Adicional de Transferência', value: detalhamento.verbas.adicionalTransferencia },
+    { label: 'Descontos Indevidos', value: detalhamento.verbas.descontosIndevidos },
+    { label: 'Diferenças Salariais', value: detalhamento.verbas.diferencasSalariais }
+  ];
+
+  const multasItems = [
+    { label: 'Multa Art. 467 CLT', value: detalhamento.multas.art467 },
+    { label: 'Multa Art. 477 CLT', value: detalhamento.multas.art477 }
+  ];
+
+  const outrosItems = [
+    { label: 'Salário-Família', value: detalhamento.salarioFamilia },
+    { label: 'Seguro-Desemprego', value: detalhamento.seguroDesemprego },
+    { label: 'Cálculos Personalizados', value: detalhamento.calculosPersonalizados }
+  ];
+
   return (
     <Card className="bg-white shadow-lg">
       <CardHeader className="border-b">
         <CardTitle className="text-xl text-juriscalc-navy flex items-center justify-between">
           Resultados do Cálculo
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={onSalvar}>
-              <Save className="w-4 h-4 mr-1" />
-              Salvar
-            </Button>
-            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={handleExportar}>
-              <Download className="w-4 h-4 mr-1" />
-              Exportar
-            </Button>
-            <Button variant="outline" size="sm" className="text-juriscalc-blue" onClick={handleCompartilhar}>
-              <Share2 className="w-4 h-4 mr-1" />
-              Compartilhar
-            </Button>
-          </div>
+          <ResultsActions 
+            onSalvar={onSalvar}
+            onExportar={handleExportar}
+            onCompartilhar={handleCompartilhar}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <div className="space-y-6">
-          {/* Verbas Rescisórias */}
-          <div>
-            <h3 className="text-lg font-medium mb-2">Verbas Rescisórias</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Saldo de Salário:</span>
-                <span>{formatCurrency(detalhamento.verbas.salarioProporcional)}</span>
-              </div>
-              {detalhamento.verbas.decimoTerceiro > 0 && (
-                <div className="flex justify-between">
-                  <span>13º Salário Proporcional:</span>
-                  <span>{formatCurrency(detalhamento.verbas.decimoTerceiro)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.feriasProporcionais > 0 && (
-                <div className="flex justify-between">
-                  <span>Férias Proporcionais + 1/3:</span>
-                  <span>{formatCurrency(detalhamento.verbas.feriasProporcionais)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.avisoPrevio > 0 && (
-                <div className="flex justify-between">
-                  <span>Aviso Prévio:</span>
-                  <span>{formatCurrency(detalhamento.verbas.avisoPrevio)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.fgts > 0 && (
-                <div className="flex justify-between">
-                  <span>FGTS sobre Verbas:</span>
-                  <span>{formatCurrency(detalhamento.verbas.fgts)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.multaFgts > 0 && (
-                <div className="flex justify-between">
-                  <span>Multa do FGTS:</span>
-                  <span>{formatCurrency(detalhamento.verbas.multaFgts)}</span>
-                </div>
-              )}
-            </div>
-          </div>
+          <CalculationSection title="Verbas Rescisórias" items={verbasRescisoriasItems} />
 
-          {/* Adicionais */}
           <div>
             <h3 className="text-lg font-medium mb-2">Adicionais</h3>
             <div className="space-y-2">
-              {detalhamento.adicionais.insalubridade > 0 && (
-                <div className="flex justify-between">
-                  <span>Insalubridade:</span>
-                  <span>{formatCurrency(detalhamento.adicionais.insalubridade)}</span>
-                </div>
-              )}
-              {detalhamento.adicionais.periculosidade > 0 && (
-                <div className="flex justify-between">
-                  <span>Periculosidade:</span>
-                  <span>{formatCurrency(detalhamento.adicionais.periculosidade)}</span>
-                </div>
-              )}
-              {detalhamento.adicionais.noturno > 0 && (
-                <div className="flex justify-between">
-                  <span>Adicional Noturno:</span>
-                  <span>{formatCurrency(detalhamento.adicionais.noturno)}</span>
-                </div>
-              )}
-              {horasExtras.ativo && horasExtras.calculos.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex justify-between font-medium">
-                    <span>Horas Extras:</span>
-                    <span>{formatCurrency(detalhamento.adicionais.horasExtras)}</span>
+              {adicionaisItems.map((item, index) => 
+                item.value > 0 && (
+                  <div key={index} className="flex justify-between">
+                    <span>{item.label}:</span>
+                    <span>{formatCurrency(item.value)}</span>
                   </div>
-                  <div className="pl-4 space-y-1 text-sm">
-                    {horasExtras.calculos.map((horaExtra, index) => (
-                      <div key={horaExtra.id} className="flex justify-between text-gray-600">
-                        <span>Cálculo {index + 1} ({horaExtra.quantidade}h a {horaExtra.percentual}%):</span>
-                        <span>{formatCurrency(horaExtra.valor || 0)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )
               )}
+              <HorasExtrasSection 
+                horasExtras={horasExtras}
+                totalValue={detalhamento.adicionais.horasExtras}
+              />
             </div>
           </div>
 
-          {/* Verbas e Benefícios */}
-          <div>
-            <h3 className="text-lg font-medium mb-2">Verbas e Benefícios</h3>
-            <div className="space-y-2">
-              {detalhamento.verbas.feriasVencidas > 0 && (
-                <div className="flex justify-between">
-                  <span>Férias Vencidas + 1/3:</span>
-                  <span>{formatCurrency(detalhamento.verbas.feriasVencidas)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.indenizacaoDemissaoIndevida > 0 && (
-                <div className="flex justify-between">
-                  <span>Indenização por Demissão Indevida:</span>
-                  <span>{formatCurrency(detalhamento.verbas.indenizacaoDemissaoIndevida)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.valeTransporteNaoPago > 0 && (
-                <div className="flex justify-between">
-                  <span>Vale Transporte Não Pago:</span>
-                  <span>{formatCurrency(detalhamento.verbas.valeTransporteNaoPago)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.valeAlimentacaoNaoPago > 0 && (
-                <div className="flex justify-between">
-                  <span>Vale Alimentação Não Pago:</span>
-                  <span>{formatCurrency(detalhamento.verbas.valeAlimentacaoNaoPago)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.adicionalTransferencia > 0 && (
-                <div className="flex justify-between">
-                  <span>Adicional de Transferência:</span>
-                  <span>{formatCurrency(detalhamento.verbas.adicionalTransferencia)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.descontosIndevidos > 0 && (
-                <div className="flex justify-between">
-                  <span>Descontos Indevidos:</span>
-                  <span>{formatCurrency(detalhamento.verbas.descontosIndevidos)}</span>
-                </div>
-              )}
-              {detalhamento.verbas.diferencasSalariais > 0 && (
-                <div className="flex justify-between">
-                  <span>Diferenças Salariais:</span>
-                  <span>{formatCurrency(detalhamento.verbas.diferencasSalariais)}</span>
-                </div>
-              )}
-            </div>
-          </div>
+          <CalculationSection title="Verbas e Benefícios" items={verbasBeneficiosItems} />
+          <CalculationSection title="Multas" items={multasItems} />
+          <CalculationSection title="Outros Valores" items={outrosItems} />
 
-          {/* Multas */}
-          <div>
-            <h3 className="text-lg font-medium mb-2">Multas</h3>
-            <div className="space-y-2">
-              {detalhamento.multas.art467 > 0 && (
-                <div className="flex justify-between">
-                  <span>Multa Art. 467 CLT:</span>
-                  <span>{formatCurrency(detalhamento.multas.art467)}</span>
-                </div>
-              )}
-              {detalhamento.multas.art477 > 0 && (
-                <div className="flex justify-between">
-                  <span>Multa Art. 477 CLT:</span>
-                  <span>{formatCurrency(detalhamento.multas.art477)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Outros */}
-          <div>
-            <h3 className="text-lg font-medium mb-2">Outros Valores</h3>
-            <div className="space-y-2">
-              {detalhamento.salarioFamilia > 0 && (
-                <div className="flex justify-between">
-                  <span>Salário-Família:</span>
-                  <span>{formatCurrency(detalhamento.salarioFamilia)}</span>
-                </div>
-              )}
-              {detalhamento.seguroDesemprego > 0 && (
-                <div className="flex justify-between">
-                  <span>Seguro-Desemprego:</span>
-                  <span>{formatCurrency(detalhamento.seguroDesemprego)}</span>
-                </div>
-              )}
-              {detalhamento.calculosPersonalizados > 0 && (
-                <div className="flex justify-between">
-                  <span>Cálculos Personalizados:</span>
-                  <span>{formatCurrency(detalhamento.calculosPersonalizados)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="pt-4 border-t border-gray-200">
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total:</span>
-              <span>{formatCurrency(total)}</span>
-            </div>
-          </div>
+          <TotalDisplay total={total} />
         </div>
       </CardContent>
     </Card>
   );
-} 
+}
