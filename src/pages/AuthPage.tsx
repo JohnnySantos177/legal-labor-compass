@@ -51,6 +51,7 @@ export const AuthPage = () => {
             <RegisterForm />
           </TabsContent>
         </Tabs>
+
       </div>
     </div>
   );

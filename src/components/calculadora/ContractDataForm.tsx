@@ -3,19 +3,21 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+interface FormContractData {
+  daysWorked: number;
+  monthsWorked: number;
+  fixedTermContract: boolean;
+  noticePeriodFulfilled: boolean;
+  fgtsDeposited: boolean;
+  admissionDate: string;
+  terminationDate: string;
+  baseSalary: number;
+  terminationType: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
+}
+
 interface ContractDataFormProps {
-  data: {
-    daysWorked: number;
-    monthsWorked: number;
-    fixedTermContract: boolean;
-    noticePeriodFulfilled: boolean;
-    fgtsDeposited: boolean;
-    admissionDate: string;
-    terminationDate: string;
-    baseSalary: number;
-    terminationType: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
-  };
-  onUpdate: (field: string, value: any) => void;
+  data: FormContractData;
+  onUpdate: <K extends keyof FormContractData>(field: K, value: FormContractData[K]) => void;
 }
 
 export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
@@ -33,7 +35,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
             value={data.baseSalary || ''}
             onChange={(e) => {
               const value = e.target.value.replace(/[^0-9.]/g, '');
-              onUpdate('baseSalary', value);
+              onUpdate('baseSalary', parseInt(value));
             }}
             placeholder="0,00"
           />

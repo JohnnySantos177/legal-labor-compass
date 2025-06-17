@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { ContractData, Addition, CalculationResult } from '@/types/calculadora';
 import { toast } from 'sonner';
@@ -21,7 +20,7 @@ export const useCalculadora = () => {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const updateContractData = useCallback((field: keyof ContractData, value: any) => {
+  const updateContractData = useCallback(<K extends keyof ContractData>(field: K, value: ContractData[K]) => {
     setContractData(prev => ({ ...prev, [field]: value }));
   }, []);
 

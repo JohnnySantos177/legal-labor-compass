@@ -1,14 +1,28 @@
-
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
+import { Resultados } from "@/types/calculadora";
 
-type ExportData = {
-  verbasRescisorias?: Record<string, any>;
-  adicionais?: Record<string, any>;
+interface ExcelExportData {
+  verbasRescisorias?: Resultados['detalhamento']['verbas'];
+  adicionais?: Resultados['detalhamento']['adicionais'] & Resultados['detalhamento']['multas'] & {
+    feriasVencidas?: number;
+    indenizacaoDemissaoIndevida?: number;
+    valeTransporteNaoPago?: number;
+    valeAlimentacaoNaoPago?: number;
+    adicionalTransferencia?: number;
+    descontosIndevidos?: number;
+    diferencasSalariais?: number;
+    calculosPersonalizados?: number;
+    seguroDesemprego?: number;
+    salarioFamilia?: number;
+  };
   totalGeral?: number;
-};
+  timestamp?: string;
+  nomeEscritorio?: string;
+  customCalculo?: number;
+}
 
-export const exportToExcel = (data: ExportData, fileName?: string) => {
+export const exportToExcel = (data: ExcelExportData, fileName?: string) => {
   if (!data) {
     toast.error('Não há dados para exportar!');
     return;
@@ -21,15 +35,14 @@ export const exportToExcel = (data: ExportData, fileName?: string) => {
       .filter(([key, value]) => 
         typeof value === 'number' && 
         value > 0 && 
-        key !== 'total' && 
-        key !== 'descontoAvisoPrevio'
+        key !== 'total'
       )
       .map(([key, value]) => {
         const descricao = 
-          key === 'saldoSalario' ? 'Saldo de Salário' :
-          key === 'avisoPrevia' ? 'Aviso Prévio' :
+          key === 'salarioProporcional' ? 'Saldo de Salário' :
+          key === 'avisoPrevio' ? 'Aviso Prévio' :
           key === 'decimoTerceiro' ? '13º Salário Proporcional' :
-          key === 'ferias' ? 'Férias Proporcionais' :
+          key === 'feriasProporcionais' ? 'Férias Proporcionais' :
           key === 'tercoConstitucional' ? '1/3 Constitucional' :
           key === 'fgts' ? 'FGTS sobre verbas' :
           key === 'multaFgts' ? 'Multa FGTS (40%)' : key;
@@ -46,26 +59,26 @@ export const exportToExcel = (data: ExportData, fileName?: string) => {
     const adicionaisRows = Object.entries(adicionais)
       .filter(([key, value]) => 
         typeof value === 'number' && 
-        value > 0 && 
-        key !== 'total'
+        value > 0 
       )
       .map(([key, value]) => {
         const descricao = 
-          key === 'adicionalInsalubridade' ? 'Adicional de Insalubridade' :
-          key === 'adicionalPericulosidade' ? 'Adicional de Periculosidade' :
-          key === 'multa467' ? 'Multa Art. 467 da CLT' :
-          key === 'multa477' ? 'Multa Art. 477 da CLT' :
-          key === 'adicionalNoturno' ? 'Adicional Noturno' :
+          key === 'insalubridade' ? 'Adicional de Insalubridade' :
+          key === 'periculosidade' ? 'Adicional de Periculosidade' :
+          key === 'art467' ? 'Multa Art. 467 da CLT' :
+          key === 'art477' ? 'Multa Art. 477 da CLT' :
+          key === 'noturno' ? 'Adicional Noturno' :
           key === 'horasExtras' ? 'Horas Extras' :
           key === 'feriasVencidas' ? 'Férias Vencidas' :
-          key === 'indenizacaoDemissao' ? 'Indenização por Demissão' :
-          key === 'valeTransporte' ? 'Vale Transporte' :
-          key === 'valeAlimentacao' ? 'Vale Alimentação' :
+          key === 'indenizacaoDemissaoIndevida' ? 'Indenização por Demissão' :
+          key === 'valeTransporteNaoPago' ? 'Vale Transporte Não Pago' :
+          key === 'valeAlimentacaoNaoPago' ? 'Vale Alimentação Não Pago' :
           key === 'adicionalTransferencia' ? 'Adicional de Transferência' :
           key === 'descontosIndevidos' ? 'Descontos Indevidos' :
           key === 'diferencasSalariais' ? 'Diferenças Salariais' :
-          key === 'customCalculo' ? 'Cálculo Personalizado' :
-          key === 'seguroDesemprego' ? 'Seguro Desemprego' : key;
+          key === 'calculosPersonalizados' ? 'Cálculo Personalizado' :
+          key === 'seguroDesemprego' ? 'Seguro Desemprego' :
+          key === 'salarioFamilia' ? 'Salário Família' : key;
         
         return { 
           "Tipo": "Adicionais e Multas", 
@@ -89,10 +102,11 @@ export const exportToExcel = (data: ExportData, fileName?: string) => {
       });
     } else {
       // Calculate total from verbas and adicionais if totalGeral is not provided
-      const totalVerbas = verbas.total || 0;
+      const totalVerbas = Object.values(verbas).reduce((sum: number, val) => 
+        sum + (typeof val === 'number' ? val : 0), 0);
       const totalAdicionais = Object.values(adicionais).reduce((sum: number, val) => 
         sum + (typeof val === 'number' ? val : 0), 0);
-      const calculatedTotal = totalVerbas + totalAdicionais - (verbas.descontoAvisoPrevio || 0);
+      const calculatedTotal = totalVerbas + totalAdicionais;
       
       exportData.push({ 
         "Tipo": "Total", 
@@ -119,7 +133,7 @@ export const exportToExcel = (data: ExportData, fileName?: string) => {
     const defaultFileName = `calculo_trabalhista_${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}.xlsx`;
     
     // Add header information with logo
-    const nomeEscritorio = localStorage.getItem('userName') || 'IusCalc';
+    const nomeEscritorio = data.nomeEscritorio || localStorage.getItem('userName') || 'IusCalc';
     
     // Insert a header row with information
     XLSX.utils.sheet_add_aoa(ws, [

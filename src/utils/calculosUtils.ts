@@ -1,22 +1,28 @@
 // Utility functions for handling calculation data
 
+import { Resultados } from '@/types/calculadora'; // Importar Resultados
+
 /**
- * Prepara os metadados dos cálculos (nome, data, escritório)
+ * Prepara os metadados para exibição (nome, data, escritório)
+ * @param options Objeto opcional com timestamp, nome e nomeEscritorio para sobrescrever padrões.
  */
-export const prepararMetadados = (calculos: any) => {
-  // Data da criação dos cálculos
-  const dataCalculo = calculos.timestamp ? 
-    new Date(calculos.timestamp).toLocaleDateString('pt-BR') : 
+interface DisplayMetadataOptions {
+  timestamp?: string;
+  nome?: string;
+  nomeEscritorio?: string;
+}
+
+export const prepararMetadados = (options?: DisplayMetadataOptions) => {
+  const dataCalculo = options?.timestamp ?
+    new Date(options.timestamp).toLocaleDateString('pt-BR') :
     new Date().toLocaleDateString('pt-BR');
 
-  // Verifica se há um nome para os cálculos
-  const nomeCalculo = calculos.nome ? `${calculos.nome} - ` : '';
+  const nomeCalculo = options?.nome ? `${options.nome} - ` : '';
 
-  // Obter o logo da empresa do usuário atual
   const logoUrl = localStorage.getItem('userLogoUrl');
-  
-  // Obter o nome do escritório do usuário atual ou dos cálculos
-  const nomeEscritorio = calculos?.nomeEscritorio || localStorage.getItem('userName') || 'IusCalc Trabalhista';
+
+  // Prioriza nomeEscritorio das opções, depois localStorage, depois default
+  const nomeEscritorio = options?.nomeEscritorio || localStorage.getItem('userName') || 'IusCalc Trabalhista';
 
   return {
     dataCalculo,
@@ -27,9 +33,11 @@ export const prepararMetadados = (calculos: any) => {
 };
 
 /**
- * Verifica se os cálculos são válidos para exibição
+ * Verifica se os resultados do cálculo são válidos para exibição
+ * @param resultados Objeto Resultados do cálculo
  */
-export const calculosValidos = (calculos: any): boolean => {
-  if (!calculos) return false;
-  return !!(calculos.verbasRescisorias || calculos.adicionais);
+export const calculosValidos = (resultados: Resultados): boolean => {
+  if (!resultados) return false;
+  // Verifica se há verbas rescisórias ou adicionais para considerar o cálculo válido
+  return !!(resultados.detalhamento.verbas || resultados.detalhamento.adicionais);
 };

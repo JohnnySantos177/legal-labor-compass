@@ -1,4 +1,3 @@
-
 // Utility functions for handling calculation data
 
 // Import the necessary functions from verbasRescisoriasUtils
@@ -6,8 +5,10 @@ import { calcularVerbasRescisorias } from './verbas/calculadoraVerbas';
 import { 
   calcularAdicionais,
   calcularSeguroDesempregoHelper,
-  calcularSalarioFamiliaHelper
+  calcularSalarioFamiliaHelper,
+  calcularHonorariosAdvocaticios
 } from './adicionaisUtils';
+import { DadosContrato, Adicionais, Resultados } from '@/types/calculadora';
 
 /**
  * Performs all calculations based on contract data and additional values.
@@ -15,25 +16,28 @@ import {
  * @param adicionais Additional values to calculate
  * @returns Object with all calculated values
  */
-export const realizarCalculos = (dadosContrato: any, adicionais: any) => {
+export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adicionais): Resultados => {
+  const diasTrabalhados = parseInt(dadosContrato.diasTrabalhados) || 0;
+  const mesesTrabalhados = parseInt(dadosContrato.mesesTrabalhados) || 0;
+  
   console.info("Calculando com:", {
-    salarioBase: parseFloat(dadosContrato.salarioBase),
-    diasTrabalhados: parseInt(dadosContrato.diasTrabalhados),
-    mesesTrabalhados: parseInt(dadosContrato.mesesTrabalhados)
+    salarioBase: dadosContrato.salarioBase,
+    diasTrabalhados,
+    mesesTrabalhados
   });
   
   // Calculate rescission values
-  const verbasRescisorias = calcularVerbasRescisorias(dadosContrato);
+  const verbasRescisoriasCalculadas = calcularVerbasRescisorias(dadosContrato);
   
   // Calculate additional values based on the main salary
-  const salarioBase = parseFloat(dadosContrato.salarioBase) || 0;
+  const salarioBase = dadosContrato.salarioBase || 0;
   
   // Get all values from verbasRescisorias to pass to calcularAdicionais
-  const saldoSalario = verbasRescisorias.saldoSalario || 0;
-  const avisoPrevia = verbasRescisorias.avisoPrevia || 0;
-  const decimoTerceiro = verbasRescisorias.decimoTerceiro || 0;
-  const ferias = verbasRescisorias.ferias || 0;
-  const tercoConstitucional = verbasRescisorias.tercoConstitucional || 0;
+  const saldoSalario = verbasRescisoriasCalculadas.saldoSalario || 0;
+  const avisoPrevia = verbasRescisoriasCalculadas.avisoPrevia || 0;
+  const decimoTerceiroVerba = verbasRescisoriasCalculadas.decimoTerceiro || 0;
+  const feriasVerba = verbasRescisoriasCalculadas.ferias || 0;
+  const tercoConstitucionalVerba = verbasRescisoriasCalculadas.tercoConstitucional || 0;
   
   // Calculate all additionals using the main function - now passing dadosContrato
   const adicionaisValues = calcularAdicionais(
@@ -41,16 +45,80 @@ export const realizarCalculos = (dadosContrato: any, adicionais: any) => {
     adicionais,
     saldoSalario,
     avisoPrevia,
-    decimoTerceiro,
-    ferias,
-    tercoConstitucional,
+    decimoTerceiroVerba,
+    feriasVerba,
+    tercoConstitucionalVerba,
     dadosContrato // Pass contract data for period calculations
   );
+
+  const seguroDesempregoValue = calcularSeguroDesempregoHelper(adicionais, salarioBase, dadosContrato.motivoDemissao);
+  const salarioFamiliaValue = calcularSalarioFamiliaHelper(adicionais.calcularSalarioFamilia, salarioBase, parseInt(adicionais.quantidadeFilhos) || 0);
+
+  const totalGeralAntesHonorarios = 
+    (verbasRescisoriasCalculadas.total || 0) +
+    adicionaisValues.adicionalInsalubridade +
+    adicionaisValues.adicionalPericulosidade +
+    adicionaisValues.adicionalNoturno +
+    adicionaisValues.horasExtras +
+    adicionaisValues.feriasVencidas +
+    adicionaisValues.indenizacaoDemissao +
+    adicionaisValues.valeTransporte +
+    adicionaisValues.valeAlimentacao +
+    adicionaisValues.adicionalTransferencia +
+    adicionaisValues.descontosIndevidos +
+    adicionaisValues.diferencasSalariais +
+    adicionaisValues.customCalculo +
+    adicionaisValues.multa467 +
+    adicionaisValues.multa477 +
+    seguroDesempregoValue +
+    salarioFamiliaValue;
+
+  const honorariosAdvocaticiosValue = calcularHonorariosAdvocaticios(
+    adicionais.calcularHonorariosAdvocaticios,
+    totalGeralAntesHonorarios,
+    parseFloat(adicionais.percentualHonorariosAdvocaticios) || 0,
+    parseFloat(adicionais.valorHonorariosAdvocaticios) || 0,
+    adicionais.incluirTotalGeralHonorarios
+  );
+
+  const totalFinal = totalGeralAntesHonorarios + honorariosAdvocaticiosValue;
   
   // Return the final result
-  const resultados = {
-    verbasRescisorias,
-    adicionais: adicionaisValues
+  const resultados: Resultados = {
+    total: totalFinal,
+    detalhamento: {
+      verbas: {
+        salarioProporcional: verbasRescisoriasCalculadas.saldoSalario || 0,
+        decimoTerceiro: verbasRescisoriasCalculadas.decimoTerceiro || 0,
+        feriasProporcionais: verbasRescisoriasCalculadas.ferias || 0,
+        avisoPrevio: verbasRescisoriasCalculadas.avisoPrevia || 0,
+        fgts: verbasRescisoriasCalculadas.fgts || 0,
+        multaFgts: verbasRescisoriasCalculadas.multaFgts || 0,
+        tercoConstitucional: verbasRescisoriasCalculadas.tercoConstitucional || 0,
+        feriasVencidas: adicionaisValues.feriasVencidas || 0,
+        indenizacaoDemissaoIndevida: adicionaisValues.indenizacaoDemissao || 0,
+        valeTransporteNaoPago: adicionaisValues.valeTransporte || 0,
+        valeAlimentacaoNaoPago: adicionaisValues.valeAlimentacao || 0,
+        adicionalTransferencia: adicionaisValues.adicionalTransferencia || 0,
+        descontosIndevidos: adicionaisValues.descontosIndevidos || 0,
+        diferencasSalariais: adicionaisValues.diferencasSalariais || 0,
+        total: verbasRescisoriasCalculadas.total || 0,
+      },
+      adicionais: {
+        insalubridade: adicionaisValues.adicionalInsalubridade || 0,
+        periculosidade: adicionaisValues.adicionalPericulosidade || 0,
+        noturno: adicionaisValues.adicionalNoturno || 0,
+        horasExtras: adicionaisValues.horasExtras || 0,
+      },
+      multas: {
+        art467: adicionaisValues.multa467 || 0,
+        art477: adicionaisValues.multa477 || 0,
+      },
+      salarioFamilia: salarioFamiliaValue || 0,
+      seguroDesemprego: seguroDesempregoValue || 0,
+      calculosPersonalizados: adicionaisValues.customCalculo || 0,
+    },
+    dadosContrato: dadosContrato,
   };
 
   // Log for debugging

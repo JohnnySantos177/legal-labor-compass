@@ -1,3 +1,5 @@
+import { calcularInsalubridade } from './insalubridadeUtils';
+import { calcularPericulosidade } from './periculosidadeUtils';
 
 /**
  * Utilities for calculating additionals based on specific periods
@@ -68,9 +70,6 @@ export const calcularInsalubridadeComPeriodo = (
   dataInicio?: string,
   dataFim?: string
 ): number => {
-  // Import the base calculation
-  const { calcularInsalubridade } = require('./insalubridadeUtils');
-  
   // Calculate the base value
   const valorBase = calcularInsalubridade(salarioBase, grauInsalubridade, baseCalculoInsalubridade);
   
@@ -98,9 +97,6 @@ export const calcularPericulosidadeComPeriodo = (
   dataInicio?: string,
   dataFim?: string
 ): number => {
-  // Import the base calculation
-  const { calcularPericulosidade } = require('./periculosidadeUtils');
-  
   // Calculate the base value
   const valorBase = calcularPericulosidade(salarioBase, percentualPericulosidade, baseCalculoPericulosidade);
   

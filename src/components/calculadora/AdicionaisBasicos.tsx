@@ -17,16 +17,12 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
       id: crypto.randomUUID(),
       percentual: 50,
       quantidade: 0,
-      valor: 0
     };
 
     updateState({
       adicionais: {
         ...state.adicionais,
-        horasExtras: {
-          ...state.adicionais.horasExtras,
-          calculos: [...state.adicionais.horasExtras.calculos, novaHoraExtra]
-        }
+        horasExtrasCalculos: [...state.adicionais.horasExtrasCalculos, novaHoraExtra]
       }
     });
   };
@@ -35,10 +31,7 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
     updateState({
       adicionais: {
         ...state.adicionais,
-        horasExtras: {
-          ...state.adicionais.horasExtras,
-          calculos: state.adicionais.horasExtras.calculos.filter(he => he.id !== id)
-        }
+        horasExtrasCalculos: state.adicionais.horasExtrasCalculos.filter(he => he.id !== id)
       }
     });
   };
@@ -47,12 +40,9 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
     updateState({
       adicionais: {
         ...state.adicionais,
-        horasExtras: {
-          ...state.adicionais.horasExtras,
-          calculos: state.adicionais.horasExtras.calculos.map(he => 
-            he.id === id ? { ...he, ...updates } : he
-          )
-        }
+        horasExtrasCalculos: state.adicionais.horasExtrasCalculos.map(he => 
+          he.id === id ? { ...he, ...updates } : he
+        )
       }
     });
   };
@@ -66,31 +56,25 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
           <Label htmlFor="insalubridade">Adicional de Insalubridade</Label>
           <Switch 
             id="insalubridade"
-            checked={state.adicionais.insalubridade.ativo}
+            checked={state.adicionais.calcularInsalubridade}
             onCheckedChange={(checked) => updateState({
               adicionais: {
                 ...state.adicionais,
-                insalubridade: {
-                  ...state.adicionais.insalubridade,
-                  ativo: checked
-                }
+                calcularInsalubridade: checked
               }
             })}
           />
         </div>
-        {state.adicionais.insalubridade.ativo && (
+        {state.adicionais.calcularInsalubridade && (
           <div className="pl-4 space-y-4">
             <div>
               <Label>Grau de Insalubridade</Label>
               <Select 
-                value={state.adicionais.insalubridade.grau}
+                value={state.adicionais.grauInsalubridade}
                 onValueChange={(value: 'minimo' | 'medio' | 'maximo') => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    insalubridade: {
-                      ...state.adicionais.insalubridade,
-                      grau: value
-                    }
+                    grauInsalubridade: value
                   }
                 })}
               >
@@ -107,14 +91,11 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
             <div>
               <Label>Base de Cálculo</Label>
               <Select 
-                value={state.adicionais.insalubridade.baseCalculo}
+                value={state.adicionais.baseCalculoInsalubridade}
                 onValueChange={(value: 'salario_minimo' | 'salario_base') => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    insalubridade: {
-                      ...state.adicionais.insalubridade,
-                      baseCalculo: value
-                    }
+                    baseCalculoInsalubridade: value
                   }
                 })}
               >
@@ -131,32 +112,26 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
               <div className="flex items-center justify-between mb-2">
                 <Label>Aplicar por Período Específico?</Label>
                 <Switch 
-                  checked={state.adicionais.insalubridade.periodoEspecifico}
+                  checked={state.adicionais.insalubridadePeriodoEspecifico}
                   onCheckedChange={(checked) => updateState({
                     adicionais: {
                       ...state.adicionais,
-                      insalubridade: {
-                        ...state.adicionais.insalubridade,
-                        periodoEspecifico: checked
-                      }
+                      insalubridadePeriodoEspecifico: checked
                     }
                   })}
                 />
               </div>
-              {state.adicionais.insalubridade.periodoEspecifico && (
+              {state.adicionais.insalubridadePeriodoEspecifico && (
                 <div className="space-y-2">
                   <div>
                     <Label>Data de Início da Insalubridade</Label>
                     <Input
                       type="date"
-                      value={state.adicionais.insalubridade.dataInicio}
+                      value={state.adicionais.dataInicioInsalubridade}
                       onChange={(e) => updateState({
                         adicionais: {
                           ...state.adicionais,
-                          insalubridade: {
-                            ...state.adicionais.insalubridade,
-                            dataInicio: e.target.value
-                          }
+                          dataInicioInsalubridade: e.target.value
                         }
                       })}
                     />
@@ -165,14 +140,11 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
                     <Label>Data de Fim da Insalubridade</Label>
                     <Input
                       type="date"
-                      value={state.adicionais.insalubridade.dataFim}
+                      value={state.adicionais.dataFimInsalubridade}
                       onChange={(e) => updateState({
                         adicionais: {
                           ...state.adicionais,
-                          insalubridade: {
-                            ...state.adicionais.insalubridade,
-                            dataFim: e.target.value
-                          }
+                          dataFimInsalubridade: e.target.value
                         }
                       })}
                     />
@@ -189,32 +161,26 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
           <Label htmlFor="periculosidade">Adicional de Periculosidade</Label>
           <Switch 
             id="periculosidade"
-            checked={state.adicionais.periculosidade.ativo}
+            checked={state.adicionais.calcularPericulosidade}
             onCheckedChange={(checked) => updateState({
               adicionais: {
                 ...state.adicionais,
-                periculosidade: {
-                  ...state.adicionais.periculosidade,
-                  ativo: checked
-                }
+                calcularPericulosidade: checked
               }
             })}
           />
         </div>
-        {state.adicionais.periculosidade.ativo && (
+        {state.adicionais.calcularPericulosidade && (
           <div className="pl-4 space-y-4">
             <div>
               <Label>Percentual (%)</Label>
               <Input
                 type="number"
-                value={state.adicionais.periculosidade.percentual}
+                value={state.adicionais.percentualPericulosidade}
                 onChange={(e) => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    periculosidade: {
-                      ...state.adicionais.periculosidade,
-                      percentual: parseFloat(e.target.value) || 0
-                    }
+                    percentualPericulosidade: e.target.value
                   }
                 })}
               />
@@ -222,14 +188,11 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
             <div>
               <Label>Base de Cálculo</Label>
               <Select 
-                value={state.adicionais.periculosidade.baseCalculo}
+                value={state.adicionais.baseCalculoPericulosidade}
                 onValueChange={(value: 'salario_minimo' | 'salario_base') => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    periculosidade: {
-                      ...state.adicionais.periculosidade,
-                      baseCalculo: value
-                    }
+                    baseCalculoPericulosidade: value
                   }
                 })}
               >
@@ -242,6 +205,51 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Aplicar por Período Específico?</Label>
+                <Switch 
+                  checked={state.adicionais.periculosidadePeriodoEspecifico}
+                  onCheckedChange={(checked) => updateState({
+                    adicionais: {
+                      ...state.adicionais,
+                      periculosidadePeriodoEspecifico: checked
+                    }
+                  })}
+                />
+              </div>
+              {state.adicionais.periculosidadePeriodoEspecifico && (
+                <div className="space-y-2">
+                  <div>
+                    <Label>Data de Início da Periculosidade</Label>
+                    <Input
+                      type="date"
+                      value={state.adicionais.dataInicioPericulosidade}
+                      onChange={(e) => updateState({
+                        adicionais: {
+                          ...state.adicionais,
+                          dataInicioPericulosidade: e.target.value
+                        }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Data de Fim da Periculosidade</Label>
+                    <Input
+                      type="date"
+                      value={state.adicionais.dataFimPericulosidade}
+                      onChange={(e) => updateState({
+                        adicionais: {
+                          ...state.adicionais,
+                          dataFimPericulosidade: e.target.value
+                        }
+                      })}
+                    />
+                  </div>
+                  <p className="text-sm text-blue-600">O adicional será aplicado apenas durante o período especificado.</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -250,48 +258,39 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
           <Label htmlFor="noturno">Adicional Noturno</Label>
           <Switch 
             id="noturno"
-            checked={state.adicionais.noturno.ativo}
+            checked={state.adicionais.calcularAdicionalNoturno}
             onCheckedChange={(checked) => updateState({
               adicionais: {
                 ...state.adicionais,
-                noturno: {
-                  ...state.adicionais.noturno,
-                  ativo: checked
-                }
+                calcularAdicionalNoturno: checked
               }
             })}
           />
         </div>
-        {state.adicionais.noturno.ativo && (
-          <div className="pl-4 space-y-4">
+        {state.adicionais.calcularAdicionalNoturno && (
+          <div className="pl-4 space-y-2">
             <div>
               <Label>Percentual (%)</Label>
               <Input
                 type="number"
-                value={state.adicionais.noturno.percentual}
+                value={state.adicionais.percentualAdicionalNoturno}
                 onChange={(e) => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    noturno: {
-                      ...state.adicionais.noturno,
-                      percentual: parseFloat(e.target.value) || 0
-                    }
+                    percentualAdicionalNoturno: e.target.value
                   }
                 })}
               />
             </div>
             <div>
-              <Label>Quantidade de Horas</Label>
+              <Label>Horas Noturnas</Label>
               <Input
                 type="number"
-                value={state.adicionais.noturno.horas}
+                value={state.adicionais.horasNoturnas}
                 onChange={(e) => updateState({
                   adicionais: {
                     ...state.adicionais,
-                    noturno: {
-                      ...state.adicionais.noturno,
-                      horas: parseFloat(e.target.value) || 0
-                    }
+                    horasNoturnas: e.target.value
                   }
                 })}
               />
@@ -304,68 +303,43 @@ export function AdicionaisBasicos({ state, updateState }: AdicionaisBasicosProps
           <Label htmlFor="horasExtras">Horas Extras</Label>
           <Switch 
             id="horasExtras"
-            checked={state.adicionais.horasExtras.ativo}
+            checked={state.adicionais.calcularHorasExtras}
             onCheckedChange={(checked) => updateState({
               adicionais: {
                 ...state.adicionais,
-                horasExtras: {
-                  ...state.adicionais.horasExtras,
-                  ativo: checked,
-                  calculos: checked && state.adicionais.horasExtras.calculos.length === 0 ? 
-                    [{ id: crypto.randomUUID(), percentual: 50, quantidade: 0, valor: 0 }] : 
-                    state.adicionais.horasExtras.calculos
-                }
+                calcularHorasExtras: checked
               }
             })}
           />
         </div>
-        {state.adicionais.horasExtras.ativo && (
+        {state.adicionais.calcularHorasExtras && (
           <div className="pl-4 space-y-4">
-            {state.adicionais.horasExtras.calculos.map((horaExtra, index) => (
-              <div key={horaExtra.id} className="space-y-4 border-b border-gray-200 pb-4">
+            {state.adicionais.horasExtrasCalculos.map((horaExtra, index) => (
+              <div key={horaExtra.id} className="border p-4 rounded-md space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Cálculo {index + 1}</h4>
-                  {state.adicionais.horasExtras.calculos.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removerHoraExtra(horaExtra.id)}
-                      className="h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Label>Cálculo de Hora Extra {index + 1}</Label>
+                  <Button variant="ghost" size="icon" onClick={() => removerHoraExtra(horaExtra.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div>
-                  <Label>Percentual (%)</Label>
-                  <Input
-                    type="number"
-                    value={horaExtra.percentual}
-                    onChange={(e) => atualizarHoraExtra(horaExtra.id, {
-                      percentual: parseFloat(e.target.value) || 0
-                    })}
-                  />
-                </div>
-                <div>
-                  <Label>Quantidade de Horas</Label>
-                  <Input
-                    type="number"
-                    value={horaExtra.quantidade}
-                    onChange={(e) => atualizarHoraExtra(horaExtra.id, {
-                      quantidade: parseFloat(e.target.value) || 0
-                    })}
-                  />
-                </div>
+                <Label htmlFor={`percentualHoraExtra-${horaExtra.id}`}>Percentual (%)</Label>
+                <Input
+                  id={`percentualHoraExtra-${horaExtra.id}`}
+                  type="number"
+                  value={horaExtra.percentual}
+                  onChange={(e) => atualizarHoraExtra(horaExtra.id, { percentual: parseFloat(e.target.value) || 0 })}
+                />
+                <Label htmlFor={`quantidadeHoraExtra-${horaExtra.id}`}>Quantidade de Horas</Label>
+                <Input
+                  id={`quantidadeHoraExtra-${horaExtra.id}`}
+                  type="number"
+                  value={horaExtra.quantidade}
+                  onChange={(e) => atualizarHoraExtra(horaExtra.id, { quantidade: parseFloat(e.target.value) || 0 })}
+                />
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={adicionarHoraExtra}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Hora Extra
+            <Button variant="outline" className="w-full" onClick={adicionarHoraExtra}>
+              <Plus className="h-4 w-4 mr-2" /> Adicionar Hora Extra
             </Button>
           </div>
         )}

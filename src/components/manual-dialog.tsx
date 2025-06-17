@@ -23,75 +23,77 @@ export function ManualDialog({ children }: ManualDialogProps) {
           <DialogDescription className="text-base">
             <div className="space-y-6 py-4">
               <p>
-                Bem-vindo ao IusCalc! O IusCalc é uma ferramenta intuitiva e eficiente projetada para ajudar advogados e escritórios de advocacia a realizar cálculos de verbas trabalhistas com rapidez e precisão. Este manual foi criado para guiá-lo nas funcionalidades essenciais da plataforma.
+                Bem-vindo ao IusCalc! Nosso sistema foi feito para te ajudar a realizar cálculos trabalhistas de forma rápida e precisa. Este manual vai te guiar pelas principais funções.
               </p>
 
               <section>
-                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">1. Acesso ao Sistema</h3>
-                <p><strong>Login:</strong> Acesse a plataforma utilizando seu e-mail e senha cadastrados. Caso seja a primeira vez, clique em "Criar Conta" para se registrar.</p>
-                <p><strong>Tela Inicial de Login:</strong> Insira suas credenciais e clique em "Entrar". Se tiver problemas para acessar, utilize a opção "Esqueci minha senha" para recuperação.</p>
+                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">1. Entrando no Sistema</h3>
+                <p><strong>Login:</strong> Use seu e-mail e senha. Se não tiver conta, clique em "Criar Conta".</p>
+                <p><strong>Recuperar Senha:</strong> Se esqueceu, use a opção "Esqueci minha senha".</p>
               </section>
 
               <section>
-                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">2. Dashboard - Página Inicial</h3>
-                <p>Após o login, você será direcionado para a página principal do sistema. Aqui, você pode:</p>
+                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">2. Tela Inicial (Dashboard)</h3>
+                <p>Aqui você encontra um resumo rápido e pode navegar:</p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li><strong>Menu de Navegação:</strong> No topo, utilize os menus Calculadora e Petições para acessar as principais funcionalidades.</li>
-                  <li><strong>Resumo do Cálculo de Verbas Rescisórias:</strong> A tela de cálculo mostra os campos principais, como Data de Admissão, Data de Demissão, Salário Base, Tipo de Rescisão, e outros detalhes essenciais para o cálculo.</li>
+                  <li><strong>Menu:</strong> Acesse Calculadora e Petições no topo.</li>
+                  <li><strong>Resumo:</strong> Veja os campos principais para começar um cálculo.</li>
                 </ul>
               </section>
 
               <section>
-                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">3. Calculadora de Verbas Rescisórias</h3>
+                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">3. Como Calcular Verbas Rescisórias</h3>
                 <div className="space-y-4">
                   <div>
-                    <p className="font-medium">Passo 1: Complete os campos obrigatórios:</p>
+                    <p className="font-medium">Passo 1: Preencha os dados básicos:</p>
                     <ul className="list-disc pl-6">
-                      <li>Data de Admissão e Data de Demissão</li>
+                      <li>Datas de Admissão e Demissão</li>
                       <li>Salário Base</li>
                       <li>Tipo de Rescisão</li>
-                      <li>Aviso Prévio Cumprido (Ative a opção, se aplicável)</li>
+                      <li>Aviso Prévio (se aplicável)</li>
                     </ul>
                   </div>
                   
                   <div>
-                    <p className="font-medium">Passo 2: Se necessário, ajuste as Adicionais e Multas aplicáveis:</p>
-                    <p>Marque as opções relevantes como Adicional de Insalubridade, Férias Vencidas (+1/3), Multa do Art. 467 da CLT, entre outros.</p>
+                    <p className="font-medium">Passo 2: Adicione outros valores (se precisar):</p>
+                    <p>Marque opções como Insalubridade, Férias Vencidas, Multas da CLT, e até mesmo seus próprios Cálculos Personalizados.</p>
                   </div>
 
                   <div>
                     <p className="font-medium">Passo 3: Clique em Calcular.</p>
-                    <p>O sistema irá gerar automaticamente o total das verbas rescisórias.</p>
+                    <p>O resultado total aparecerá na seção "Resultados do Cálculo".</p>
                   </div>
 
                   <div>
-                    <p className="font-medium">Passo 4: Revise os resultados</p>
-                    <p>Revise os resultados que aparecem na seção Resultados do Cálculo. O valor total será mostrado de forma clara.</p>
+                    <p className="font-medium">Passo 4: O que fazer com o cálculo:</p>
+                    <ul className="list-disc pl-6">
+                      <li><strong>Salvar:</strong> Guarde o cálculo para usar depois.</li>
+                      <li><strong>Compartilhar:</strong> Envie por WhatsApp ou E-mail.</li>
+                      <li><strong>Exportar:</strong> Salve como PDF ou Excel.</li>
+                      <li><strong>Gerar Petição:</strong> Crie uma petição com os dados.</li>
+                    </ul>
                   </div>
                 </div>
 
                 <p className="mt-4">
-                  Você também pode Salvar o Cálculo, Exportar para diferentes formatos (WhatsApp, E-mail, PDF) ou gerar uma Petição com os dados calculados.
-                </p>
-                <p>
-                  Você pode Imprimir, Editar ou Excluir petições salvas.
+                  <span className="font-semibold">Importante:</span> Você pode <strong>editar e reutilizar</strong> todos os cálculos salvos. Isso agiliza muito seu trabalho!
                 </p>
               </section>
 
               <section>
-                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">5. Outras Funcionalidades</h3>
+                <h3 className="text-lg font-semibold text-juriscalc-navy mb-2">4. Mais Funcionalidades</h3>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>
-                    <strong>Cálculos Salvos:</strong> Na tela de Cálculos Salvos, você pode revisar e acessar os cálculos realizados anteriormente. Basta clicar em Usar ou Verificar para editar ou confirmar.
+                    <strong>Cálculos Salvos:</strong> Acesse seus cálculos anteriores. Clique em "Usar" para carregar um cálculo ou "Verificar" para revisar os detalhes.
                   </li>
                   <li>
-                    <strong>Minha Conta:</strong> Acesse Minha Conta e personalize suas preferências, como nome e imagem (foto ou logotipo).
+                    <strong>Minha Conta:</strong> Altere seus dados e personalize seu perfil.
                   </li>
                 </ul>
               </section>
 
               <p className="mt-6 text-sm text-gray-600">
-                Se precisar de ajuda adicional, entre em contato com o suporte através do e-mail de contato localizado no canto inferior direito da tela.
+                Qualquer dúvida, entre em contato com nosso suporte. O e-mail está no canto inferior direito da tela.
               </p>
             </div>
           </DialogDescription>

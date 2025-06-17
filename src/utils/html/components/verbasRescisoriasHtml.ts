@@ -1,10 +1,23 @@
-
 import { formatarValor } from '../formatters/htmlFormatters';
+
+interface VerbasRescisorias {
+  saldoSalario: number;
+  avisoPrevia: number;
+  decimoTerceiroAvisoPrevia: number;
+  feriasAvisoPrevia: number;
+  decimoTerceiro: number;
+  ferias: number;
+  tercoConstitucional: number;
+  fgts: number;
+  multaFgts: number;
+  total: number;
+  descontoAvisoPrevio: number;
+}
 
 /**
  * Creates HTML content for the verbas rescisórias table
  */
-export function renderVerbasRescisoriasHTML(verbas: any) {
+export function renderVerbasRescisoriasHTML(verbas: VerbasRescisorias) {
   // Filtrar verbas principais
   const itens = [
     { descricao: 'Saldo de Salário', valor: verbas.saldoSalario },

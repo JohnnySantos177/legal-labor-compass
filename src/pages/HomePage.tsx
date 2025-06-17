@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calculator, FileSpreadsheet, Mail, Share2, FileText } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { ManualDialog } from '@/components/manual-dialog';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -90,6 +91,14 @@ export function HomePage() {
             </Button>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mt-12 text-center">
+        <ManualDialog>
+          <Button variant="link" className="text-juriscalc-blue opacity-80 hover:opacity-100 transition-opacity">
+            Manual de Uso Rápido
+          </Button>
+        </ManualDialog>
       </div>
     </div>
   );

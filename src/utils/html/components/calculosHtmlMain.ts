@@ -1,12 +1,55 @@
-
 import { renderVerbasRescisoriasHTML } from './verbasRescisoriasHtml';
 import { renderAdicionaisHTML } from './adicionaisHtml';
 import { formatarValor } from '../formatters/htmlFormatters';
+import { Resultados } from '@/types/calculadora';
+
+interface VerbasRescisorias {
+  saldoSalario: number;
+  avisoPrevia: number;
+  decimoTerceiro: number;
+  decimoTerceiroAvisoPrevia: number;
+  ferias: number;
+  feriasAvisoPrevia: number;
+  tercoConstitucional: number;
+  fgts: number;
+  multaFgts: number;
+  total: number;
+  descontoAvisoPrevio: number;
+}
+
+interface Adicionais {
+  adicionalInsalubridade: number;
+  adicionalPericulosidade: number;
+  multa467: number;
+  multa477: number;
+  adicionalNoturno: number;
+  horasExtras: number;
+  feriasVencidas: number;
+  indenizacaoDemissao: number;
+  valeTransporte: number;
+  valeAlimentacao: number;
+  adicionalTransferencia: number;
+  descontosIndevidos: number;
+  diferencasSalariais: number;
+  customCalculo: number;
+  seguroDesemprego: number;
+}
+
+interface CalculosEmbutidos {
+  verbasRescisorias: VerbasRescisorias;
+  adicionais: Adicionais;
+  nomeEscritorio?: string;
+  timestamp?: string;
+  totalGeral: number;
+  total: number;
+  detalhamento: Resultados['detalhamento'];
+  dadosContrato: Resultados['dadosContrato'];
+}
 
 /**
  * Creates HTML content for embedded calculations
  */
-export const criarHTMLCalculosEmbutidos = (calculos: any) => {
+export const criarHTMLCalculosEmbutidos = (calculos: CalculosEmbutidos) => {
   if (!calculos) return '';
 
   // Importar dados necessários
@@ -21,11 +64,14 @@ export const criarHTMLCalculosEmbutidos = (calculos: any) => {
     saldoSalario: 0,
     avisoPrevia: 0,
     decimoTerceiro: 0,
+    decimoTerceiroAvisoPrevia: 0,
     ferias: 0,
+    feriasAvisoPrevia: 0,
     tercoConstitucional: 0,
     fgts: 0,
     multaFgts: 0,
-    total: 0
+    total: 0,
+    descontoAvisoPrevio: 0
   };
   
   const adicionais = calculos.adicionais || {

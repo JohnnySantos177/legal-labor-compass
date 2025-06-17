@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Resultados, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CalculoPersonalizado } from '@/types/calculadora';
+import { Resultados, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CustomCalculo } from '@/types/calculadora';
 
 export interface CalculoSalvo {
   id: string;
@@ -12,7 +12,7 @@ export interface CalculoSalvo {
   multas: Multas;
   salarioFamilia: SalarioFamilia;
   seguroDesemprego: SeguroDesemprego;
-  calculosPersonalizados: CalculoPersonalizado[];
+  calculosPersonalizados: CustomCalculo[];
   resultados: Resultados;
 }
 
@@ -29,7 +29,7 @@ export const useCalculosSalvos = () => {
     multas: Multas;
     salarioFamilia: SalarioFamilia;
     seguroDesemprego: SeguroDesemprego;
-    calculosPersonalizados: CalculoPersonalizado[];
+    calculosPersonalizados: CustomCalculo[];
   }, resultados: Resultados, nome?: string) => {
     const novoCalculo: CalculoSalvo = {
       id: Date.now().toString(),

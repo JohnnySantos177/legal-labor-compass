@@ -2,7 +2,9 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalculadoraState } from '@/types/calculadora';
+import { CalculadoraState, CustomCalculo } from '@/types/calculadora';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface MultasOutrosAdicionaisProps {
   state: CalculadoraState;
@@ -149,6 +151,105 @@ export function MultasOutrosAdicionais({ state, updateState }: MultasOutrosAdici
                 }
               })}
             />
+          </div>
+        )}
+        {/* Cálculos Personalizados */}
+        <div className="flex items-center justify-between">
+          <Label htmlFor="calculosPersonalizados">Cálculos Personalizados</Label>
+          <Switch 
+            id="calculosPersonalizados"
+            checked={state.adicionais.calculosCustom.ativo}
+            onCheckedChange={(checked) => updateState({
+              adicionais: {
+                ...state.adicionais,
+                calculosCustom: {
+                  ...state.adicionais.calculosCustom,
+                  ativo: checked
+                }
+              }
+            })}
+          />
+        </div>
+        {state.adicionais.calculosCustom.ativo && (
+          <div className="pl-4 space-y-4">
+            {state.adicionais.calculosCustom.itens.map((calculo, index) => (
+              <div key={index} className="flex items-end space-x-2">
+                <div className="flex-grow space-y-2">
+                  <Label>Descrição</Label>
+                  <Input
+                    type="text"
+                    value={calculo.descricao}
+                    onChange={(e) => {
+                      const newCalculos = [...state.adicionais.calculosCustom.itens];
+                      newCalculos[index].descricao = e.target.value;
+                      updateState({
+                        adicionais: {
+                          ...state.adicionais,
+                          calculosCustom: {
+                            ...state.adicionais.calculosCustom,
+                            itens: newCalculos
+                          }
+                        }
+                      });
+                    }}
+                  />
+                </div>
+                <div className="flex-grow space-y-2">
+                  <Label>Valor (R$)</Label>
+                  <Input
+                    type="number"
+                    value={calculo.valor}
+                    onChange={(e) => {
+                      const newCalculos = [...state.adicionais.calculosCustom.itens];
+                      newCalculos[index].valor = parseFloat(e.target.value) || 0;
+                      updateState({
+                        adicionais: {
+                          ...state.adicionais,
+                          calculosCustom: {
+                            ...state.adicionais.calculosCustom,
+                            itens: newCalculos
+                          }
+                        }
+                      });
+                    }}
+                  />
+                </div>
+                <Button 
+                  variant="destructive" 
+                  size="icon" 
+                  onClick={() => {
+                    const newCalculos = state.adicionais.calculosCustom.itens.filter((_, i) => i !== index);
+                    updateState({
+                      adicionais: {
+                        ...state.adicionais,
+                        calculosCustom: {
+                          ...state.adicionais.calculosCustom,
+                          itens: newCalculos
+                        }
+                      }
+                    });
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={() => updateState({
+                adicionais: {
+                  ...state.adicionais,
+                  calculosCustom: {
+                    ...state.adicionais.calculosCustom,
+                    itens: [...state.adicionais.calculosCustom.itens, { descricao: '', valor: 0 }]
+                  }
+                }
+              })}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Cálculo Personalizado
+            </Button>
           </div>
         )}
       </div>

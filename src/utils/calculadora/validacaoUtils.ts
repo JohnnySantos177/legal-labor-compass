@@ -1,4 +1,3 @@
-
 /**
  * Validation utilities for calculator
  */
@@ -48,7 +47,7 @@ export const notificarCalculoRealizado = () => {
  * Shows an error toast for calculation errors
  * @param error Error object or message
  */
-export const notificarErroCalculo = (error: any) => {
+export const notificarErroCalculo = (error: Error | string) => {
   console.error("Erro ao calcular resultados:", error);
   toast({
     title: "Erro ao calcular",

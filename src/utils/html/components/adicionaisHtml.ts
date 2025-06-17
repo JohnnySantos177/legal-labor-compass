@@ -1,11 +1,29 @@
-
 import { formatarValor } from '../formatters/htmlFormatters';
 import { getCustomCalculoDescription } from "../../calculadora/descricaoUtils";
+import { Resultados } from '@/types/calculadora';
+
+interface AdicionaisValues {
+  adicionalInsalubridade: number;
+  adicionalPericulosidade: number;
+  multa467: number;
+  multa477: number;
+  adicionalNoturno: number;
+  horasExtras: number;
+  feriasVencidas: number;
+  indenizacaoDemissao: number;
+  valeTransporte: number;
+  valeAlimentacao: number;
+  adicionalTransferencia: number;
+  descontosIndevidos: number;
+  diferencasSalariais: number;
+  customCalculo: number;
+  seguroDesemprego: number;
+}
 
 /**
  * Creates HTML content for the adicionais e multas table
  */
-export function renderAdicionaisHTML(adicionais: any, calculos: any) {
+export function renderAdicionaisHTML(adicionais: AdicionaisValues, calculos: Resultados) {
   // Calcular total de adicionais
   const totalAdicionais = 
     adicionais.adicionalInsalubridade +

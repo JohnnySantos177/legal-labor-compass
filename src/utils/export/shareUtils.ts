@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { Resultados } from "@/types/calculadora";
 
 // Enhanced function to share via WhatsApp with complete calculation details
 export const shareViaWhatsApp = (text: string) => {
@@ -14,7 +15,7 @@ export const shareViaEmail = (subject: string, body: string) => {
 };
 
 // Generate calculation text for sharing
-export const generateCalculationText = (resultados: any, metadata?: { dataCalculo: string; nomeEscritorio: string; nomeCalculo?: string }) => {
+export const generateCalculationText = (resultados: Resultados, metadata?: { dataCalculo: string; nomeEscritorio: string; nomeCalculo?: string }) => {
   // Assume 'resultados' is of type 'ResultadosCalculo' or compatible structure
   // that has 'detalhamento' and 'total' properties.
   if (!resultados || !resultados.detalhamento) {

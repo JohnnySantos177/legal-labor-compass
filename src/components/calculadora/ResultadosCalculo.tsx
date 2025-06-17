@@ -8,6 +8,7 @@ import { CalculationSection } from './results/CalculationSection';
 import { TotalDisplay } from './results/TotalDisplay';
 import { HorasExtrasSection } from './results/HorasExtrasSection';
 import { Badge } from '@/components/ui/badge';
+import { prepararMetadados } from '@/utils/calculosUtils';
 import { 
   Receipt, 
   Clock, 
@@ -72,27 +73,25 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
   ];
 
   const handleExportar = () => {
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
-    const nomeEscritorio = localStorage.getItem('userName') || 'IusCalc';
+    const { dataCalculo, nomeEscritorio } = prepararMetadados();
 
     exportToPDF({
       resultados: resultados,
       dadosContrato: dadosContrato || {} as DadosContrato,
       horasExtras: horasExtras,
       metadata: {
-        dataAtual: dataAtual,
+        dataAtual: dataCalculo,
         nomeEscritorio: nomeEscritorio
       }
     });
   };
 
   const handleCompartilhar = () => {
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
-    const nomeEscritorio = localStorage.getItem('userName') || 'IusCalc';
+    const { dataCalculo, nomeEscritorio } = prepararMetadados();
 
     const textoCalculo = generateCalculationText(
       { ...resultados, dadosContrato: dadosContrato || {} as DadosContrato },
-      { dataCalculo: dataAtual, nomeEscritorio: nomeEscritorio }
+      { dataCalculo: dataCalculo, nomeEscritorio: nomeEscritorio }
     );
     const confirmacao = window.confirm('Escolha o método de compartilhamento:\nOK = WhatsApp\nCancelar = Email');
     

@@ -1,4 +1,3 @@
-
 /**
  * Main utilities file for calculating additional labor values
  */
@@ -32,6 +31,7 @@ import {
   calcularInsalubridadeComPeriodo, 
   calcularPericulosidadeComPeriodo 
 } from './adicionais/periodoUtils';
+import { DadosContrato, Adicionais } from '@/types/calculadora'; // Importar DadosContrato e Adicionais
 
 // Re-export individual calculation functions for direct usage
 export const calcularInsalubridade = calcularInsalubridadeUtils;
@@ -149,7 +149,7 @@ export const calcularCustom = (calcular: boolean, valor: number): number => {
 };
 
 // Helper functions for beneficiosSociaisUtils
-export function calcularSeguroDesempregoHelper(adicionais: any, salarioBase: number, tipoRescisao: string) {
+export function calcularSeguroDesempregoHelper(adicionais: Adicionais, salarioBase: number, tipoRescisao: string) {
   if (!adicionais.calcularSeguroDesemprego) return 0;
   
   // Parse the values properly
@@ -206,13 +206,13 @@ export const calcularHonorariosAdvocaticios = (
  */
 export function calcularAdicionais(
   salarioBase: number, 
-  adicionais: any,
+  adicionais: Adicionais,
   saldoSalario: number = 0,
   avisoPrevia: number = 0,
   decimoTerceiro: number = 0,
   ferias: number = 0,
   tercoConstitucional: number = 0,
-  dadosContrato?: any
+  dadosContrato?: DadosContrato
 ) {
   let adicionalInsalubridade = 0;
   let adicionalPericulosidade = 0;
@@ -382,10 +382,10 @@ export function calcularAdicionais(
   }
   
   // Calculate custom calculations from array
-  if (adicionais.calcularCustom) {
+  if (adicionais.calculosCustom && adicionais.calculosCustom.length > 0) {
     customCalculo = calcularTodosCustom(
-      adicionais.calcularCustom,
-      adicionais.calculosCustom || []
+      true, // Sempre calcular se houver itens
+      adicionais.calculosCustom
     );
   }
   

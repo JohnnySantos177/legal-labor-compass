@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CalculadoraState, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CalculoPersonalizado } from '@/types/calculadora';
+import { CalculadoraState, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CustomCalculo } from '@/types/calculadora';
 
 const estadoInicial: CalculadoraState = {
   dadosContrato: {
@@ -14,32 +14,92 @@ const estadoInicial: CalculadoraState = {
     fgtsDepositado: false
   },
   adicionais: {
-    insalubridade: {
+    // Insalubridade
+    calcularInsalubridade: false,
+    grauInsalubridade: 'minimo',
+    baseCalculoInsalubridade: 'salario_minimo',
+    insalubridadePeriodoEspecifico: false,
+    dataInicioInsalubridade: '',
+    dataFimInsalubridade: '',
+
+    // Periculosidade
+    calcularPericulosidade: false,
+    percentualPericulosidade: '30',
+    baseCalculoPericulosidade: 'salario_base',
+    periculosidadePeriodoEspecifico: false,
+    dataInicioPericulosidade: '',
+    dataFimPericulosidade: '',
+
+    // Multas
+    calcularMulta467: false,
+    calcularMulta477: false,
+
+    // Noturno
+    calcularAdicionalNoturno: false,
+    percentualAdicionalNoturno: '20',
+    horasNoturnas: '0',
+
+    // Horas Extras
+    calcularHorasExtras: false,
+    quantidadeHorasExtras: '0',
+    percentualHorasExtras: '50',
+    horasExtrasCalculos: [],
+
+    // Férias Vencidas
+    calcularFeriasVencidas: false,
+    periodosFeriasVencidas: '0',
+
+    // Indenização por Demissão Indevida
+    calcularIndenizacaoDemissao: false,
+    valorIndenizacaoDemissao: '0',
+
+    // Vale Transporte Não Pago
+    calcularValeTransporte: false,
+    valorDiarioVT: '0',
+    diasValeTransporte: '0',
+
+    // Vale Alimentação Não Pago
+    calcularValeAlimentacao: false,
+    valorDiarioVA: '0',
+    diasValeAlimentacao: '0',
+
+    // Adicional de Transferência
+    calcularAdicionalTransferencia: false,
+    percentualAdicionalTransferencia: '0',
+
+    // Descontos Indevidos
+    calcularDescontosIndevidos: false,
+    valorDescontosIndevidos: '0',
+
+    // Diferenças Salariais
+    calcularDiferencasSalariais: false,
+    valorDiferencasSalariais: '0',
+
+    // Cálculos Personalizados (Custom)
+    calculosCustom: {
       ativo: false,
-      grau: 'minimo',
-      baseCalculo: 'salario_minimo',
-      periodoEspecifico: false,
-      dataInicio: '',
-      dataFim: '',
-      valor: 0
+      itens: [],
     },
-    periculosidade: {
-      ativo: false,
-      percentual: 30,
-      baseCalculo: 'salario_base',
-      valor: 0
-    },
-    noturno: {
-      ativo: false,
-      percentual: 20,
-      horas: 0,
-      valor: 0
-    },
-    horasExtras: {
-      ativo: false,
-      calculos: [],
-      valor: 0
-    }
+
+    // Seguro Desemprego
+    calcularSeguroDesemprego: false,
+    tipoTrabalhador: 'formal',
+    salarioUltimos3Meses: '0',
+    ultimoSalario: '0',
+    salarioMes1: '0',
+    salarioMes2: '0',
+    mesesTrabalhadosUltimoEmprego: '0',
+    tempoContribuicaoINSS: '0',
+
+    // Salário Família
+    calcularSalarioFamilia: false,
+    quantidadeFilhos: '0',
+
+    // Honorários Advocatícios
+    calcularHonorariosAdvocaticios: false,
+    percentualHonorariosAdvocaticios: '0',
+    valorHonorariosAdvocaticios: '0',
+    incluirTotalGeralHonorarios: false,
   },
   verbas: {
     feriasVencidas: {
@@ -101,7 +161,6 @@ const estadoInicial: CalculadoraState = {
     mesesTrabalhados: 0,
     valorParcelas: []
   },
-  calculosPersonalizados: []
 };
 
 export function useCalculadoraState() {
@@ -162,7 +221,7 @@ export function useCalculadoraState() {
         }
       }));
     }
-  }, [state.dadosContrato.dataAdmissao, state.dadosContrato.dataDemissao]);
+  }, [state.dadosContrato]);
 
   const updateState = (updates: Partial<CalculadoraState>) => {
     setState(prevState => {
@@ -180,95 +239,28 @@ export function useCalculadoraState() {
       if (updates.adicionais) {
         // Preservar a estrutura aninhada dos adicionais
         newState.adicionais = {
-          insalubridade: {
-            ...newState.adicionais.insalubridade,
-            ...(updates.adicionais.insalubridade || {})
-          },
-          periculosidade: {
-            ...newState.adicionais.periculosidade,
-            ...(updates.adicionais.periculosidade || {})
-          },
-          noturno: {
-            ...newState.adicionais.noturno,
-            ...(updates.adicionais.noturno || {})
-          },
-          horasExtras: {
-            ...newState.adicionais.horasExtras,
-            ...(updates.adicionais.horasExtras || {}),
-            calculos: updates.adicionais.horasExtras?.calculos || newState.adicionais.horasExtras.calculos
-          }
+          ...newState.adicionais,
+          ...updates.adicionais
         };
       }
 
       if (updates.verbas) {
-        // Preservar a estrutura aninhada das verbas
-        newState.verbas = {
-          feriasVencidas: {
-            ...newState.verbas.feriasVencidas,
-            ...(updates.verbas.feriasVencidas || {})
-          },
-          indenizacaoDemissaoIndevida: {
-            ...newState.verbas.indenizacaoDemissaoIndevida,
-            ...(updates.verbas.indenizacaoDemissaoIndevida || {})
-          },
-          valeTransporteNaoPago: {
-            ...newState.verbas.valeTransporteNaoPago,
-            ...(updates.verbas.valeTransporteNaoPago || {})
-          },
-          valeAlimentacaoNaoPago: {
-            ...newState.verbas.valeAlimentacaoNaoPago,
-            ...(updates.verbas.valeAlimentacaoNaoPago || {})
-          },
-          adicionalTransferencia: {
-            ...newState.verbas.adicionalTransferencia,
-            ...(updates.verbas.adicionalTransferencia || {})
-          },
-          descontosIndevidos: {
-            ...newState.verbas.descontosIndevidos,
-            ...(updates.verbas.descontosIndevidos || {})
-          },
-          diferencasSalariais: {
-            ...newState.verbas.diferencasSalariais,
-            ...(updates.verbas.diferencasSalariais || {})
-          }
-        };
+        newState.verbas = { ...newState.verbas, ...updates.verbas };
       }
-
       if (updates.multas) {
-        // Preservar a estrutura aninhada das multas
-        newState.multas = {
-          art467: {
-            ...newState.multas.art467,
-            ...(updates.multas.art467 || {})
-          },
-          art477: {
-            ...newState.multas.art477,
-            ...(updates.multas.art477 || {})
-          }
-        };
+        newState.multas = { ...newState.multas, ...updates.multas };
       }
-
       if (updates.salarioFamilia) {
-        newState.salarioFamilia = {
-          ...newState.salarioFamilia,
-          ...updates.salarioFamilia
-        };
+        newState.salarioFamilia = { ...newState.salarioFamilia, ...updates.salarioFamilia };
       }
-
       if (updates.seguroDesemprego) {
-        newState.seguroDesemprego = {
-          ...newState.seguroDesemprego,
-          ...updates.seguroDesemprego,
-          valorParcelas: updates.seguroDesemprego.valorParcelas || newState.seguroDesemprego.valorParcelas
-        };
+        newState.seguroDesemprego = { ...newState.seguroDesemprego, ...updates.seguroDesemprego };
       }
-
       if (updates.calculosPersonalizados) {
         newState.calculosPersonalizados = updates.calculosPersonalizados;
       }
-
       if (updates.resultados) {
-        newState.resultados = updates.resultados;
+        newState.resultados = { ...newState.resultados, ...updates.resultados };
       }
 
       return newState;
@@ -279,11 +271,7 @@ export function useCalculadoraState() {
     setState(estadoInicial);
   };
 
-  return {
-    state,
-    updateState,
-    resetState
-  };
+  return { state, updateState, resetState };
 }
 
 export default useCalculadoraState;

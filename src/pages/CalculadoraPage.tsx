@@ -1,6 +1,6 @@
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
-import { useCalculosSalvos } from '@/hooks/useCalculosSalvos';
+import { useCalculosSalvos, CalculoSalvo } from '@/hooks/useCalculosSalvos';
 import { AdicionaisBasicos } from '@/components/calculadora/AdicionaisBasicos';
 import { VerbasAdicionais } from '@/components/calculadora/VerbasAdicionais';
 import { MultasOutrosAdicionais } from '@/components/calculadora/MultasOutrosAdicionais';
@@ -8,6 +8,7 @@ import { ResultadosCalculo } from '@/components/calculadora/ResultadosCalculo';
 import { ContractDataForm } from '@/components/calculadora/ContractDataForm';
 import { SavedCalculations } from '@/components/calculadora/SavedCalculations';
 import { toast } from 'sonner';
+import { CalculadoraState, DadosContrato } from '@/types/calculadora';
 
 export function CalculadoraPage() {
   const { state, updateState } = useCalculadoraState();
@@ -23,7 +24,7 @@ export function CalculadoraPage() {
   const handleCalcular = () => {
     try {
       // Criar uma cópia do estado para não modificá-lo diretamente
-      const stateCopy = JSON.parse(JSON.stringify(state));
+      const stateCopy: CalculadoraState = JSON.parse(JSON.stringify(state));
       
       // Garantir que o salário base seja um número
       stateCopy.dadosContrato.salarioBase = Number(stateCopy.dadosContrato.salarioBase) || 0;
@@ -63,7 +64,7 @@ export function CalculadoraPage() {
     salvarCalculo(state, state.resultados, nomePersonalizado || undefined);
   };
 
-  const handleEditarCalculo = (calculo: any) => {
+  const handleEditarCalculo = (calculo: CalculoSalvo) => {
     // Carregar os dados do cálculo no formulário
     updateState({
       dadosContrato: calculo.dadosContrato,
@@ -103,7 +104,7 @@ export function CalculadoraPage() {
                 terminationType: state.dadosContrato.motivoDemissao
               }}
               onUpdate={(field, value) => {
-                const dadosContratoUpdates: any = {};
+                const dadosContratoUpdates: Partial<DadosContrato> = {};
                 
                 switch (field) {
                   case 'daysWorked':
@@ -113,26 +114,25 @@ export function CalculadoraPage() {
                     dadosContratoUpdates.mesesTrabalhados = String(value);
                     break;
                   case 'fixedTermContract':
-                    dadosContratoUpdates.contratoTempoDeterminado = value;
+                    dadosContratoUpdates.contratoTempoDeterminado = value as boolean;
                     break;
                   case 'noticePeriodFulfilled':
-                    dadosContratoUpdates.avisoPrevioCumprido = value;
+                    dadosContratoUpdates.avisoPrevioCumprido = value as boolean;
                     break;
                   case 'fgtsDeposited':
-                    dadosContratoUpdates.fgtsDepositado = value;
+                    dadosContratoUpdates.fgtsDepositado = value as boolean;
                     break;
                   case 'admissionDate':
-                    dadosContratoUpdates.dataAdmissao = value;
+                    dadosContratoUpdates.dataAdmissao = value as string;
                     break;
                   case 'terminationDate':
-                    dadosContratoUpdates.dataDemissao = value;
+                    dadosContratoUpdates.dataDemissao = value as string;
                     break;
                   case 'baseSalary':
-                    // Garantir que o salário base seja um número
                     dadosContratoUpdates.salarioBase = Number(value) || 0;
                     break;
                   case 'terminationType':
-                    dadosContratoUpdates.motivoDemissao = value;
+                    dadosContratoUpdates.motivoDemissao = value as 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
                     break;
                 }
                 

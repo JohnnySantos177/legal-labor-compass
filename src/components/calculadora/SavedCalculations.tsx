@@ -119,7 +119,7 @@ export const SavedCalculations = ({
       
       <div class="section">
         <h3>Verbas Rescisórias</h3>
-        ${Object.entries(calculo.resultados.detalhamento.verbas as { [key: string]: number })
+        ${Object.entries(calculo.resultados.detalhamento.verbas)
           .filter(([_, value]) => value > 0)
           .map(([key, value]) => `
             <div class="result-item">
@@ -131,7 +131,7 @@ export const SavedCalculations = ({
       
       <div class="section">
         <h3>Adicionais</h3>
-        ${Object.entries(calculo.resultados.detalhamento.adicionais as { [key: string]: number })
+        ${Object.entries(calculo.resultados.detalhamento.adicionais)
           .filter(([_, value]) => value > 0)
           .map(([key, value]) => `
             <div class="result-item">
@@ -143,7 +143,7 @@ export const SavedCalculations = ({
       
       <div class="section">
         <h3>Multas</h3>
-        ${Object.entries(calculo.resultados.detalhamento.multas as { [key: string]: number })
+        ${Object.entries(calculo.resultados.detalhamento.multas)
           .filter(([_, value]) => value > 0)
           .map(([key, value]) => `
             <div class="result-item">

@@ -54,48 +54,108 @@ export interface DadosContrato {
   salarioBase: number;
   dataAdmissao: string;
   dataDemissao: string;
-  motivoDemissao: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
+  motivoDemissao: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | 'rescisao_indireta' | '';
   diasTrabalhados: string;
   mesesTrabalhados: string;
   contratoTempoDeterminado: boolean;
   avisoPrevioCumprido: boolean;
   fgtsDepositado: boolean;
+  mesesRestantesContrato?: string;
 }
 
 export interface HoraExtra {
   id: string;
   percentual: number;
   quantidade: number;
-  valor?: number;
 }
 
 export interface Adicionais {
-  insalubridade: {
+  // Insalubridade
+  calcularInsalubridade: boolean;
+  grauInsalubridade: 'minimo' | 'medio' | 'maximo';
+  baseCalculoInsalubridade: 'salario_minimo' | 'salario_base';
+  insalubridadePeriodoEspecifico: boolean;
+  dataInicioInsalubridade?: string;
+  dataFimInsalubridade?: string;
+
+  // Periculosidade
+  calcularPericulosidade: boolean;
+  percentualPericulosidade: string;
+  baseCalculoPericulosidade: 'salario_minimo' | 'salario_base';
+  periculosidadePeriodoEspecifico: boolean;
+  dataInicioPericulosidade?: string;
+  dataFimPericulosidade?: string;
+
+  // Multas (adicionado para cálculo direto em adicionaisUtils)
+  calcularMulta467: boolean;
+  calcularMulta477: boolean;
+
+  // Noturno
+  calcularAdicionalNoturno: boolean;
+  percentualAdicionalNoturno: string;
+  horasNoturnas: string;
+
+  // Horas Extras
+  calcularHorasExtras: boolean;
+  quantidadeHorasExtras: string;
+  percentualHorasExtras: string;
+  horasExtrasCalculos: HoraExtra[];
+
+  // Férias Vencidas
+  calcularFeriasVencidas: boolean;
+  periodosFeriasVencidas: string;
+
+  // Indenização por Demissão Indevida
+  calcularIndenizacaoDemissao: boolean;
+  valorIndenizacaoDemissao: string;
+
+  // Vale Transporte Não Pago
+  calcularValeTransporte: boolean;
+  valorDiarioVT: string;
+  diasValeTransporte: string;
+
+  // Vale Alimentação Não Pago
+  calcularValeAlimentacao: boolean;
+  valorDiarioVA: string;
+  diasValeAlimentacao: string;
+
+  // Adicional de Transferência
+  calcularAdicionalTransferencia: boolean;
+  percentualAdicionalTransferencia: string;
+
+  // Descontos Indevidos
+  calcularDescontosIndevidos: boolean;
+  valorDescontosIndevidos: string;
+
+  // Diferenças Salariais
+  calcularDiferencasSalariais: boolean;
+  valorDiferencasSalariais: string;
+
+  // Cálculos Personalizados (Custom)
+  calculosCustom: {
     ativo: boolean;
-    grau: 'minimo' | 'medio' | 'maximo';
-    baseCalculo: 'salario_minimo' | 'salario_base';
-    periodoEspecifico: boolean;
-    dataInicio?: string;
-    dataFim?: string;
-    valor?: number;
+    itens: CustomCalculo[];
   };
-  periculosidade: {
-    ativo: boolean;
-    percentual: number;
-    baseCalculo: 'salario_minimo' | 'salario_base';
-    valor?: number;
-  };
-  noturno: {
-    ativo: boolean;
-    percentual: number;
-    horas: number;
-    valor?: number;
-  };
-  horasExtras: {
-    ativo: boolean;
-    calculos: HoraExtra[];
-    valor?: number;
-  };
+
+  // Seguro Desemprego
+  calcularSeguroDesemprego: boolean;
+  tipoTrabalhador: string;
+  salarioUltimos3Meses: string;
+  ultimoSalario: string;
+  salarioMes1: string;
+  salarioMes2: string;
+  mesesTrabalhadosUltimoEmprego: string;
+  tempoContribuicaoINSS: string;
+
+  // Salário Família
+  calcularSalarioFamilia: boolean;
+  quantidadeFilhos: string;
+
+  // Honorários Advocatícios
+  calcularHonorariosAdvocaticios: boolean;
+  percentualHonorariosAdvocaticios: string;
+  valorHonorariosAdvocaticios: string;
+  incluirTotalGeralHonorarios: boolean;
 }
 
 export interface Verbas {
@@ -162,8 +222,8 @@ export interface SeguroDesemprego {
   valorParcelas?: number[];
 }
 
-export interface CalculoPersonalizado {
-  ativo: boolean;
+export interface CustomCalculo {
+  id: string;
   descricao: string;
   valor: number;
 }
@@ -185,6 +245,8 @@ export interface Resultados {
       adicionalTransferencia: number;
       descontosIndevidos: number;
       diferencasSalariais: number;
+      tercoConstitucional: number;
+      total: number;
     };
     adicionais: {
       insalubridade: number;
@@ -210,6 +272,5 @@ export interface CalculadoraState {
   multas: Multas;
   salarioFamilia: SalarioFamilia;
   seguroDesemprego: SeguroDesemprego;
-  calculosPersonalizados: CalculoPersonalizado[];
   resultados?: Resultados;
 }

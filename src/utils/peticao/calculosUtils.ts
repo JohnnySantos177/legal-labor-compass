@@ -1,11 +1,11 @@
-
 /**
  * This file contains utilities for handling calculations in petições
  */
 import { criarHTMLCalculosEmbutidos } from '@/utils/html/calculosHTML';
+import { Resultados } from '@/types/calculadora';
 
 // Função para gerar o HTML dos cálculos para incorporar na petição
-export const gerarHTMLCalculos = (calculosImportados: any) => {
+export const gerarHTMLCalculos = (calculosImportados: Resultados) => {
   if (!calculosImportados) return null;
 
   try {

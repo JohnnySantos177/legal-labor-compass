@@ -3,6 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalculadoraState } from '@/types/calculadora';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface VerbasAdicionaisProps {
   state: CalculadoraState;

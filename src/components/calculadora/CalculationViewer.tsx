@@ -1,4 +1,3 @@
-
 import { 
   Dialog, 
   DialogContent, 
@@ -49,10 +48,10 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
 
   const getAdicionalDisplayName = (key: string) => {
     const nomes: { [key: string]: string } = {
-      'insalubridade': 'Adicional de Insalubridade',
-      'periculosidade': 'Adicional de Periculosidade',
-      'noturno': 'Adicional Noturno',
-      'horasExtras': 'Horas Extras'
+      'grauInsalubridade': 'Adicional de Insalubridade',
+      'percentualPericulosidade': 'Adicional de Periculosidade',
+      'percentualAdicionalNoturno': 'Adicional Noturno',
+      'horasExtrasCalculos': 'Horas Extras'
     };
     return nomes[key] || key;
   };
@@ -134,7 +133,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                 {calculo.adicionais.insalubridade.ativo && (
                   <div className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-blue-400">
                     <span className="font-medium text-gray-700">
-                      🏭 {getAdicionalDisplayName('insalubridade')} ({calculo.adicionais.insalubridade.grau})
+                      🏭 {getAdicionalDisplayName('grauInsalubridade')} ({calculo.adicionais.insalubridade.grau})
                     </span>
                     <Badge className="bg-blue-600 text-white">
                       {formatCurrency(calculo.adicionais.insalubridade.valor || 0)}
@@ -144,7 +143,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                 {calculo.adicionais.periculosidade.ativo && (
                   <div className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-orange-400">
                     <span className="font-medium text-gray-700">
-                      ⚠️ {getAdicionalDisplayName('periculosidade')} ({calculo.adicionais.periculosidade.percentual}%)
+                      ⚠️ {getAdicionalDisplayName('percentualPericulosidade')} ({calculo.adicionais.periculosidade.percentual}%)
                     </span>
                     <Badge className="bg-orange-600 text-white">
                       {formatCurrency(calculo.adicionais.periculosidade.valor || 0)}
@@ -153,7 +152,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                 )}
                 {calculo.adicionais.noturno.ativo && (
                   <div className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-purple-400">
-                    <span className="font-medium text-gray-700">🌙 {getAdicionalDisplayName('noturno')}</span>
+                    <span className="font-medium text-gray-700">🌙 {getAdicionalDisplayName('percentualAdicionalNoturno')}</span>
                     <Badge className="bg-purple-600 text-white">
                       {formatCurrency(calculo.adicionais.noturno.valor || 0)}
                     </Badge>
@@ -161,7 +160,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                 )}
                 {calculo.adicionais.horasExtras.ativo && (
                   <div className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-green-400">
-                    <span className="font-medium text-gray-700">⏰ {getAdicionalDisplayName('horasExtras')}</span>
+                    <span className="font-medium text-gray-700">⏰ {getAdicionalDisplayName('horasExtrasCalculos')}</span>
                     <Badge className="bg-green-600 text-white">
                       {formatCurrency(calculo.adicionais.horasExtras.valor || 0)}
                     </Badge>

@@ -1,9 +1,13 @@
-
 /**
  * Test utility to verify calculations remain consistent after refactoring
  */
 import { DadosContrato, Adicionais, Resultados } from '@/types/calculadora';
 import { realizarCalculos } from '@/utils/calculadora/calculosUtils';
+
+interface VerificacaoResultado {
+  success: boolean;
+  message: string;
+}
 
 /**
  * Verifies that the calculations remain consistent after refactoring
@@ -14,7 +18,7 @@ import { realizarCalculos } from '@/utils/calculadora/calculosUtils';
 export const verificarCalculos = (
   dadosContrato: DadosContrato,
   adicionais: Adicionais
-): { success: boolean; message: string; details?: any } => {
+): { success: boolean; message: string; details?: VerificacaoResultado[] | Error } => {
   try {
     // Create a sample test case
     const resultados = realizarCalculos(dadosContrato, adicionais);
@@ -49,7 +53,7 @@ export const verificarCalculos = (
     return {
       success: false,
       message: `Erro ao executar verificação: ${(error as Error).message}`,
-      details: error
+      details: error as Error
     };
   }
 };
@@ -58,22 +62,21 @@ export const verificarCalculos = (
  * Verifies rescission values
  */
 const verificarVerbasRescisorias = (resultados: Resultados) => {
-  const { saldoSalario, avisoPrevia, decimoTerceiro, ferias, tercoConstitucional, fgts, multaFgts, total } = 
-    resultados.verbasRescisorias;
+  const { verbas } = resultados.detalhamento;
   
   // Basic validation of rescission values
-  const saldoValid = saldoSalario >= 0;
-  const avisoValid = avisoPrevia >= 0;
-  const decimoValid = decimoTerceiro >= 0;
-  const feriasValid = ferias >= 0;
-  const tercoValid = tercoConstitucional >= 0;
-  const fgtsValid = fgts >= 0;
-  const multaFgtsValid = multaFgts >= 0;
+  const saldoValid = verbas.salarioProporcional >= 0;
+  const avisoValid = verbas.avisoPrevio >= 0;
+  const decimoValid = verbas.decimoTerceiro >= 0;
+  const feriasValid = verbas.feriasProporcionais >= 0;
+  const tercoValid = verbas.tercoConstitucional >= 0;
+  const fgtsValid = verbas.fgts >= 0;
+  const multaFgtsValid = verbas.multaFgts >= 0;
   
   // Check that the total is equal to the sum of components
-  const calculatedTotal = saldoSalario + avisoPrevia + decimoTerceiro + 
-                          ferias + tercoConstitucional + fgts + multaFgts;
-  const totalValid = Math.abs(calculatedTotal - total) < 0.01; // Allow small floating point differences
+  const calculatedTotal = verbas.salarioProporcional + verbas.avisoPrevio + verbas.decimoTerceiro + 
+                          verbas.feriasProporcionais + verbas.tercoConstitucional + verbas.fgts + verbas.multaFgts;
+  const totalValid = Math.abs(calculatedTotal - verbas.total) < 0.01; // Allow small floating point differences
   
   // Result of verification
   return {
@@ -81,7 +84,7 @@ const verificarVerbasRescisorias = (resultados: Resultados) => {
              tercoValid && fgtsValid && multaFgtsValid && totalValid,
     message: totalValid ? 
       "Verbas rescisórias calculadas corretamente" : 
-      `Inconsistência no total das verbas: esperado ${calculatedTotal}, obtido ${total}`
+      `Inconsistência no total das verbas: esperado ${calculatedTotal}, obtido ${verbas.total}`
   };
 };
 
@@ -89,49 +92,25 @@ const verificarVerbasRescisorias = (resultados: Resultados) => {
  * Verifies additional values
  */
 const verificarAdicionais = (resultados: Resultados) => {
-  const {
-    adicionalInsalubridade,
-    adicionalPericulosidade,
-    multa467,
-    multa477,
-    adicionalNoturno,
-    horasExtras,
-    feriasVencidas,
-    indenizacaoDemissao,
-    valeTransporte,
-    valeAlimentacao,
-    adicionalTransferencia,
-    descontosIndevidos,
-    diferencasSalariais,
-    customCalculo,
-    seguroDesemprego,
-    salarioFamilia
-  } = resultados.adicionais;
+  const { adicionais, salarioFamilia, seguroDesemprego, calculosPersonalizados } = resultados.detalhamento;
   
   // Basic validation for additionals (shouldn't be negative)
   const validations = [
-    adicionalInsalubridade >= 0,
-    adicionalPericulosidade >= 0,
-    multa467 >= 0,
-    multa477 >= 0,
-    adicionalNoturno >= 0,
-    horasExtras >= 0,
-    feriasVencidas >= 0,
-    indenizacaoDemissao >= 0,
-    valeTransporte >= 0,
-    valeAlimentacao >= 0,
-    adicionalTransferencia >= 0,
-    descontosIndevidos >= 0,
-    diferencasSalariais >= 0,
-    customCalculo >= 0,
+    adicionais.insalubridade >= 0,
+    adicionais.periculosidade >= 0,
+    adicionais.noturno >= 0,
+    adicionais.horasExtras >= 0,
+    resultados.detalhamento.multas.art467 >= 0,
+    resultados.detalhamento.multas.art477 >= 0,
+    salarioFamilia >= 0,
     seguroDesemprego >= 0,
-    salarioFamilia >= 0
+    calculosPersonalizados >= 0,
   ];
   
   const allValid = validations.every(v => v);
   
   // Insalubridade e periculosidade não podem ser ambos maiores que zero (não acumuláveis)
-  const acumulacaoInvalida = adicionalInsalubridade > 0 && adicionalPericulosidade > 0;
+  const acumulacaoInvalida = adicionais.insalubridade > 0 && adicionais.periculosidade > 0;
   
   return {
     success: allValid && !acumulacaoInvalida,
