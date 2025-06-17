@@ -382,11 +382,10 @@ export function calcularAdicionais(
   }
   
   // Calculate custom calculations from array
-  if (adicionais.calculosCustom && adicionais.calculosCustom.length > 0) {
-    customCalculo = calcularTodosCustom(
-      true, // Sempre calcular se houver itens
-      adicionais.calculosCustom
-    );
+  if (adicionais.calculosCustom.ativo && adicionais.calculosCustom.itens.length > 0) {
+    return adicionais.calculosCustom.itens.reduce((total, item) => {
+      return total + (item.valor || 0);
+    }, 0);
   }
   
   // Calculate unemployment insurance

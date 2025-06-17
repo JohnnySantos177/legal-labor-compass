@@ -1,132 +1,60 @@
+import { Adicionais, HoraExtra } from '@/types/calculadora';
 
 /**
- * Utilities for calculating additional values related to work hours
+ * Calcula o valor do adicional noturno com base no salário, percentual e horas noturnas.
+ * @param salarioBase Salário base do trabalhador.
+ * @param adicionais Objeto contendo as configurações de adicionais, incluindo o adicional noturno.
+ * @returns O valor do adicional noturno ou 0 se não for aplicável.
  */
-import { ajustarMesesPorDias } from "../verbasRescisoriasUtils";
-import { HorasExtrasCalculo } from '@/types/calculadora';
+export const calcularAdicionalNoturno = (salarioBase: number, adicionais: Adicionais): number => {
+  if (adicionais.calcularAdicionalNoturno) {
+    const percentual = parseFloat(adicionais.percentualAdicionalNoturno.toString());
+    const horasNoturnas = parseFloat(adicionais.horasNoturnas.toString());
 
-/**
- * Calculates night shift premium
- */
-export const calcularAdicionalNoturno = (
-  calcular: boolean,
-  percentual: string,
-  horasNoturnas: string,
-  salarioBase: number
-): number => {
-  if (!calcular) return 0;
-  
-  const percentualAdicional = parseFloat(percentual) / 100 || 0.2; // Default 20%
-  const qtdHorasNoturnas = parseInt(horasNoturnas) || 0;
-  const valorHoraNormal = salarioBase / 220; // 220 horas mensais padrão
-  
-  return valorHoraNormal * percentualAdicional * qtdHorasNoturnas;
-};
+    if (isNaN(percentual) || isNaN(horasNoturnas)) {
+      console.error("Percentual ou horas noturnas inválidos.");
+      return 0;
+    }
 
-/**
- * Calculates overtime
- */
-export const calcularHorasExtras = (
-  calcular: boolean,
-  percentual: string,
-  quantidadeHoras: string,
-  salarioBase: number
-): number => {
-  if (!calcular) return 0;
-  
-  const percentualAdicional = parseFloat(percentual) / 100 || 0.5; // Default 50%
-  const qtdHoras = parseFloat(quantidadeHoras) || 0;
-  const valorHoraNormal = salarioBase / 220; // 220 horas mensais padrão
-  
-  return valorHoraNormal * (1 + percentualAdicional) * qtdHoras;
-};
-
-/**
- * Calculates multiple overtime calculations
- */
-export const calcularHorasExtrasMultiplas = (
-  calcular: boolean,
-  horasExtrasCalculos: HorasExtrasCalculo[],
-  salarioBase: number
-): number => {
-  if (!calcular || !horasExtrasCalculos || horasExtrasCalculos.length === 0) return 0;
-  
-  const valorHoraNormal = salarioBase / 220; // 220 horas mensais padrão
-  
-  return horasExtrasCalculos.reduce((total, calculo) => {
-    const percentualAdicional = parseFloat(calculo.percentual) / 100 || 0.5;
-    const qtdHoras = parseFloat(calculo.quantidade) || 0;
-    const valorCalculo = valorHoraNormal * (1 + percentualAdicional) * qtdHoras;
-    
-    console.log(`Calculando horas extras: ${qtdHoras}h a ${calculo.percentual}% = R$ ${valorCalculo.toFixed(2)}`);
-    
-    return total + valorCalculo;
-  }, 0);
-};
-
-/**
- * Calculates expired vacation value
- */
-export const calcularFeriasVencidas = (
-  calcular: boolean,
-  periodos: string,
-  salarioBase: number,
-  diasNoUltimoMes: number = 0
-): number => {
-  if (!calcular) return 0;
-  
-  // Quantidade de períodos aquisitivos vencidos não gozados
-  let qtdPeriodos = parseInt(periodos) || 1;
-  
-  // Aplicar a regra dos 15 dias se o período incluir dias parciais
-  if (diasNoUltimoMes > 15) {
-    qtdPeriodos = Math.ceil(qtdPeriodos);
+    return (salarioBase / 220) * percentual / 100 * horasNoturnas;
   }
-  
-  // Cada período vencido equivale a um salário + 1/3 constitucional
-  return salarioBase * qtdPeriodos * (1 + 1/3);
+
+  return 0;
 };
 
 /**
- * Calculates dismissal indemnity
+ * Calcula o valor das horas extras com base no salário, quantidade de horas extras e percentual.
+ * @param salarioBase Salário base do trabalhador.
+ * @param adicionais Objeto contendo as configurações de adicionais, incluindo as horas extras.
+ * @returns O valor das horas extras ou 0 se não for aplicável.
  */
-export const calcularIndenizacaoDemissao = (
-  calcular: boolean,
-  valorIndenizacao: string,
-  salarioBase: number
-): number => {
-  if (!calcular) return 0;
-  
-  // Se o usuário definiu um valor específico, usar esse valor
-  const valorDefinido = parseFloat(valorIndenizacao);
-  if (valorDefinido && !isNaN(valorDefinido)) {
-    return valorDefinido;
-  }
-  
-  // Se não definiu valor, usa um salário como padrão
-  return salarioBase;
-};
+export const calcularHorasExtras = (salarioBase: number, adicionais: Adicionais): number => {
+  if (adicionais.calcularHorasExtras) {
+    // Garante que horasExtrasCalculos está definido e é um array
+    if (!adicionais.horasExtrasCalculos || !Array.isArray(adicionais.horasExtrasCalculos)) {
+      console.error("horasExtrasCalculos não está definido ou não é um array.");
+      return 0;
+    }
 
-/**
- * Calculates transfer premium
- */
-export const calcularAdicionalTransferencia = (
-  calcular: boolean,
-  percentual: string,
-  salarioBase: number,
-  diasNoUltimoMes: number = 0
-): number => {
-  if (!calcular) return 0;
-  
-  const percentualAdicional = parseFloat(percentual) / 100 || 0.25; // Default 25%
-  
-  // Aplicamos a regra dos 15 dias para considerar mês completo
-  // se aplicável (quando há dias parciais)
-  if (diasNoUltimoMes > 0) {
-    // Se trabalhou mais de 15 dias, considera um mês completo
-    const fatorMes = diasNoUltimoMes > 15 ? 1 : diasNoUltimoMes / 30;
-    return salarioBase * percentualAdicional * fatorMes;
+    // Calcula o valor da hora normal
+    const valorHora = salarioBase / 220;
+
+    // Mapeia e calcula o valor de cada hora extra
+    const valorTotalHorasExtras = adicionais.horasExtrasCalculos.reduce((total, horasExtrasCalculo: HoraExtra) => {
+    const totalHorasExtras = horasExtrasCalculo.quantidade;
+    const percentual = parseFloat(horasExtrasCalculo.percentual.toString());
+    const valorHora = parseFloat(valorHora.toString());
+
+      if (isNaN(percentual) || isNaN(totalHorasExtras)) {
+        console.error("Percentual ou quantidade de horas extras inválidos.");
+        return total; // Retorna o total acumulado até o momento
+      }
+
+      return total + (valorHora * (percentual / 100) * totalHorasExtras);
+    }, 0);
+
+    return valorTotalHorasExtras;
   }
-  
-  return salarioBase * percentualAdicional;
+
+  return 0;
 };

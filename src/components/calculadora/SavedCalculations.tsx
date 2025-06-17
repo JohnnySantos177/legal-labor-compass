@@ -255,9 +255,11 @@ export const SavedCalculations = ({
           <CardTitle>Cálculos Salvos</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500 text-center py-4">
-            Nenhum cálculo salvo ainda. Realize um cálculo e clique em "Salvar" para vê-lo aqui.
-          </p>
+          <div className="text-center py-8 text-gray-500">
+            <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>Nenhum cálculo salvo ainda.</p>
+            <p className="text-sm">Realize um cálculo e salve para vê-lo aqui.</p>
+          </div>
         </CardContent>
       </Card>
     );

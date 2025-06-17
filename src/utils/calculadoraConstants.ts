@@ -1,4 +1,3 @@
-
 import { Resultados, Adicionais } from '@/types/calculadora';
 
 export const resultadosIniciais: Resultados = {
@@ -78,7 +77,10 @@ export const adicionaisIniciais: Adicionais = {
   calcularDiferencasSalariais: false,
   valorDiferencasSalariais: '',
   calcularCustom: false,
-  calculosCustom: [],
+  calculosCustom: {
+    ativo: false,
+    itens: []
+  },
   descricaoCustom: '',
   valorCustom: '',
   calcularSeguroDesemprego: false,
@@ -106,3 +108,50 @@ export const VALOR_SALARIO_MINIMO_2025 = 1412.00;
 export const VALOR_ADICIONAL_FAIXA_2 = 58.57;
 export const VALOR_SALARIO_FAMILIA = 59.82;
 export const LIMITE_SALARIO_FAMILIA = 1819.26;
+
+export const EMPTY_RESULTS: any = {
+  total: 0,
+  detalhamento: {
+    verbas: {
+      salarioProporcional: 0,
+      decimoTerceiro: 0,
+      feriasProporcionais: 0,
+      avisoPrevio: 0,
+      fgts: 0,
+      multaFgts: 0,
+      feriasVencidas: 0,
+      indenizacaoDemissaoIndevida: 0,
+      valeTransporteNaoPago: 0,
+      valeAlimentacaoNaoPago: 0,
+      adicionalTransferencia: 0,
+      descontosIndevidos: 0,
+      diferencasSalariais: 0,
+      tercoConstitucional: 0,
+      total: 0,
+    },
+    adicionais: {
+      insalubridade: 0,
+      periculosidade: 0,
+      noturno: 0,
+      horasExtras: 0,
+    },
+    multas: {
+      art467: 0,
+      art477: 0,
+    },
+    salarioFamilia: 0,
+    seguroDesemprego: 0,
+    calculosPersonalizados: 0,
+  },
+  dadosContrato: {
+    salarioBase: 0,
+    dataAdmissao: '',
+    dataDemissao: '',
+    motivoDemissao: '',
+    diasTrabalhados: '0',
+    mesesTrabalhados: '0',
+    contratoTempoDeterminado: false,
+    avisoPrevioCumprido: false,
+    fgtsDepositado: false,
+  },
+};

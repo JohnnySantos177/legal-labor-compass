@@ -1,53 +1,14 @@
+import { Adicionais } from '@/types/calculadora';
 
 /**
- * Utilities for calculating discounts and salary differences
+ * Calcula o valor total dos descontos indevidos.
+ * @param adicionais Objeto contendo as informações sobre os adicionais.
+ * @returns O valor total dos descontos indevidos, ou 0 se não houver descontos.
  */
+export const calcularDescontosIndevidos = (adicionais: Adicionais): number => {
+  if (adicionais.calcularDescontosIndevidos) {
+    return parseFloat(adicionais.valorDescontosIndevidos.toString()) || 0;
+  }
 
-import { CustomCalculo } from '@/types/calculadora';
-
-/**
- * Calculate undue discounts
- */
-export const calcularDescontosIndevidos = (
-  calcular: boolean,
-  valorDescontosIndevidos: number
-): number => {
-  if (!calcular) return 0;
-  
-  return valorDescontosIndevidos;
-};
-
-/**
- * Calculate salary differences
- */
-export const calcularDiferencasSalariais = (
-  calcular: boolean,
-  valorDiferencasSalariais: number
-): number => {
-  if (!calcular) return 0;
-  
-  return valorDiferencasSalariais;
-};
-
-/**
- * Calculate all custom calculations from array
- */
-export const calcularTodosCustom = (
-  calcular: boolean, 
-  calculosCustom: CustomCalculo[]
-): number => {
-  if (!calcular || !calculosCustom || calculosCustom.length === 0) return 0;
-  
-  // Sum all custom calculation values
-  return calculosCustom.reduce((total, calc) => {
-    const valor = parseFloat(calc.valor) || 0;
-    return total + valor;
-  }, 0);
-};
-
-/**
- * Calculate single custom calculation (legacy support)
- */
-export const calcularCustom = (calcular: boolean, valorCustom: number): number => {
-  return calcular ? valorCustom : 0;
+  return 0;
 };

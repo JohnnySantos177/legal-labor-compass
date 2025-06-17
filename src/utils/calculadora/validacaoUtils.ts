@@ -1,67 +1,34 @@
-/**
- * Validation utilities for calculator
- */
-import { DadosContrato } from "@/types/calculadora";
-import { toast } from "@/components/ui/use-toast";
+import { DadosContrato, Adicionais } from '@/types/calculadora';
 
 /**
- * Validates if the contract data is complete and valid
- * @param dadosContrato Contract data to validate
- * @returns Boolean indicating if data is valid
+ * Valida os dados do contrato e adicionais, retornando um array de erros.
+ * @param dadosContrato Dados do contrato a serem validados.
+ * @param adicionais Adicionais a serem validados.
+ * @returns Um array de strings contendo os erros encontrados. Se não houver erros, retorna um array vazio.
  */
-export const validarDadosContrato = (dadosContrato: DadosContrato): boolean => {
-  // Verificar datas de admissão e demissão
-  if (!dadosContrato.dataAdmissao || !dadosContrato.dataDemissao) {
-    toast({
-      title: "Dados incompletos",
-      description: "Por favor, informe as datas de admissão e demissão.",
-      variant: "destructive"
-    });
-    return false;
+export const validarDados = (dadosContrato: DadosContrato, adicionais: Adicionais): string[] => {
+  const errors: string[] = [];
+
+  // Validações dos Dados do Contrato
+  if (!dadosContrato.salarioBase || dadosContrato.salarioBase <= 0) {
+    errors.push('Salário base deve ser um número válido e maior que zero');
   }
 
-  // Verificar salário base
-  if (!dadosContrato.salarioBase || parseFloat(dadosContrato.salarioBase) <= 0) {
-    toast({
-      title: "Dados incompletos",
-      description: "Por favor, informe um salário base válido.",
-      variant: "destructive"
-    });
-    return false;
+  if (!dadosContrato.dataAdmissao) {
+    errors.push('Data de admissão é obrigatória');
   }
 
-  return true;
-};
+  if (!dadosContrato.dataDemissao) {
+    errors.push('Data de demissão é obrigatória');
+  }
 
-/**
- * Shows a successful calculation toast
- */
-export const notificarCalculoRealizado = () => {
-  toast({
-    title: "Cálculos realizados",
-    description: "Os valores foram calculados com sucesso.",
-  });
-};
+  // Validações dos Adicionais (exemplo)
+  if (adicionais.calcularDescontosIndevidos) {
+    const valor = parseFloat(adicionais.valorDescontosIndevidos.toString());
+    if (isNaN(valor) || valor < 0) {
+      errors.push('Valor dos descontos indevidos deve ser um número válido e positivo');
+    }
+  }
 
-/**
- * Shows an error toast for calculation errors
- * @param error Error object or message
- */
-export const notificarErroCalculo = (error: Error | string) => {
-  console.error("Erro ao calcular resultados:", error);
-  toast({
-    title: "Erro ao calcular",
-    description: "Ocorreu um erro nos cálculos. Verifique os dados informados.",
-    variant: "destructive"
-  });
-};
-
-/**
- * Expand result accordions to show the calculated values
- */
-export const expandirAcordeoes = () => {
-  document.querySelectorAll('[data-state="closed"]').forEach((accordion) => {
-    const button = accordion.querySelector('button');
-    if (button) button.click();
-  });
+  return errors;
 };

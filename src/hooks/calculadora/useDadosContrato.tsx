@@ -1,74 +1,129 @@
+import { useState, useCallback } from 'react';
+import { CalculadoraState } from '@/types/calculadora';
+import { useCalculadoraState } from './useCalculadoraState';
 
-import { useEffect } from 'react';
-import { calcularMesesEntreDatas } from '@/utils/formatters';
-import { DadosContrato } from '@/types/calculadora';
+interface DadosContratoActions {
+  updateSalarioBase: (salarioBase: number) => void;
+  updateDataAdmissao: (dataAdmissao: string) => void;
+  updateDataDemissao: (dataDemissao: string) => void;
+  updateMotivoDemissao: (motivoDemissao: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '') => void;
+  updateDiasTrabalhados: (diasTrabalhados: string) => void;
+  updateMesesTrabalhados: (mesesTrabalhados: string) => void;
+  updateContratoTempoDeterminado: (contratoTempoDeterminado: boolean) => void;
+  updateAvisoPrevioCumprido: (avisoPrevioCumprido: boolean) => void;
+  updateFgtsDepositado: (fgtsDepositado: boolean) => void;
+  updateMesesRestantesContrato: (mesesRestantesContrato: string) => void;
+  updateAllDadosContrato: (dadosContrato: CalculadoraState['dadosContrato']) => void;
+}
 
-export const useDadosContrato = (
-  dadosContrato: DadosContrato, 
-  setDadosContrato: React.Dispatch<React.SetStateAction<DadosContrato>>
-) => {
-  // Efeito para calcular automaticamente dias e meses trabalhados quando as datas são alteradas
-  useEffect(() => {
-    if (dadosContrato.dataAdmissao && dadosContrato.dataDemissao) {
-      try {
-        const meses = calcularMesesEntreDatas(dadosContrato.dataAdmissao, dadosContrato.dataDemissao);
-        
-        // Obter o dia exato da data de demissão sem nenhuma alteração
-        const dataDemissao = new Date(dadosContrato.dataDemissao);
-        // Usar o dia do mês como está na data de demissão e adicionar um dia
-        const dias = dataDemissao.getDate() + 1;
-        
-        console.log("Data Demissão:", dataDemissao);
-        console.log("Dia extraído + 1:", dias);
-        
-        setDadosContrato(prev => ({
-          ...prev,
-          mesesTrabalhados: String(meses),
-          diasTrabalhados: String(dias)
-        }));
-      } catch (error) {
-        console.error("Erro ao calcular período:", error);
-      }
-    }
-  }, [dadosContrato.dataAdmissao, dadosContrato.dataDemissao, setDadosContrato]);
+export const useDadosContrato = (): DadosContratoActions => {
+  const { state, updateState } = useCalculadoraState();
 
-  // Função para atualizar os dados do contrato
-  const handleDadosContratoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    
-    // Se for mudança nas datas, garantimos que não manipulamos o valor
-    if (name === 'dataAdmissao' || name === 'dataDemissao') {
-      setDadosContrato(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    } else {
-      setDadosContrato(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-  
-  // Função para atualizar checkboxes
-  const handleCheckboxChange = (field: string, checked: boolean) => {
-    setDadosContrato(prev => ({
-      ...prev,
-      [field]: checked
-    }));
-  };
-  
-  // Função para atualizar o tipo de rescisão
-  const handleTipoRescisaoChange = (value: string) => {
-    setDadosContrato(prev => ({
-      ...prev,
-      tipoRescisao: value as DadosContrato['tipoRescisao']
-    }));
-  };
+  const updateSalarioBase = useCallback((salarioBase: number) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        salarioBase: salarioBase,
+      },
+    });
+  }, [state, updateState]);
 
-  return { 
-    handleDadosContratoChange,
-    handleCheckboxChange,
-    handleTipoRescisaoChange
+  const updateDataAdmissao = useCallback((dataAdmissao: string) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        dataAdmissao: dataAdmissao,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateDataDemissao = useCallback((dataDemissao: string) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        dataDemissao: dataDemissao,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateMotivoDemissao = useCallback((motivoDemissao: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '') => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        motivoDemissao: motivoDemissao,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateDiasTrabalhados = useCallback((diasTrabalhados: string) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        diasTrabalhados: diasTrabalhados,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateMesesTrabalhados = useCallback((mesesTrabalhados: string) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        mesesTrabalhados: mesesTrabalhados,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateContratoTempoDeterminado = useCallback((contratoTempoDeterminado: boolean) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        contratoTempoDeterminado: contratoTempoDeterminado,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateAvisoPrevioCumprido = useCallback((avisoPrevioCumprido: boolean) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        avisoPrevioCumprido: avisoPrevioCumprido,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateFgtsDepositado = useCallback((fgtsDepositado: boolean) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        fgtsDepositado: fgtsDepositado,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateMesesRestantesContrato = useCallback((mesesRestantesContrato: string) => {
+    updateState({
+      dadosContrato: {
+        ...state.dadosContrato,
+        mesesRestantesContrato: mesesRestantesContrato,
+      },
+    });
+  }, [state, updateState]);
+
+  const updateAllDadosContrato = useCallback((dadosContrato: CalculadoraState['dadosContrato']) => {
+    updateState({ dadosContrato });
+  }, [updateState]);
+
+  return {
+    updateSalarioBase,
+    updateDataAdmissao,
+    updateDataDemissao,
+    updateMotivoDemissao,
+    updateDiasTrabalhados,
+    updateMesesTrabalhados,
+    updateContratoTempoDeterminado,
+    updateAvisoPrevioCumprido,
+    updateFgtsDepositado,
+    updateMesesRestantesContrato,
+    updateAllDadosContrato,
   };
 };

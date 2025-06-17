@@ -1,18 +1,81 @@
-import { Adicionais, CustomCalculo } from "@/types/calculadora";
+import { DadosContrato, Adicionais } from '@/types/calculadora';
 
 /**
- * Get description for custom calculations
+ * Gera uma descrição detalhada dos cálculos com base nos dados do contrato e adicionais.
+ * @param dadosContrato Dados do contrato de trabalho.
+ * @param adicionais Adicionais e configurações para os cálculos.
+ * @returns Uma string formatada com a descrição dos cálculos.
  */
-export const getCustomCalculoDescription = (adicionais: Adicionais): string => {
-  if (adicionais.calculosCustom && adicionais.calculosCustom.length > 0) {
-    // If multiple custom calculations, join their names
-    if (adicionais.calculosCustom.length > 1) {
-      return "Cálculos Personalizados";
-    } else {
-      // Return the description of the single custom calculation
-      return adicionais.calculosCustom[0].descricao || "Cálculo Personalizado";
+export const gerarDescricaoCalculos = (dadosContrato: DadosContrato, adicionais: Adicionais): string => {
+  const descricoes: string[] = [];
+
+  if (adicionais.calcularInsalubridade) {
+    descricoes.push('Insalubridade');
+  }
+
+  if (adicionais.calcularPericulosidade) {
+    descricoes.push('Periculosidade');
+  }
+
+  if (adicionais.calcularAdicionalNoturno) {
+    descricoes.push('Adicional Noturno');
+  }
+
+  if (adicionais.calcularHorasExtras) {
+    descricoes.push('Horas Extras');
+  }
+
+  if (adicionais.calcularFeriasVencidas) {
+    descricoes.push('Férias Vencidas');
+  }
+
+  if (adicionais.calcularIndenizacaoDemissao) {
+    descricoes.push('Indenização por Demissão Indevida');
+  }
+
+  if (adicionais.calcularValeTransporte) {
+    descricoes.push('Vale Transporte Não Pago');
+  }
+
+  if (adicionais.calcularValeAlimentacao) {
+    descricoes.push('Vale Alimentação Não Pago');
+  }
+
+  if (adicionais.calcularAdicionalTransferencia) {
+    descricoes.push('Adicional de Transferência');
+  }
+
+  if (adicionais.calcularDescontosIndevidos) {
+    descricoes.push('Descontos Indevidos');
+  }
+
+  if (adicionais.calcularDiferencasSalariais) {
+    descricoes.push('Diferenças Salariais');
+  }
+  
+  if (adicionais.calculosCustom.ativo && adicionais.calculosCustom.itens.length > 0) {
+    descricoes.push('Cálculos Personalizados');
+    if (adicionais.calculosCustom.itens.length > 1) {
+      descricoes.push(`(${adicionais.calculosCustom.itens.length} itens)`);
     }
   }
-  // Fallback to old system or if no description is available
-  return adicionais.descricaoCustom || "Cálculo Personalizado";
+
+  // Remove reference to non-existent property
+  // if (adicionais.descricaoCustom) {
+  //   descricoes.push(adicionais.descricaoCustom);
+  // }
+
+  if (adicionais.calcularSeguroDesemprego) {
+    descricoes.push('Seguro Desemprego');
+  }
+
+  if (adicionais.calcularSalarioFamilia) {
+    descricoes.push('Salário Família');
+  }
+
+  if (adicionais.calcularHonorariosAdvocaticios) {
+    descricoes.push('Honorários Advocatícios');
+  }
+
+  return descricoes.join(', ');
 };
