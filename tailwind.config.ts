@@ -1,4 +1,5 @@
 
+
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
@@ -66,7 +67,8 @@ export default {
 				},
 				'juriscalc-blue': '#1e40af',
 				'juriscalc-navy': '#1e3a8a',
-				'juriscalc-teal': '#0d9488'
+				'juriscalc-teal': '#0d9488',
+				'juriscalc-yellow': '#f59e0b'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -103,3 +105,4 @@ export default {
 	},
 	plugins: [tailwindcssAnimate],
 } satisfies Config;
+

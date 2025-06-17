@@ -54,7 +54,7 @@ export function HomePage() {
               <h1 className="text-4xl lg:text-5xl font-bold mb-6 font-merriweather">
                 Bem-vindo ao IusCalc
                 <br />
-                <span className="text-juriscalc-teal">Trabalhista</span>
+                <span className="text-juriscalc-yellow">Trabalhista</span>
               </h1>
               <p className="text-xl mb-8 text-white/90">
                 Sua plataforma completa para automatizar cálculos trabalhistas 
@@ -63,7 +63,7 @@ export function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
-                  className="bg-juriscalc-teal hover:bg-juriscalc-teal/90 text-white font-semibold"
+                  className="bg-juriscalc-yellow hover:bg-juriscalc-yellow/90 text-juriscalc-navy font-semibold"
                   onClick={() => navigate('/calculadora')}
                 >
                   Começar a Calcular
@@ -72,7 +72,7 @@ export function HomePage() {
                   <Button 
                     variant="outline" 
                     size="lg"
-                    className="border-juriscalc-teal text-juriscalc-teal hover:bg-juriscalc-teal hover:text-white transition-colors"
+                    className="border-juriscalc-yellow text-juriscalc-yellow hover:bg-juriscalc-yellow hover:text-juriscalc-navy transition-colors"
                   >
                     Manual Rápido
                   </Button>
@@ -80,18 +80,14 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* Right Content - Logo/Image */}
+            {/* Right Content - Nova Imagem */}
             <div className="flex justify-center">
-              <div className="w-80 h-96 bg-gray-800 rounded-lg flex flex-col items-center justify-center p-8">
-                <div className="text-center text-gray-300">
-                  <Scale className="w-16 h-16 mx-auto mb-4" />
-                  <Building2 className="w-8 h-8 mx-auto mb-2" />
-                  <Calculator className="w-12 h-12 mx-auto mb-4" />
-                  <Building2 className="w-8 h-8 mx-auto mb-6" />
-                  <h2 className="text-2xl font-bold text-juriscalc-teal tracking-wider">
-                    IUSCALC
-                  </h2>
-                </div>
+              <div className="w-80 h-96 rounded-lg overflow-hidden shadow-2xl">
+                <img 
+                  src="/lovable-uploads/56e4b543-66f3-4e98-bb7d-63199f724412.png"
+                  alt="IusCalc - Calculadora Jurídica"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -212,7 +208,7 @@ export function HomePage() {
           </p>
           <Button 
             size="lg" 
-            className="bg-juriscalc-teal hover:bg-juriscalc-teal/90 text-white font-semibold"
+            className="bg-juriscalc-yellow hover:bg-juriscalc-yellow/90 text-juriscalc-navy font-semibold"
             onClick={() => navigate('/calculadora')}
           >
             Começar Agora →
@@ -226,7 +222,7 @@ export function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center mb-4">
-                <Scale className="w-8 h-8 text-juriscalc-teal mr-2" />
+                <Scale className="w-8 h-8 text-juriscalc-yellow mr-2" />
                 <span className="text-2xl font-bold text-white">IusCalc</span>
               </div>
               <p className="text-white/80 text-sm max-w-md">

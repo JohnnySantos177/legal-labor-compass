@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import bgImage from '@/assets/vecteezy_business-and-lawyers-discussing-contract-papers-with-brass_11955995.jpg';
@@ -23,7 +24,6 @@ export function Login() {
       <div className="w-full max-w-[400px] relative z-10">
         <div className="flex flex-col items-center mb-6">
           <img src={iusCalcLogo} alt="IusCalc" className="w-12 h-12 mb-2" />
-          <h1 className="text-xl font-semibold text-white mb-0.5">IusCalc</h1>
           <p className="text-white/90 text-sm">Sistema Jurídico de Cálculos Trabalhistas</p>
         </div>
 
