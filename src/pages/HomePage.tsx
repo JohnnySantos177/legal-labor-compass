@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calculator, FileSpreadsheet, Mail, Share2, FileText, Scale, Building2, Users } from 'lucide-react';
+import { Calculator, FileSpreadsheet, Mail, Share2, Scale, Building2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ManualDialog } from '@/components/manual-dialog';
@@ -24,9 +24,9 @@ export function HomePage() {
     },
     {
       number: 3,
-      title: "Gere Petições",
-      subtitle: "Crie documentos profissionais",
-      description: "Utilize nossos modelos de petições para gerar documentos completos e profissionais, incorporando os cálculos realizados automaticamente."
+      title: "Compartilhe Resultados",
+      subtitle: "Exporte e compartilhe facilmente",
+      description: "Compartilhe seus cálculos via WhatsApp, e-mail e exporte em formatos PDF e Excel para facilitar a comunicação com clientes e colegas."
     }
   ];
 
@@ -35,11 +35,6 @@ export function HomePage() {
       icon: Calculator,
       title: "Calculadora Avançada",
       description: "Calcule automaticamente verbas rescisórias, horas extras, adicionais de insalubridade, periculosidade e muito mais."
-    },
-    {
-      icon: FileText,
-      title: "Editor de Petições",
-      description: "Edite petições com modelos personalizáveis e formatação jurídica automática para criar petições padronizadas."
     },
     {
       icon: Share2,
@@ -59,16 +54,16 @@ export function HomePage() {
               <h1 className="text-4xl lg:text-5xl font-bold mb-6 font-merriweather">
                 Bem-vindo ao IusCalc
                 <br />
-                <span className="text-juriscalc-gold">Trabalhista</span>
+                <span className="text-juriscalc-teal">Trabalhista</span>
               </h1>
               <p className="text-xl mb-8 text-white/90">
-                Sua plataforma completa para automatizar cálculos trabalhistas e gerar 
-                petições com precisão e agilidade.
+                Sua plataforma completa para automatizar cálculos trabalhistas 
+                com precisão e agilidade.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg"
-                  className="bg-juriscalc-gold hover:bg-juriscalc-gold/90 text-white font-semibold"
+                  className="bg-juriscalc-teal hover:bg-juriscalc-teal/90 text-white font-semibold"
                   onClick={() => navigate('/calculadora')}
                 >
                   Começar a Calcular
@@ -77,7 +72,7 @@ export function HomePage() {
                   <Button 
                     variant="outline" 
                     size="lg"
-                    className="border-white text-white hover:bg-white hover:text-juriscalc-navy"
+                    className="border-juriscalc-teal text-juriscalc-teal hover:bg-juriscalc-teal hover:text-white transition-colors"
                   >
                     Manual Rápido
                   </Button>
@@ -93,7 +88,7 @@ export function HomePage() {
                   <Building2 className="w-8 h-8 mx-auto mb-2" />
                   <Calculator className="w-12 h-12 mx-auto mb-4" />
                   <Building2 className="w-8 h-8 mx-auto mb-6" />
-                  <h2 className="text-2xl font-bold text-juriscalc-gold tracking-wider">
+                  <h2 className="text-2xl font-bold text-juriscalc-teal tracking-wider">
                     IUSCALC
                   </h2>
                 </div>
@@ -155,7 +150,7 @@ export function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {mainFeatures.map((feature, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                 <CardHeader>
@@ -180,7 +175,7 @@ export function HomePage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center mb-1">
-                          <FileText className="w-4 h-4 text-white" />
+                          <FileSpreadsheet className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-xs text-gray-500">PDF</span>
                       </div>
@@ -213,11 +208,11 @@ export function HomePage() {
           </h2>
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
             Comece agora a usar o IusCalc Trabalhista e reduza em até 70% o tempo 
-            gasto na elaboração de petições iniciais trabalhistas.
+            gasto na elaboração de cálculos trabalhistas.
           </p>
           <Button 
             size="lg" 
-            className="bg-juriscalc-gold hover:bg-juriscalc-gold/90 text-white font-semibold"
+            className="bg-juriscalc-teal hover:bg-juriscalc-teal/90 text-white font-semibold"
             onClick={() => navigate('/calculadora')}
           >
             Começar Agora →
@@ -231,13 +226,12 @@ export function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <div className="flex items-center mb-4">
-                <Scale className="w-8 h-8 text-juriscalc-gold mr-2" />
+                <Scale className="w-8 h-8 text-juriscalc-teal mr-2" />
                 <span className="text-2xl font-bold text-white">IusCalc</span>
               </div>
               <p className="text-white/80 text-sm max-w-md">
                 Ferramenta completa para advogados trabalhistas
-                automatizarem petições iniciais e calcularem verbas
-                trabalhistas com precisão.
+                automatizarem cálculos trabalhistas com precisão.
               </p>
             </div>
             
@@ -246,13 +240,12 @@ export function HomePage() {
               <ul className="space-y-2 text-white/80 text-sm">
                 <li>Home</li>
                 <li>Calculadora</li>
-                <li>Petições</li>
               </ul>
             </div>
             
             <div>
               <h4 className="text-white font-semibold mb-3">Contato</h4>
-              <p className="text-white/80 text-sm">iuscalc@gmail.com</p>
+              <p className="text-white/80 text-sm">mktadvisory7@gmail.com</p>
             </div>
           </div>
           
