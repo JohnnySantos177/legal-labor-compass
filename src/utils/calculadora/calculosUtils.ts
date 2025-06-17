@@ -1,3 +1,4 @@
+
 // Utility functions for handling calculation data
 
 // Import the necessary functions from verbasRescisoriasUtils
@@ -33,10 +34,10 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
   const salarioBase = dadosContrato.salarioBase || 0;
   
   // Get all values from verbasRescisorias to pass to calcularAdicionais
-  const saldoSalario = verbasRescisoriasCalculadas.saldoSalario || 0;
-  const avisoPrevia = verbasRescisoriasCalculadas.avisoPrevia || 0;
+  const saldoSalario = verbasRescisoriasCalculadas.salarioProporcional || 0;
+  const avisoPrevia = verbasRescisoriasCalculadas.avisoPrevio || 0;
   const decimoTerceiroVerba = verbasRescisoriasCalculadas.decimoTerceiro || 0;
-  const feriasVerba = verbasRescisoriasCalculadas.ferias || 0;
+  const feriasVerba = verbasRescisoriasCalculadas.feriasProporcionais || 0;
   const tercoConstitucionalVerba = verbasRescisoriasCalculadas.tercoConstitucional || 0;
   
   // Calculate all additionals using the main function - now passing dadosContrato
@@ -88,10 +89,10 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     total: totalFinal,
     detalhamento: {
       verbas: {
-        salarioProporcional: verbasRescisoriasCalculadas.saldoSalario || 0,
+        salarioProporcional: verbasRescisoriasCalculadas.salarioProporcional || 0,
         decimoTerceiro: verbasRescisoriasCalculadas.decimoTerceiro || 0,
-        feriasProporcionais: verbasRescisoriasCalculadas.ferias || 0,
-        avisoPrevio: verbasRescisoriasCalculadas.avisoPrevia || 0,
+        feriasProporcionais: verbasRescisoriasCalculadas.feriasProporcionais || 0,
+        avisoPrevio: verbasRescisoriasCalculadas.avisoPrevio || 0,
         fgts: verbasRescisoriasCalculadas.fgts || 0,
         multaFgts: verbasRescisoriasCalculadas.multaFgts || 0,
         tercoConstitucional: verbasRescisoriasCalculadas.tercoConstitucional || 0,

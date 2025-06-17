@@ -1,3 +1,4 @@
+
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
 import { useCalculosSalvos, CalculoSalvo } from '@/hooks/useCalculosSalvos';
@@ -73,7 +74,6 @@ export function CalculadoraPage() {
       multas: calculo.multas,
       salarioFamilia: calculo.salarioFamilia,
       seguroDesemprego: calculo.seguroDesemprego,
-      calculosPersonalizados: calculo.calculosPersonalizados,
       resultados: calculo.resultados
     });
     
@@ -101,7 +101,7 @@ export function CalculadoraPage() {
                 admissionDate: state.dadosContrato.dataAdmissao,
                 terminationDate: state.dadosContrato.dataDemissao,
                 baseSalary: state.dadosContrato.salarioBase,
-                terminationType: state.dadosContrato.motivoDemissao
+                terminationType: state.dadosContrato.motivoDemissao as 'dismissal' | 'resignation' | 'mutual' | 'just_cause'
               }}
               onUpdate={(field, value) => {
                 const dadosContratoUpdates: Partial<DadosContrato> = {};

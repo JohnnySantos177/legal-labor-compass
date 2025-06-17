@@ -1,3 +1,4 @@
+
 export interface ContractData {
   admissionDate: string;
   terminationDate: string;
@@ -36,6 +37,13 @@ export interface OvertimeData extends Addition {
   quantity: number;
   percentage: number;
   detailedCalculations: boolean;
+}
+
+export interface HorasExtrasCalculo {
+  id: string;
+  percentual: number;
+  quantidade: number;
+  valor?: number;
 }
 
 export interface CalculationResult {
@@ -77,6 +85,12 @@ export interface Adicionais {
   insalubridadePeriodoEspecifico: boolean;
   dataInicioInsalubridade?: string;
   dataFimInsalubridade?: string;
+  insalubridade: {
+    ativo: boolean;
+    grau: 'minimo' | 'medio' | 'maximo';
+    baseCalculo: 'salario_minimo' | 'salario_base';
+    valor?: number;
+  };
 
   // Periculosidade
   calcularPericulosidade: boolean;
@@ -85,6 +99,12 @@ export interface Adicionais {
   periculosidadePeriodoEspecifico: boolean;
   dataInicioPericulosidade?: string;
   dataFimPericulosidade?: string;
+  periculosidade: {
+    ativo: boolean;
+    percentual: number;
+    baseCalculo: 'salario_minimo' | 'salario_base';
+    valor?: number;
+  };
 
   // Multas (adicionado para cálculo direto em adicionaisUtils)
   calcularMulta467: boolean;
@@ -94,12 +114,23 @@ export interface Adicionais {
   calcularAdicionalNoturno: boolean;
   percentualAdicionalNoturno: string;
   horasNoturnas: string;
+  noturno: {
+    ativo: boolean;
+    percentual: number;
+    horas: number;
+    valor?: number;
+  };
 
   // Horas Extras
   calcularHorasExtras: boolean;
   quantidadeHorasExtras: string;
   percentualHorasExtras: string;
   horasExtrasCalculos: HoraExtra[];
+  horasExtras: {
+    ativo: boolean;
+    calculos: HorasExtrasCalculo[];
+    valor?: number;
+  };
 
   // Férias Vencidas
   calcularFeriasVencidas: boolean;
@@ -272,5 +303,6 @@ export interface CalculadoraState {
   multas: Multas;
   salarioFamilia: SalarioFamilia;
   seguroDesemprego: SeguroDesemprego;
+  calculosPersonalizados?: CustomCalculo[];
   resultados?: Resultados;
 }

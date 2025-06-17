@@ -1,3 +1,4 @@
+
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -243,7 +244,11 @@ export function MultasOutrosAdicionais({ state, updateState }: MultasOutrosAdici
                   ...state.adicionais,
                   calculosCustom: {
                     ...state.adicionais.calculosCustom,
-                    itens: [...state.adicionais.calculosCustom.itens, { descricao: '', valor: 0 }]
+                    itens: [...state.adicionais.calculosCustom.itens, { 
+                      id: Math.random().toString(36).substr(2, 9),
+                      descricao: '', 
+                      valor: 0 
+                    }]
                   }
                 }
               })}

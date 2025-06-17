@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -42,17 +43,25 @@ interface ManagedUser {
   trial_end_date?: string;
 }
 
+interface FormData {
+  email: string;
+  name: string;
+  role: 'user' | 'admin' | 'super_admin';
+  plan: 'standard' | 'premium';
+  phone: string;
+}
+
 export function UserManagement() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     name: '',
-    role: 'user' as const,
-    plan: 'standard' as const,
+    role: 'user',
+    plan: 'standard',
     phone: '',
   });
 
@@ -210,8 +219,8 @@ export function UserManagement() {
                 <Label htmlFor="role">Papel</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={value =>
-                    setFormData({ ...formData, role: value as 'user' | 'admin' | 'super_admin' })
+                  onValueChange={(value: 'user' | 'admin' | 'super_admin') =>
+                    setFormData({ ...formData, role: value })
                   }
                 >
                   <SelectTrigger>
@@ -228,8 +237,8 @@ export function UserManagement() {
                 <Label htmlFor="plan">Plano</Label>
                 <Select
                   value={formData.plan}
-                  onValueChange={value =>
-                    setFormData({ ...formData, plan: value as 'standard' | 'premium' })
+                  onValueChange={(value: 'standard' | 'premium') =>
+                    setFormData({ ...formData, plan: value })
                   }
                 >
                   <SelectTrigger>
@@ -287,7 +296,7 @@ export function UserManagement() {
                 <TableCell className="capitalize">{user.plan}</TableCell>
                 <TableCell>{user.phone || 'Não informado'}</TableCell>
                 <TableCell>
-                  {new Date(user.created_at).toISOString()}
+                  {new Date(user.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button

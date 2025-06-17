@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { CalculadoraState, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CustomCalculo } from '@/types/calculadora';
 
@@ -21,6 +22,11 @@ const estadoInicial: CalculadoraState = {
     insalubridadePeriodoEspecifico: false,
     dataInicioInsalubridade: '',
     dataFimInsalubridade: '',
+    insalubridade: {
+      ativo: false,
+      grau: 'minimo',
+      baseCalculo: 'salario_minimo',
+    },
 
     // Periculosidade
     calcularPericulosidade: false,
@@ -29,6 +35,11 @@ const estadoInicial: CalculadoraState = {
     periculosidadePeriodoEspecifico: false,
     dataInicioPericulosidade: '',
     dataFimPericulosidade: '',
+    periculosidade: {
+      ativo: false,
+      percentual: 30,
+      baseCalculo: 'salario_base',
+    },
 
     // Multas
     calcularMulta467: false,
@@ -38,12 +49,21 @@ const estadoInicial: CalculadoraState = {
     calcularAdicionalNoturno: false,
     percentualAdicionalNoturno: '20',
     horasNoturnas: '0',
+    noturno: {
+      ativo: false,
+      percentual: 20,
+      horas: 0,
+    },
 
     // Horas Extras
     calcularHorasExtras: false,
     quantidadeHorasExtras: '0',
     percentualHorasExtras: '50',
     horasExtrasCalculos: [],
+    horasExtras: {
+      ativo: false,
+      calculos: [],
+    },
 
     // Férias Vencidas
     calcularFeriasVencidas: false,
@@ -161,6 +181,7 @@ const estadoInicial: CalculadoraState = {
     mesesTrabalhados: 0,
     valorParcelas: []
   },
+  calculosPersonalizados: [],
 };
 
 export function useCalculadoraState() {

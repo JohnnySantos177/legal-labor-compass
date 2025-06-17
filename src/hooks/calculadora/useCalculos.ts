@@ -1,3 +1,4 @@
+
 import { CalculadoraState, Resultados } from '@/types/calculadora';
 
 const SALARIO_MINIMO = 1412; // Valor do salário mínimo 2024
@@ -6,7 +7,7 @@ export function useCalculos() {
   const calcular = (state: CalculadoraState): Resultados => {
     console.log('Iniciando cálculos com estado:', state);
     
-    const { dadosContrato, adicionais, verbas, multas, salarioFamilia, seguroDesemprego, calculosPersonalizados } = state;
+    const { dadosContrato, adicionais, verbas, multas, salarioFamilia, seguroDesemprego } = state;
     const { salarioBase, diasTrabalhados, mesesTrabalhados, motivoDemissao, avisoPrevioCumprido, fgtsDepositado } = dadosContrato;
 
     console.log('Salário base para cálculos:', salarioBase);
@@ -29,11 +30,13 @@ export function useCalculos() {
 
     // Cálculo de férias proporcionais
     let valorFeriasProporcionais = 0;
+    let tercoConstitucional = 0;
     if (motivoDemissao !== 'justa_causa') {
       const mesesParaFerias = Math.floor(parseInt(mesesTrabalhados) + (parseInt(diasTrabalhados) > 14 ? 1 : 0));
       valorFeriasProporcionais = (salarioBase / 12) * mesesParaFerias;
       // Adicional de 1/3 de férias
-      valorFeriasProporcionais += valorFeriasProporcionais / 3;
+      tercoConstitucional = valorFeriasProporcionais / 3;
+      valorFeriasProporcionais += tercoConstitucional;
     }
     console.log('Férias proporcionais + 1/3:', valorFeriasProporcionais);
 
@@ -66,38 +69,38 @@ export function useCalculos() {
 
     // Cálculo de Insalubridade
     let valorInsalubridade = 0;
-    if (adicionais.insalubridade.ativo) {
-      const baseInsalubridade = adicionais.insalubridade.baseCalculo === 'salario_minimo' ? SALARIO_MINIMO : salarioBase;
+    if (adicionais.calcularInsalubridade) {
+      const baseInsalubridade = adicionais.baseCalculoInsalubridade === 'salario_minimo' ? SALARIO_MINIMO : salarioBase;
       const percentualInsalubridade = {
         minimo: 0.1,
         medio: 0.2,
         maximo: 0.4
-      }[adicionais.insalubridade.grau];
+      }[adicionais.grauInsalubridade];
       valorInsalubridade = baseInsalubridade * (percentualInsalubridade || 0);
       console.log('Valor Insalubridade:', valorInsalubridade);
     }
 
     // Cálculo de Periculosidade
     let valorPericulosidade = 0;
-    if (adicionais.periculosidade.ativo) {
-      const basePericulosidade = adicionais.periculosidade.baseCalculo === 'salario_minimo' ? SALARIO_MINIMO : salarioBase;
-      valorPericulosidade = basePericulosidade * (adicionais.periculosidade.percentual / 100);
+    if (adicionais.calcularPericulosidade) {
+      const basePericulosidade = adicionais.baseCalculoPericulosidade === 'salario_minimo' ? SALARIO_MINIMO : salarioBase;
+      valorPericulosidade = basePericulosidade * (parseFloat(adicionais.percentualPericulosidade) / 100);
       console.log('Valor Periculosidade:', valorPericulosidade);
     }
 
     // Cálculo de Adicional Noturno
     let valorAdicionalNoturno = 0;
-    if (adicionais.noturno.ativo) {
+    if (adicionais.calcularAdicionalNoturno) {
       const valorHora = salarioBase / 220;
-      valorAdicionalNoturno = valorHora * adicionais.noturno.horas * (adicionais.noturno.percentual / 100);
+      valorAdicionalNoturno = valorHora * parseInt(adicionais.horasNoturnas) * (parseFloat(adicionais.percentualAdicionalNoturno) / 100);
       console.log('Valor Adicional Noturno:', valorAdicionalNoturno);
     }
 
     // Cálculo de Horas Extras
     let valorHorasExtras = 0;
-    if (adicionais.horasExtras.ativo) {
+    if (adicionais.calcularHorasExtras) {
       const valorHora = salarioBase / 220;
-      const calculosAtualizados = adicionais.horasExtras.calculos.map(horaExtra => {
+      const calculosAtualizados = adicionais.horasExtrasCalculos.map(horaExtra => {
         const valor = valorHora * horaExtra.quantidade * (1 + horaExtra.percentual / 100);
         return { ...horaExtra, valor };
       });
@@ -186,11 +189,8 @@ export function useCalculos() {
     }
 
     // Cálculo dos valores personalizados
-    const valorCalculosPersonalizados = calculosPersonalizados.reduce((total, calc) => {
-      if (calc.ativo) {
-        return total + calc.valor;
-      }
-      return total;
+    const valorCalculosPersonalizados = (state.calculosPersonalizados || []).reduce((total, calc) => {
+      return total + calc.valor;
     }, 0);
     console.log('Valor Cálculos Personalizados:', valorCalculosPersonalizados);
 
@@ -218,7 +218,9 @@ export function useCalculos() {
         valeAlimentacaoNaoPago: valorValeAlimentacao,
         adicionalTransferencia: valorAdicionalTransferencia,
         descontosIndevidos: valorDescontosIndevidos,
-        diferencasSalariais: valorDiferencasSalariais
+        diferencasSalariais: valorDiferencasSalariais,
+        tercoConstitucional,
+        total: salarioProporcional + valorDecimoTerceiro + valorFeriasProporcionais + valorAvisoPrevio + valorFGTS + multaFGTS
       },
       adicionais: {
         insalubridade: valorInsalubridade,
