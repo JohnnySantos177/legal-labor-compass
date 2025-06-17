@@ -80,7 +80,7 @@ export function LoginForm() {
           </Button>
           
           <div className="text-center text-sm">
-            <span className="text-gray-600">Demo: demo@iuscalc.com / demo123</span>
+            {/* <span className="text-gray-600">Demo: demo@iuscalc.com / demo123</span> */}
           </div>
         </form>
 

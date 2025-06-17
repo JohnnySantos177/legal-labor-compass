@@ -24,7 +24,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<AuthPage />} />
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/cadastro" element={<AuthPage />} />
           <Route 

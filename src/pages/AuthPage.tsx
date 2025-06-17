@@ -23,10 +23,9 @@ export const AuthPage = () => {
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <img src="/images/logo.png" alt="IusCalc" className="w-24 h-24 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg mb-2">IusCalc</h1>
+          {/* <h1 className="text-4xl font-bold text-white drop-shadow-lg mb-2">IusCalc</h1> */}
           <p className="text-white drop-shadow-lg">Calculadora Jurídica Trabalhista</p>
         </div>
-        
         <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-white/20 backdrop-blur-sm text-white">
             <TabsTrigger 
@@ -51,7 +50,6 @@ export const AuthPage = () => {
             <RegisterForm />
           </TabsContent>
         </Tabs>
-
       </div>
     </div>
   );

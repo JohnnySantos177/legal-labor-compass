@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, Star, CheckCircle, MessageCircle, Mail, FileText, Users, Calculator, Shield, Clock, Award } from 'lucide-react';
@@ -131,13 +130,6 @@ export function Login() {
                   </a>
                 </div>
               </form>
-
-              {/* Demo credentials */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 text-center">
-                  <strong>Demo:</strong> demo@iuscalc.com / demo123
-                </p>
-              </div>
             </div>
           </div>
         </div>
