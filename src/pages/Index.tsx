@@ -46,22 +46,15 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative h-[420px] flex items-center justify-center bg-black/70" style={{backgroundImage: 'url(/images/legal-background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
         <div className="absolute inset-0 bg-black/70" />
-        <div className="relative z-10 text-center text-white max-w-2xl mx-auto">
-          <h1
-            className="text-3xl md:text-5xl lg:text-6xl font-bold font-merriweather mb-4 leading-tight tracking-wide text-center bg-gradient-to-r from-yellow-400 via-white to-blue-600 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] animate-fade-in"
-            style={{
-              letterSpacing: '0.5px',
-              lineHeight: '1.15',
-              textShadow: '0 2px 8px rgba(0,0,0,0.7), 1px 1px 0 #fff, -1px -1px 0 #fff'
-            }}
-          >
-            Calcule verbas trabalhistas<br />
-            <span className="text-2xl md:text-4xl lg:text-5xl font-semibold block mt-2">com rapidez e precisão</span>
+        <div className="relative z-10 text-center text-white max-w-2xl mx-auto px-6 py-8 rounded-lg bg-black/60 shadow-lg">
+          <img src="/src/assets/IusCalc sem fundo.png" alt="Logo IUSCALC" className="mx-auto mb-4 w-40 h-auto drop-shadow-lg" />
+          <h1 className="text-2xl md:text-4xl font-extrabold mb-2 leading-tight drop-shadow">
+            Calcule <span className="text-yellow-400">verbas trabalhistas</span>
           </h1>
-          <p className="mb-8 text-lg md:text-xl">Sistema completo para advogados que desejam economizar tempo e otimizar processos</p>
-          <Button asChild size="lg" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-8 py-3 text-lg rounded shadow-lg">
-            <Link to="/auth">COMECE AGORA</Link>
-          </Button>
+          <p className="text-lg md:text-xl font-semibold mb-6 text-blue-100 drop-shadow">
+            com rapidez e precisão
+          </p>
+          <p className="mb-8 text-lg md:text-xl text-blue-100">Sistema completo para advogados que desejam economizar tempo e otimizar processos</p>
         </div>
       </section>
 
