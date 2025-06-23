@@ -58,6 +58,47 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Problemas Comuns dos Advogados Trabalhistas */}
+      <section className="py-16 bg-[#f1f6fd]">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2">
+            Problemas Comuns dos Advogados Trabalhistas
+          </h2>
+          <p className="text-lg text-gray-600 mb-12">
+            Sabemos das dificuldades que você enfrenta no dia a dia
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex justify-center mb-4">
+                <span className="bg-red-100 rounded-full p-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8 6h8M8 10h8m-8 4h6m-6 4h6M4 6h16v12H4z"/></svg>
+                </span>
+              </div>
+              <h3 className="font-bold text-lg text-gray-900 mb-2">Cálculos Manuais Demorados</h3>
+              <p className="text-gray-600">Perder horas fazendo cálculos complexos que poderiam ser automatizados</p>
+            </div>
+            <div>
+              <div className="flex justify-center mb-4">
+                <span className="bg-red-100 rounded-full p-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 12h6m-3-3v6m-7 4V6a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2z"/></svg>
+                </span>
+              </div>
+              <h3 className="font-bold text-lg text-gray-900 mb-2">Erros em Cálculos</h3>
+              <p className="text-gray-600">Risco de erros humanos que podem comprometer o resultado do processo</p>
+            </div>
+            <div>
+              <div className="flex justify-center mb-4">
+                <span className="bg-red-100 rounded-full p-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </span>
+              </div>
+              <h3 className="font-bold text-lg text-gray-900 mb-2">Falta de Produtividade</h3>
+              <p className="text-gray-600">Tempo perdido que poderia ser usado para captar mais clientes</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Benefícios */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
