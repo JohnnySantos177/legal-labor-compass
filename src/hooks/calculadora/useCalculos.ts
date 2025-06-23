@@ -1,5 +1,5 @@
-
 import { CalculadoraState, Resultados } from '@/types/calculadora';
+import { calcularFGTS } from '@/utils/calculadora/verbas/fgtsUtils';
 
 const SALARIO_MINIMO = 1412; // Valor do salário mínimo 2024
 
@@ -22,14 +22,22 @@ export function useCalculos() {
 
     // Cálculo do 13º salário proporcional
     let valorDecimoTerceiro = 0;
+    let valorDecimoTerceiroAvisoPrevio = 0;
     if (motivoDemissao !== 'justa_causa') {
       const mesesParaDecimoTerceiro = Math.floor(parseInt(mesesTrabalhados) + (parseInt(diasTrabalhados) > 14 ? 1 : 0));
       valorDecimoTerceiro = (salarioBase / 12) * mesesParaDecimoTerceiro;
+      
+      // 13º proporcional do aviso prévio indenizado (quando aplicável)
+      if (!avisoPrevioCumprido && (motivoDemissao === 'sem_justa_causa' || motivoDemissao === 'rescisao_indireta')) {
+        valorDecimoTerceiroAvisoPrevio = salarioBase / 12;
+      }
     }
     console.log('13º salário proporcional:', valorDecimoTerceiro);
+    console.log('13º proporcional do aviso prévio:', valorDecimoTerceiroAvisoPrevio);
 
     // Cálculo de férias proporcionais
     let valorFeriasProporcionais = 0;
+    let valorFeriasAvisoPrevio = 0;
     let tercoConstitucional = 0;
     if (motivoDemissao !== 'justa_causa') {
       const mesesParaFerias = Math.floor(parseInt(mesesTrabalhados) + (parseInt(diasTrabalhados) > 14 ? 1 : 0));
@@ -37,8 +45,14 @@ export function useCalculos() {
       // Adicional de 1/3 de férias
       tercoConstitucional = valorFeriasProporcionais / 3;
       valorFeriasProporcionais += tercoConstitucional;
+      
+      // Férias proporcionais do aviso prévio indenizado (quando aplicável)
+      if (!avisoPrevioCumprido && (motivoDemissao === 'sem_justa_causa' || motivoDemissao === 'rescisao_indireta')) {
+        valorFeriasAvisoPrevio = (salarioBase / 12) + ((salarioBase / 12) / 3);
+      }
     }
     console.log('Férias proporcionais + 1/3:', valorFeriasProporcionais);
+    console.log('Férias proporcionais do aviso prévio:', valorFeriasAvisoPrevio);
 
     // Cálculo do aviso prévio
     let valorAvisoPrevio = 0;
@@ -53,15 +67,25 @@ export function useCalculos() {
     let valorFGTS = 0;
     let multaFGTS = 0;
     if (!fgtsDepositado) {
-      // Base de cálculo do FGTS: salário + 13º + férias + aviso prévio
-      const baseFGTS = salarioProporcional + valorDecimoTerceiro + valorFeriasProporcionais + valorAvisoPrevio;
-      valorFGTS = baseFGTS * 0.08;
-
+      // Calcule aviso prévio indenizado e dias projetados
+      const avisoPrevioIndenizado = !avisoPrevioCumprido && (motivoDemissao === 'sem_justa_causa' || motivoDemissao === 'rescisao_indireta');
+      let diasAvisoPrevioProjetado = 0;
+      if (avisoPrevioIndenizado) {
+        const diasAdicionais = Math.min(Math.floor(parseInt(mesesTrabalhados) / 12) * 3, 60);
+        diasAvisoPrevioProjetado = 30 + diasAdicionais;
+      }
+      valorFGTS = calcularFGTS(
+        salarioBase,
+        parseInt(mesesTrabalhados),
+        parseInt(diasTrabalhados),
+        avisoPrevioIndenizado,
+        diasAvisoPrevioProjetado
+      );
       // Multa do FGTS
       if (motivoDemissao === 'sem_justa_causa') {
-        multaFGTS = valorFGTS * 0.4; // 40% de multa
+        multaFGTS = valorFGTS * 0.4;
       } else if (motivoDemissao === 'acordo_mutuo') {
-        multaFGTS = valorFGTS * 0.2; // 20% de multa
+        multaFGTS = valorFGTS * 0.2;
       }
     }
     console.log('FGTS:', valorFGTS);
@@ -213,6 +237,8 @@ export function useCalculos() {
         fgts: valorFGTS,
         multaFgts: multaFGTS,
         feriasVencidas: valorFeriasVencidas,
+        decimoTerceiroAvisoPrevio: valorDecimoTerceiroAvisoPrevio,
+        feriasAvisoPrevio: valorFeriasAvisoPrevio,
         indenizacaoDemissaoIndevida: valorIndenizacao,
         valeTransporteNaoPago: valorValeTransporte,
         valeAlimentacaoNaoPago: valorValeAlimentacao,

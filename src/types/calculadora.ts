@@ -1,4 +1,3 @@
-
 export interface ContractData {
   admissionDate: string;
   terminationDate: string;
@@ -270,6 +269,8 @@ export interface Resultados {
       fgts: number;
       multaFgts: number;
       feriasVencidas: number;
+      decimoTerceiroAvisoPrevio: number;
+      feriasAvisoPrevio: number;
       indenizacaoDemissaoIndevida: number;
       valeTransporteNaoPago: number;
       valeAlimentacaoNaoPago: number;

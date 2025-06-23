@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { CalculadoraState, DadosContrato, Adicionais, Verbas, Multas, SalarioFamilia, SeguroDesemprego, CustomCalculo } from '@/types/calculadora';
 
@@ -191,18 +190,32 @@ export function useCalculadoraState() {
   const calcularDiasTrabalhados = (dataAdmissao: string, dataDemissao: string) => {
     if (!dataAdmissao || !dataDemissao) return 0;
     
-    const admissao = new Date(dataAdmissao);
-    const demissao = new Date(dataDemissao);
+    // Corrigir criação das datas para evitar problemas de fuso horário
+    const [aYear, aMonth, aDay] = dataAdmissao.split('-').map(Number);
+    const [dYear, dMonth, dDay] = dataDemissao.split('-').map(Number);
+    const admissao = new Date(aYear, aMonth - 1, aDay);
+    const demissao = new Date(dYear, dMonth - 1, dDay);
+    console.log('[DEBUG] calcularDiasTrabalhados:', {
+      dataAdmissao,
+      dataDemissao,
+      admissao,
+      demissao,
+      admissaoDay: admissao.getDate(),
+      admissaoMonth: admissao.getMonth(),
+      admissaoYear: admissao.getFullYear(),
+      demissaoDay: demissao.getDate(),
+      demissaoMonth: demissao.getMonth(),
+      demissaoYear: demissao.getFullYear()
+    });
     
-    // Se as datas são do mesmo mês e ano
     if (admissao.getMonth() === demissao.getMonth() && 
         admissao.getFullYear() === demissao.getFullYear()) {
-      return demissao.getDate() - admissao.getDate() + 1;
+      const dias = demissao.getDate() - admissao.getDate() + 1;
+      console.log('[DEBUG] Mesmo mês:', { dias });
+      return dias;
     }
-    
-    // Se estamos calculando o último mês
-    const ultimoDiaDoMes = new Date(demissao.getFullYear(), demissao.getMonth() + 1, 0).getDate();
-    return Math.min(demissao.getDate(), ultimoDiaDoMes);
+    console.log('[DEBUG] Meses diferentes:', { dias: demissao.getDate() });
+    return demissao.getDate();
   };
 
   // Função para calcular o total de meses trabalhados

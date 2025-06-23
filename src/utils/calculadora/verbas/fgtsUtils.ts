@@ -1,4 +1,3 @@
-
 /**
  * Utilities for calculating FGTS values
  */
@@ -10,12 +9,32 @@ import { ajustarMesesPorDias } from "../verbasRescisoriasUtils";
  * @param salarioBase Base salary
  * @param mesesTrabalhados Months worked
  * @param diasNoUltimoMes Days worked in the last month (to apply the 15-day rule)
+ * @param avisoPrevioIndenizado Indicates if the notice period is indenized
+ * @param diasAvisoPrevioProjetado Days of the projected notice period
  * @returns FGTS value
  */
-export const calcularFGTS = (salarioBase: number, mesesTrabalhados: number, diasNoUltimoMes: number = 0): number => {
-  // Aplicar a regra dos 15 dias para considerar um mês completo
-  const mesesAjustados = ajustarMesesPorDias(mesesTrabalhados, diasNoUltimoMes);
-  return salarioBase * 0.08 * mesesAjustados;
+export const calcularFGTS = (
+  salarioBase: number,
+  mesesTrabalhados: number,
+  diasNoUltimoMes: number = 0,
+  avisoPrevioIndenizado: boolean = false,
+  diasAvisoPrevioProjetado: number = 0
+): number => {
+  // Meses completos trabalhados
+  const mesesCompletos = Math.floor(mesesTrabalhados);
+  const fgtsMesesCompletos = salarioBase * 0.08 * mesesCompletos;
+  // FGTS proporcional ao último mês, se houver dias
+  const fgtsUltimoMesProporcional = diasNoUltimoMes > 0 ? (salarioBase / 30) * diasNoUltimoMes * 0.08 : 0;
+  // FGTS sobre o mês projetado do aviso prévio indenizado
+  let fgtsAvisoPrevio = 0;
+  if (avisoPrevioIndenizado) {
+    if (diasAvisoPrevioProjetado > 0) {
+      fgtsAvisoPrevio = (salarioBase / 30) * diasAvisoPrevioProjetado * 0.08;
+    } else {
+      fgtsAvisoPrevio = salarioBase * 0.08; // padrão 1 mês
+    }
+  }
+  return fgtsMesesCompletos + fgtsUltimoMesProporcional + fgtsAvisoPrevio;
 };
 
 /**

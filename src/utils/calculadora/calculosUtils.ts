@@ -1,4 +1,3 @@
-
 // Utility functions for handling calculation data
 
 // Import the necessary functions from verbasRescisoriasUtils
@@ -52,25 +51,46 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     dadosContrato // Pass contract data for period calculations
   );
 
+  // Ensure adicionaisValues is always an object
+  const adicionaisValuesObj = typeof adicionaisValues === 'number' ? {
+    adicionalInsalubridade: 0,
+    adicionalPericulosidade: 0,
+    multa467: 0,
+    multa477: 0,
+    adicionalNoturno: 0,
+    horasExtras: 0,
+    feriasVencidas: 0,
+    indenizacaoDemissao: 0,
+    valeTransporte: 0,
+    valeAlimentacao: 0,
+    adicionalTransferencia: 0,
+    descontosIndevidos: 0,
+    diferencasSalariais: 0,
+    customCalculo: adicionaisValues, // Use the number value here
+    seguroDesemprego: 0,
+    salarioFamilia: 0,
+    honorariosAdvocaticios: 0,
+  } : adicionaisValues;
+
   const seguroDesempregoValue = calcularSeguroDesempregoHelper(adicionais, salarioBase, dadosContrato.motivoDemissao);
   const salarioFamiliaValue = calcularSalarioFamiliaHelper(adicionais.calcularSalarioFamilia, salarioBase, parseInt(adicionais.quantidadeFilhos) || 0);
 
   const totalGeralAntesHonorarios = 
     (verbasRescisoriasCalculadas.total || 0) +
-    adicionaisValues.adicionalInsalubridade +
-    adicionaisValues.adicionalPericulosidade +
-    adicionaisValues.adicionalNoturno +
-    adicionaisValues.horasExtras +
-    adicionaisValues.feriasVencidas +
-    adicionaisValues.indenizacaoDemissao +
-    adicionaisValues.valeTransporte +
-    adicionaisValues.valeAlimentacao +
-    adicionaisValues.adicionalTransferencia +
-    adicionaisValues.descontosIndevidos +
-    adicionaisValues.diferencasSalariais +
-    adicionaisValues.customCalculo +
-    adicionaisValues.multa467 +
-    adicionaisValues.multa477 +
+    adicionaisValuesObj.adicionalInsalubridade +
+    adicionaisValuesObj.adicionalPericulosidade +
+    adicionaisValuesObj.adicionalNoturno +
+    adicionaisValuesObj.horasExtras +
+    adicionaisValuesObj.feriasVencidas +
+    adicionaisValuesObj.indenizacaoDemissao +
+    adicionaisValuesObj.valeTransporte +
+    adicionaisValuesObj.valeAlimentacao +
+    adicionaisValuesObj.adicionalTransferencia +
+    adicionaisValuesObj.descontosIndevidos +
+    adicionaisValuesObj.diferencasSalariais +
+    adicionaisValuesObj.customCalculo +
+    adicionaisValuesObj.multa467 +
+    adicionaisValuesObj.multa477 +
     seguroDesempregoValue +
     salarioFamiliaValue;
 
@@ -96,28 +116,30 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
         fgts: verbasRescisoriasCalculadas.fgts || 0,
         multaFgts: verbasRescisoriasCalculadas.multaFgts || 0,
         tercoConstitucional: verbasRescisoriasCalculadas.tercoConstitucional || 0,
-        feriasVencidas: adicionaisValues.feriasVencidas || 0,
-        indenizacaoDemissaoIndevida: adicionaisValues.indenizacaoDemissao || 0,
-        valeTransporteNaoPago: adicionaisValues.valeTransporte || 0,
-        valeAlimentacaoNaoPago: adicionaisValues.valeAlimentacao || 0,
-        adicionalTransferencia: adicionaisValues.adicionalTransferencia || 0,
-        descontosIndevidos: adicionaisValues.descontosIndevidos || 0,
-        diferencasSalariais: adicionaisValues.diferencasSalariais || 0,
+        decimoTerceiroAvisoPrevio: verbasRescisoriasCalculadas.decimoTerceiroAvisoPrevio || 0,
+        feriasAvisoPrevio: verbasRescisoriasCalculadas.feriasAvisoPrevio || 0,
+        feriasVencidas: adicionaisValuesObj.feriasVencidas || 0,
+        indenizacaoDemissaoIndevida: adicionaisValuesObj.indenizacaoDemissao || 0,
+        valeTransporteNaoPago: adicionaisValuesObj.valeTransporte || 0,
+        valeAlimentacaoNaoPago: adicionaisValuesObj.valeAlimentacao || 0,
+        adicionalTransferencia: adicionaisValuesObj.adicionalTransferencia || 0,
+        descontosIndevidos: adicionaisValuesObj.descontosIndevidos || 0,
+        diferencasSalariais: adicionaisValuesObj.diferencasSalariais || 0,
         total: verbasRescisoriasCalculadas.total || 0,
       },
       adicionais: {
-        insalubridade: adicionaisValues.adicionalInsalubridade || 0,
-        periculosidade: adicionaisValues.adicionalPericulosidade || 0,
-        noturno: adicionaisValues.adicionalNoturno || 0,
-        horasExtras: adicionaisValues.horasExtras || 0,
+        insalubridade: adicionaisValuesObj.adicionalInsalubridade || 0,
+        periculosidade: adicionaisValuesObj.adicionalPericulosidade || 0,
+        noturno: adicionaisValuesObj.adicionalNoturno || 0,
+        horasExtras: adicionaisValuesObj.horasExtras || 0,
       },
       multas: {
-        art467: adicionaisValues.multa467 || 0,
-        art477: adicionaisValues.multa477 || 0,
+        art467: adicionaisValuesObj.multa467 || 0,
+        art477: adicionaisValuesObj.multa477 || 0,
       },
       salarioFamilia: salarioFamiliaValue || 0,
       seguroDesemprego: seguroDesempregoValue || 0,
-      calculosPersonalizados: adicionaisValues.customCalculo || 0,
+      calculosPersonalizados: adicionaisValuesObj.customCalculo || 0,
     },
     dadosContrato: dadosContrato,
   };

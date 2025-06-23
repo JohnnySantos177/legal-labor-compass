@@ -69,17 +69,21 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       );
 
       if (!avisoPrevioCumprido) {
-        // Férias indenizadas sobre o aviso prévio: (Salário/30) × 30 × (1/3) = Salário + (Salário/3)
-        feriasAvisoPrevio = salarioBase + (salarioBase / 3);
+        // Férias proporcionais do aviso prévio: (Salário/12) + (Salário/12)/3 = (Salário/12) × (4/3)
+        feriasAvisoPrevio = (salarioBase / 12) + ((salarioBase / 12) / 3);
         // 13º proporcional ao aviso prévio (1/12 do salário)
         decimoTerceiroAvisoPrevio = salarioBase / 12;
       }
+      
+      // 13º salário proporcional apenas sobre o período trabalhado (sem incluir aviso prévio)
       decimoTerceiro = calcularDecimoTerceiro(
         salarioBase,
         dadosContrato.dataAdmissao,
         dadosContrato.dataDemissao,
         motivoDemissao
       );
+      
+      // Férias proporcionais apenas sobre o período trabalhado (sem incluir aviso prévio)
       feriasProporcionais = calcularFerias(
         salarioBase,
         dadosContrato.dataAdmissao,
@@ -94,7 +98,21 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
         multaFgts = calcularMultaFGTS(fgtsParaMulta, motivoDemissao);
       } else {
         // If FGTS was not deposited, include FGTS and the 40% fine
-        fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
+        // Novo cálculo: incluir mês projetado do aviso prévio indenizado
+        const avisoPrevioIndenizado = !avisoPrevioCumprido;
+        let diasAvisoPrevioProjetado = 0;
+        if (avisoPrevioIndenizado) {
+          // 30 dias + 3 dias por ano completo trabalhado, até 90 dias
+          const diasAdicionais = Math.min(Math.floor(mesesTrabalhados / 12) * 3, 60);
+          diasAvisoPrevioProjetado = 30 + diasAdicionais;
+        }
+        fgts = calcularFGTS(
+          salarioBase,
+          mesesTrabalhados,
+          diasTrabalhados,
+          avisoPrevioIndenizado,
+          diasAvisoPrevioProjetado
+        );
         multaFgts = calcularMultaFGTS(fgts, motivoDemissao);
       }
       break;
@@ -191,6 +209,8 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
     fgts,
     multaFgts,
     feriasVencidas: feriasAvisoPrevio, // Mapped to férias vencidas (from Aviso Prévio Indenizado)
+    decimoTerceiroAvisoPrevio, // 13º proporcional do aviso prévio indenizado
+    feriasAvisoPrevio, // Férias proporcionais do aviso prévio indenizado
     indenizacaoDemissaoIndevida,
     valeTransporteNaoPago,
     valeAlimentacaoNaoPago,

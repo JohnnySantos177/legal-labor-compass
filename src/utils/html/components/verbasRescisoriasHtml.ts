@@ -21,40 +21,50 @@ export function renderVerbasRescisoriasHTML(verbas: VerbasRescisorias) {
   // Filtrar verbas principais
   const itens = [
     { descricao: 'Saldo de Salário', valor: verbas.saldoSalario },
-    { descricao: 'Aviso Prévio Indenizado', valor: verbas.avisoPrevia },
   ].filter(item => item.valor > 0);
 
-  // Valores proporcionais ao aviso prévio
-  const valoresAvisoPrevia = [];
-  
-  if (verbas.decimoTerceiroAvisoPrevia > 0) {
-    valoresAvisoPrevia.push({
-      descricao: '13º Proporcional do Aviso Prévio',
-      valor: verbas.decimoTerceiroAvisoPrevia
-    });
-  }
-  
-  if (verbas.feriasAvisoPrevia > 0) {
-    valoresAvisoPrevia.push({
-      descricao: 'Férias Indenizadas do Aviso Prévio + 1/3',
-      valor: verbas.feriasAvisoPrevia
-    });
-  }
-
-  // Valores proporcionais gerais
-  const valoresGerais = [];
-  
+  // 13º salário proporcional (período trabalhado)
+  const decimoTerceiroTrabalhado = [];
   if (verbas.decimoTerceiro > 0) {
-    valoresGerais.push({
+    decimoTerceiroTrabalhado.push({
       descricao: '13º Salário Proporcional',
       valor: verbas.decimoTerceiro
     });
   }
-  
+
+  // 13º proporcional do aviso prévio
+  const decimoTerceiroAvisoPrevia = [];
+  if (verbas.decimoTerceiroAvisoPrevia > 0) {
+    decimoTerceiroAvisoPrevia.push({
+      descricao: '13º Proporcional do Aviso Prévio',
+      valor: verbas.decimoTerceiroAvisoPrevia
+    });
+  }
+
+  // Férias proporcionais (período trabalhado)
+  const feriasTrabalhado = [];
   if (verbas.ferias > 0) {
-    valoresGerais.push({
-      descricao: 'Férias Proporcionais',
+    feriasTrabalhado.push({
+      descricao: 'Férias Proporcionais + 1/3',
       valor: verbas.ferias
+    });
+  }
+
+  // Férias proporcionais do aviso prévio
+  const feriasAvisoPrevia = [];
+  if (verbas.feriasAvisoPrevia > 0) {
+    feriasAvisoPrevia.push({
+      descricao: 'Férias Proporcionais do Aviso Prévio + 1/3',
+      valor: verbas.feriasAvisoPrevia
+    });
+  }
+
+  // Aviso prévio
+  const avisoPrevia = [];
+  if (verbas.avisoPrevia > 0) {
+    avisoPrevia.push({
+      descricao: 'Aviso Prévio Indenizado',
+      valor: verbas.avisoPrevia
     });
   }
 
@@ -65,7 +75,8 @@ export function renderVerbasRescisoriasHTML(verbas: VerbasRescisorias) {
     { descricao: 'Multa FGTS (40%)', valor: verbas.multaFgts },
   ].filter(item => item.valor > 0);
 
-  if (itens.length === 0 && valoresAvisoPrevia.length === 0 && valoresGerais.length === 0 && outrosValores.length === 0) return '';
+  if (itens.length === 0 && decimoTerceiroTrabalhado.length === 0 && decimoTerceiroAvisoPrevia.length === 0 && 
+      feriasTrabalhado.length === 0 && feriasAvisoPrevia.length === 0 && avisoPrevia.length === 0 && outrosValores.length === 0) return '';
 
   const totalFinal = (verbas.total || 0) - (verbas.descontoAvisoPrevio || 0);
 
@@ -86,13 +97,31 @@ export function renderVerbasRescisoriasHTML(verbas: VerbasRescisorias) {
               <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>
             </tr>
           `).join('')}
-          ${valoresAvisoPrevia.map(item => `
+          ${decimoTerceiroTrabalhado.map(item => `
             <tr>
               <td style="border: 1px solid #d1d5db; padding: 0.5rem;">${item.descricao}</td>
               <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>
             </tr>
           `).join('')}
-          ${valoresGerais.map(item => `
+          ${decimoTerceiroAvisoPrevia.map(item => `
+            <tr>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem;">${item.descricao}</td>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>
+            </tr>
+          `).join('')}
+          ${feriasTrabalhado.map(item => `
+            <tr>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem;">${item.descricao}</td>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>
+            </tr>
+          `).join('')}
+          ${feriasAvisoPrevia.map(item => `
+            <tr>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem;">${item.descricao}</td>
+              <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>
+            </tr>
+          `).join('')}
+          ${avisoPrevia.map(item => `
             <tr>
               <td style="border: 1px solid #d1d5db; padding: 0.5rem;">${item.descricao}</td>
               <td style="border: 1px solid #d1d5db; padding: 0.5rem; text-align: right;">${formatarValor(item.valor)}</td>

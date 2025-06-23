@@ -1,4 +1,3 @@
-
 /**
  * Facade for rescission values calculation utilities
  */
@@ -19,7 +18,7 @@ import { calcularHonorariosAdvocaticios } from "./adicionaisUtils";
  * @returns Adjusted number of months
  */
 export const ajustarMesesPorDias = (months: number, days: number): number => {
-  return days > 15 ? Math.ceil(months) : months;
+  return days > 0 ? Math.ceil(months) : Math.floor(months);
 };
 
 // Re-export everything from the individual modules for backward compatibility

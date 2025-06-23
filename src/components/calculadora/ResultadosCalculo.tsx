@@ -41,6 +41,8 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
     { label: '13º Salário Proporcional', value: detalhamento.verbas?.decimoTerceiro || 0, icon: <Gift className="w-4 h-4" /> },
     { label: 'Férias Proporcionais + 1/3', value: detalhamento.verbas?.feriasProporcionais || 0, icon: <Clock className="w-4 h-4" /> },
     { label: 'Aviso Prévio', value: detalhamento.verbas?.avisoPrevio || 0, icon: <FileText className="w-4 h-4" /> },
+    { label: '13º Proporcional do Aviso Prévio', value: detalhamento.verbas?.decimoTerceiroAvisoPrevio || 0, icon: <Gift className="w-4 h-4" /> },
+    { label: 'Férias Proporcionais do Aviso Prévio + 1/3', value: detalhamento.verbas?.feriasAvisoPrevio || 0, icon: <Clock className="w-4 h-4" /> },
     { label: 'FGTS sobre Verbas', value: detalhamento.verbas?.fgts || 0, icon: <Calculator className="w-4 h-4" /> },
     { label: 'Multa do FGTS', value: detalhamento.verbas?.multaFgts || 0, icon: <AlertTriangle className="w-4 h-4" /> }
   ];

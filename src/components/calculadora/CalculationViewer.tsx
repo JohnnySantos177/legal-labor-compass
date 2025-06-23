@@ -34,6 +34,8 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
       'feriasProporcionais': 'Férias Proporcionais + 1/3',
       'feriasVencidas': 'Férias Vencidas + 1/3',
       'avisoPrevio': 'Aviso Prévio',
+      'decimoTerceiroAvisoPrevio': '13º Proporcional do Aviso Prévio',
+      'feriasAvisoPrevio': 'Férias Proporcionais do Aviso Prévio + 1/3',
       'fgts': 'FGTS sobre Verbas',
       'multaFgts': 'Multa do FGTS (40%)',
       'indenizacaoDemissaoIndevida': 'Indenização por Demissão Indevida',
