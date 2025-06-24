@@ -84,14 +84,14 @@ export const useCalculosSalvos = () => {
     try {
       const { data, error } = await supabase
         .from('calculos_salvos')
-        .insert({
+        .insert([{
           user_id: user.id,
           nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
           dados_contrato: dadosCompletos.dadosContrato,
           adicionais: dadosCompletos.adicionais,
           verbas_rescisorias: dadosCompletos.verbas,
           total_geral: 0
-        })
+        }])
         .select()
         .single();
 
