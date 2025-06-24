@@ -1,4 +1,3 @@
-
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
 import { useCalculosSalvos, CalculoSalvo } from '@/hooks/useCalculosSalvos';
@@ -89,15 +88,19 @@ export function CalculadoraPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause'): 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' => {
-    const mapping = {
-      'dismissal': 'sem_justa_causa' as const,
-      'resignation': 'pedido_demissao' as const, 
-      'mutual': 'acordo_mutuo' as const,
-      'just_cause': 'justa_causa' as const
-    };
-    
-    return mapping[value];
+  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause') => {
+    switch (value) {
+      case 'dismissal':
+        return 'sem_justa_causa' as const;
+      case 'resignation':
+        return 'pedido_demissao' as const;
+      case 'mutual':
+        return 'acordo_mutuo' as const;
+      case 'just_cause':
+        return 'justa_causa' as const;
+      default:
+        return 'sem_justa_causa' as const;
+    }
   };
 
   const mapMotivoDemissaoToTerminationType = (motivoDemissao: string): 'dismissal' | 'resignation' | 'mutual' | 'just_cause' => {

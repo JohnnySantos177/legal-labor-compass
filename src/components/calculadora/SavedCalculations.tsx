@@ -185,7 +185,21 @@ export const SavedCalculations = ({
     // Adicionar o elemento ao documento
     document.body.appendChild(printDiv);
     
-    // Exportar para PDF com dados do cálculo estruturados corretamente
+    // Ensure calculosPersonalizados is always defined
+    const stateWithCalculosPersonalizados = {
+      ...calculo,
+      calculosPersonalizados: calculo.calculosPersonalizados || []
+    };
+    
+    // Fix the horasExtras structure to match ExportData type
+    const horasExtrasData = calculo.adicionais?.horasExtras || { ativo: false, calculos: [] };
+    const normalizedHorasExtras = typeof horasExtrasData === 'number' 
+      ? { ativo: false, calculos: [] }
+      : {
+          ativo: horasExtrasData.ativo || false,
+          calculos: horasExtrasData.calculos || []
+        };
+
     const exportData = {
       verbasRescisorias: calculo.resultados.detalhamento.verbas,
       adicionais: {
@@ -208,7 +222,7 @@ export const SavedCalculations = ({
       nomeEscritorio: nomeEscritorio,
       resultados: calculo.resultados,
       dadosContrato: calculo.dadosContrato,
-      horasExtras: calculo.adicionais?.horasExtras || 0
+      horasExtras: normalizedHorasExtras
     };
     exportToPDF(exportData);
     
