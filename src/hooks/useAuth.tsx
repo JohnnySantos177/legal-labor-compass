@@ -1,10 +1,14 @@
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { User, AuthState, LoginData, RegisterData } from '@/types/auth';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   error: string | null;
   login: (data: LoginData) => Promise<boolean>;
@@ -17,27 +21,58 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verificar se há um usuário salvo no localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      const parsedUser: User = JSON.parse(savedUser);
-      // Garante que johnnysantos_177@msn.com seja sempre super_admin
-      if (parsedUser.email === 'johnnysantos_177@msn.com') {
-        setUser({
-          ...parsedUser,
-          role: 'super_admin',
-          plan: 'premium',
-        });
-      } else {
-        setUser(parsedUser);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch user profile from our profiles table
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profile) {
+            const mappedUser: User = {
+              id: profile.id,
+              email: profile.email || session.user.email || '',
+              name: profile.nome || session.user.email?.split('@')[0] || '',
+              role: profile.is_admin ? 'super_admin' : 'user',
+              plan: profile.tipo_plano === 'premium' ? 'premium' : 'standard',
+              phone: profile.nome || 'Não informado',
+              created_at: profile.created_at || new Date().toISOString(),
+              trial_end_date: profile.tipo_plano === 'padrao' ? 
+                new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined
+            };
+            setUser(mappedUser);
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
+      if (session) {
+        // The onAuthStateChange will handle the user setup
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (data: LoginData): Promise<boolean> => {
@@ -45,43 +80,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     
     try {
-      // Simulação de autenticação
-      if (data.email && data.password) {
-        let user: User;
-        if (data.email === 'johnnysantos_177@msn.com') {
-          user = {
-            id: 'super_admin_id',
-            email: data.email,
-            name: 'Johnny Santos',
-            role: 'super_admin',
-            plan: 'premium',
-            phone: '(00) 00000-0000',
-            created_at: new Date().toISOString(),
-            trial_end_date: undefined // Super Admin não tem trial
-          };
-        } else {
-          user = {
-            id: 'user_id_' + Math.random().toString(36).substr(2, 9),
-            email: data.email,
-            name: data.email.split('@')[0],
-            role: 'user',
-            plan: 'standard',
-            phone: 'Não informado',
-            created_at: new Date().toISOString(),
-            trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 dias de trial
-          };
-        }
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (authData.user) {
         navigate('/calculadora');
         toast.success('Login realizado com sucesso!');
         return true;
       }
+      
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao fazer login:', error);
-      setError('Erro no login');
-      toast.error('Erro no login');
+      const errorMessage = error.message || 'Erro no login';
+      setError(errorMessage);
+      toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);
@@ -100,36 +119,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.password.length < 6) {
         throw new Error('A senha deve ter pelo menos 6 caracteres');
       }
+
+      const redirectUrl = `${window.location.origin}/`;
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            nome: data.name,
+            name: data.name
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
       
       setLoading(false);
       toast.success('Registro realizado! Verifique seu email para confirmar a conta.');
       return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro no registro';
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Erro no registro';
       setError(errorMessage);
       toast.error(errorMessage);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    navigate('/auth');
-    toast.success('Logout realizado com sucesso!');
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Erro ao fazer logout');
+    } else {
+      setUser(null);
+      setSession(null);
+      navigate('/auth');
+      toast.success('Logout realizado com sucesso!');
+    }
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast.success('Email de recuperação enviado!');
       return true;
-    } catch (error) {
-      toast.error('Erro ao enviar email de recuperação');
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao enviar email de recuperação');
       return false;
     }
   };
@@ -137,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user,
+      session,
       loading,
       error,
       login,

@@ -6,9 +6,46 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Mail, Phone, User, Calendar } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from 'react';
 
 export const MinhaContaPage = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState({
+    calculosRealizados: 0,
+    calculosSalvos: 0,
+    exportacoesPDF: 0
+  });
+
+  useEffect(() => {
+    const carregarEstatisticas = async () => {
+      if (!user) return;
+
+      try {
+        // Carregar número de cálculos salvos
+        const { count: calculosSalvos } = await supabase
+          .from('calculos_salvos')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        // Carregar número de cálculos realizados
+        const { count: calculosRealizados } = await supabase
+          .from('calculos')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        setStats({
+          calculosRealizados: calculosRealizados || 0,
+          calculosSalvos: calculosSalvos || 0,
+          exportacoesPDF: 0 // Por enquanto mantemos como 0, pode ser implementado depois
+        });
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+      }
+    };
+
+    carregarEstatisticas();
+  }, [user]);
 
   if (!user) return null;
 
@@ -131,15 +168,15 @@ export const MinhaContaPage = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-juriscalc-blue mb-2">12</div>
+              <div className="text-3xl font-bold text-juriscalc-blue mb-2">{stats.calculosRealizados}</div>
               <div className="text-sm text-gray-600">Cálculos realizados</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-juriscalc-blue mb-2">5</div>
+              <div className="text-3xl font-bold text-juriscalc-blue mb-2">{stats.calculosSalvos}</div>
               <div className="text-sm text-gray-600">Cálculos salvos</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-juriscalc-blue mb-2">8</div>
+              <div className="text-3xl font-bold text-juriscalc-blue mb-2">{stats.exportacoesPDF}</div>
               <div className="text-sm text-gray-600">Exportações PDF</div>
             </div>
           </div>
