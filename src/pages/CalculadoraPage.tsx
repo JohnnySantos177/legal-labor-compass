@@ -1,3 +1,4 @@
+
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
 import { useCalculosSalvos, CalculoSalvo } from '@/hooks/useCalculosSalvos';
@@ -99,6 +100,21 @@ export function CalculadoraPage() {
     return mapping[value];
   };
 
+  const mapMotivoDemissaoToTerminationType = (motivoDemissao: string): 'dismissal' | 'resignation' | 'mutual' | 'just_cause' => {
+    switch (motivoDemissao) {
+      case 'sem_justa_causa':
+        return 'dismissal';
+      case 'pedido_demissao':
+        return 'resignation';
+      case 'acordo_mutuo':
+        return 'mutual';
+      case 'justa_causa':
+        return 'just_cause';
+      default:
+        return 'dismissal';
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Calculadora Trabalhista</h1>
@@ -117,10 +133,7 @@ export function CalculadoraPage() {
                 admissionDate: state.dadosContrato.dataAdmissao,
                 terminationDate: state.dadosContrato.dataDemissao,
                 baseSalary: state.dadosContrato.salarioBase,
-                terminationType: (state.dadosContrato.motivoDemissao === 'sem_justa_causa' ? 'dismissal' :
-                                 state.dadosContrato.motivoDemissao === 'pedido_demissao' ? 'resignation' :
-                                 state.dadosContrato.motivoDemissao === 'acordo_mutuo' ? 'mutual' :
-                                 state.dadosContrato.motivoDemissao === 'justa_causa' ? 'just_cause' : 'dismissal') as 'dismissal' | 'resignation' | 'mutual' | 'just_cause'
+                terminationType: mapMotivoDemissaoToTerminationType(state.dadosContrato.motivoDemissao)
               }}
               onUpdate={(field, value) => {
                 const dadosContratoUpdates: Partial<DadosContrato> = {};

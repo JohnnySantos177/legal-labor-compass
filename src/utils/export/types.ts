@@ -1,3 +1,4 @@
+
 import { Resultados } from "@/types/calculadora";
 
 export type ExportData = {
@@ -16,4 +17,6 @@ export type ExportData = {
   };
   totalGeral?: number;
   nome?: string;
+  timestamp?: string;
+  nomeEscritorio?: string;
 };

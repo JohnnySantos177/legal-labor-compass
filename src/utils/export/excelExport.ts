@@ -1,3 +1,4 @@
+
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 import { Resultados } from "@/types/calculadora";
@@ -102,11 +103,11 @@ export const exportToExcel = (data: ExcelExportData, fileName?: string) => {
       });
     } else {
       // Calculate total from verbas and adicionais if totalGeral is not provided
-      const totalVerbas = Object.values(verbas).reduce((sum: number, val) => {
+      const totalVerbas = Object.entries(verbas).reduce((sum: number, [key, val]) => {
         const numVal = typeof val === 'number' ? val : 0;
         return sum + numVal;
       }, 0);
-      const totalAdicionais = Object.values(adicionais).reduce((sum: number, val) => {
+      const totalAdicionais = Object.entries(adicionais).reduce((sum: number, [key, val]) => {
         const numVal = typeof val === 'number' ? val : 0;
         return sum + numVal;
       }, 0);
