@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setUser(null);
         }
+        
+        // Always set loading to false after processing auth state
         setLoading(false);
       }
     );
@@ -65,11 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session);
-      if (session) {
-        // The onAuthStateChange will handle the user setup
-      } else {
+      if (!session) {
+        // If no session, set loading to false immediately
         setLoading(false);
       }
+      // If there is a session, onAuthStateChange will handle it and set loading to false
     });
 
     return () => subscription.unsubscribe();
@@ -138,7 +140,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
       
-      setLoading(false);
       toast.success('Registro realizado! Verifique seu email para confirmar a conta.');
       return true;
     } catch (error: any) {
