@@ -12,6 +12,8 @@ export const resultadosIniciais: Resultados = {
       fgts: 0,
       multaFgts: 0,
       feriasVencidas: 0,
+      decimoTerceiroAvisoPrevio: 0,
+      feriasAvisoPrevio: 0,
       indenizacaoDemissaoIndevida: 0,
       valeTransporteNaoPago: 0,
       valeAlimentacaoNaoPago: 0,
@@ -44,6 +46,11 @@ export const adicionaisIniciais: Adicionais = {
   insalubridadePeriodoEspecifico: false,
   dataInicioInsalubridade: '',
   dataFimInsalubridade: '',
+  insalubridade: {
+    ativo: false,
+    grau: 'minimo',
+    baseCalculo: 'salario_minimo'
+  },
   
   calcularPericulosidade: false,
   percentualPericulosidade: '30',
@@ -51,16 +58,30 @@ export const adicionaisIniciais: Adicionais = {
   periculosidadePeriodoEspecifico: false,
   dataInicioPericulosidade: '',
   dataFimPericulosidade: '',
+  periculosidade: {
+    ativo: false,
+    percentual: 30,
+    baseCalculo: 'salario_base'
+  },
   
   calcularMulta467: false,
   calcularMulta477: false,
   calcularAdicionalNoturno: false,
   percentualAdicionalNoturno: '20',
   horasNoturnas: '',
+  noturno: {
+    ativo: false,
+    percentual: 20,
+    horas: 0
+  },
   calcularHorasExtras: false,
   quantidadeHorasExtras: '',
   percentualHorasExtras: '50',
   horasExtrasCalculos: [],
+  horasExtras: {
+    ativo: false,
+    calculos: []
+  },
   calcularFeriasVencidas: false,
   periodosFeriasVencidas: '1',
   calcularIndenizacaoDemissao: false,
@@ -81,7 +102,6 @@ export const adicionaisIniciais: Adicionais = {
     ativo: false,
     itens: []
   },
-  descricaoCustom: '',
   valorCustom: '',
   calcularSeguroDesemprego: false,
   tipoTrabalhador: 'padrao',
@@ -121,6 +141,8 @@ export const EMPTY_RESULTS: any = {
       fgts: 0,
       multaFgts: 0,
       feriasVencidas: 0,
+      decimoTerceiroAvisoPrevio: 0,
+      feriasAvisoPrevio: 0,
       indenizacaoDemissaoIndevida: 0,
       valeTransporteNaoPago: 0,
       valeAlimentacaoNaoPago: 0,

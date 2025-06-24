@@ -186,8 +186,12 @@ export const SavedCalculations = ({
     // Adicionar o elemento ao documento
     document.body.appendChild(printDiv);
     
-    // Exportar para PDF
-    exportToPDF();
+    // Exportar para PDF com dados do cálculo
+    const exportData = {
+      resultados: calculo.resultados,
+      dadosContrato: calculo.dadosContrato
+    };
+    exportToPDF(exportData);
     
     // Remover o elemento após a exportação
     setTimeout(() => {

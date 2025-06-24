@@ -1,4 +1,3 @@
-
 import { useCalculadoraState } from '@/hooks/calculadora/useCalculadoraState';
 import { useCalculos } from '@/hooks/calculadora/useCalculos';
 import { useCalculosSalvos, CalculoSalvo } from '@/hooks/useCalculosSalvos';
@@ -62,7 +61,13 @@ export function CalculadoraPage() {
     // Nome personalizado opcional
     const nomePersonalizado = prompt('Digite um nome para este cálculo (opcional):');
     
-    salvarCalculo(state, state.resultados, nomePersonalizado || undefined);
+    // Ensure calculosPersonalizados is always defined
+    const stateWithCalculosPersonalizados = {
+      ...state,
+      calculosPersonalizados: state.calculosPersonalizados || []
+    };
+    
+    salvarCalculo(stateWithCalculosPersonalizados, state.resultados, nomePersonalizado || undefined);
   };
 
   const handleEditarCalculo = (calculo: CalculoSalvo) => {
@@ -83,7 +88,7 @@ export function CalculadoraPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause'): 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '' => {
+  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause'): 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' => {
     const mapping = {
       'dismissal': 'sem_justa_causa',
       'resignation': 'pedido_demissao', 
@@ -91,7 +96,7 @@ export function CalculadoraPage() {
       'just_cause': 'justa_causa'
     } as const;
     
-    return mapping[value] || '';
+    return mapping[value];
   };
 
   return (

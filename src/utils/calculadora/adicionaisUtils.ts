@@ -1,4 +1,3 @@
-
 /**
  * Main utilities file for calculating additional labor values
  */
@@ -236,8 +235,8 @@ export function calcularAdicionais(
       adicionais.insalubridadePeriodoEspecifico || false,
       dadosContrato?.dataAdmissao || '',
       dadosContrato?.dataDemissao || '',
-      adicionais.dataInicioInsalubridade,
-      adicionais.dataFimInsalubridade
+      adicionais.dataInicioInsalubridade || '',
+      adicionais.dataFimInsalubridade || ''
     );
   }
   
@@ -250,8 +249,8 @@ export function calcularAdicionais(
       adicionais.periculosidadePeriodoEspecifico || false,
       dadosContrato?.dataAdmissao || '',
       dadosContrato?.dataDemissao || '',
-      adicionais.dataInicioPericulosidade,
-      adicionais.dataFimPericulosidade
+      adicionais.dataInicioPericulosidade || '',
+      adicionais.dataFimPericulosidade || ''
     );
   }
   
