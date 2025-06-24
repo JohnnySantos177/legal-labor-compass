@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -205,6 +204,11 @@ export const SavedCalculations = ({
       },
       totalGeral: calculo.resultados.total,
       nome: calculo.nome,
+      timestamp: calculo.dataCriacao,
+      nomeEscritorio: nomeEscritorio,
+      resultados: calculo.resultados,
+      dadosContrato: calculo.dadosContrato,
+      horasExtras: calculo.adicionais?.horasExtras || 0
     };
     exportToPDF(exportData);
     

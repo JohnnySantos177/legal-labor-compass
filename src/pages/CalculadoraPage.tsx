@@ -91,11 +91,11 @@ export function CalculadoraPage() {
 
   const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause'): 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' => {
     const mapping = {
-      'dismissal': 'sem_justa_causa',
-      'resignation': 'pedido_demissao', 
-      'mutual': 'acordo_mutuo',
-      'just_cause': 'justa_causa'
-    } as const;
+      'dismissal': 'sem_justa_causa' as const,
+      'resignation': 'pedido_demissao' as const, 
+      'mutual': 'acordo_mutuo' as const,
+      'just_cause': 'justa_causa' as const
+    };
     
     return mapping[value];
   };
