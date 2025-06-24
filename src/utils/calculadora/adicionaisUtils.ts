@@ -1,3 +1,4 @@
+
 /**
  * Main utilities file for calculating additional labor values
  */
@@ -7,20 +8,14 @@ import { calcularInsalubridade as insalubridadeCalc, calcularPericulosidade as p
 import { calcularMulta467 as multa467Calc, calcularMulta477 as multa477Calc } from './adicionais/multasUtils';
 import { 
   calcularAdicionalNoturno as adicionalNoturnoCalc,
-  calcularHorasExtras as horasExtrasCalc,
-  calcularHorasExtrasMultiplas as horasExtrasMultiplasCalc,
-  calcularFeriasVencidas as feriasVencidasCalc,
-  calcularIndenizacaoDemissao as indenizacaoDemissaoCalc,
-  calcularAdicionalTransferencia as adicionalTransferenciaCalc
+  calcularHorasExtras as horasExtrasCalc
 } from './adicionais/jornadaUtils';
 import { 
   calcularValeTransporte as valeTransporteCalc,
   calcularValeAlimentacao as valeAlimentacaoCalc
 } from './adicionais/beneficiosUtils';
 import { 
-  calcularDescontosIndevidos as descontosIndevidosCalc,
-  calcularDiferencasSalariais as diferencasSalariaisCalc,
-  calcularTodosCustom
+  calcularDescontosIndevidos as descontosIndevidosCalc
 } from './adicionais/descontosUtils';
 import { calcularSeguroDesemprego, calcularSalarioFamilia } from './adicionais/beneficiosSociaisUtils';
 import { calcularInsalubridade as calcularInsalubridadeUtils } from './adicionais/insalubridadeUtils';
@@ -279,55 +274,30 @@ export function calcularAdicionais(
   
   // Calculate night shift allowance
   if (adicionais.calcularAdicionalNoturno) {
-    const percentualAdicionalNoturno = parseFloat(adicionais.percentualAdicionalNoturno) || 0;
-    const horasNoturnas = parseFloat(adicionais.horasNoturnas) || 0;
-    adicionalNoturno = adicionalNoturnoCalc(
-      adicionais.calcularAdicionalNoturno,
-      adicionais.percentualAdicionalNoturno,
-      adicionais.horasNoturnas,
-      salarioBase
-    );
+    adicionalNoturno = adicionalNoturnoCalc(salarioBase, adicionais);
   }
   
-  // Calculate overtime - Use new multiple calculation system
+  // Calculate overtime
   if (adicionais.calcularHorasExtras) {
-    if (adicionais.horasExtrasCalculos && adicionais.horasExtrasCalculos.length > 0) {
-      // Use new multiple calculation system
-      horasExtras = horasExtrasMultiplasCalc(
-        adicionais.calcularHorasExtras,
-        adicionais.horasExtrasCalculos,
-        salarioBase
-      );
-    } else {
-      // Fallback to legacy calculation for backward compatibility
-      const quantidadeHorasExtras = parseFloat(adicionais.quantidadeHorasExtras) || 0;
-      const percentualHorasExtras = parseFloat(adicionais.percentualHorasExtras) || 0;
-      horasExtras = horasExtrasCalc(
-        adicionais.calcularHorasExtras,
-        adicionais.percentualHorasExtras,
-        adicionais.quantidadeHorasExtras,
-        salarioBase
-      );
-    }
+    horasExtras = horasExtrasCalc(salarioBase, adicionais);
   }
   
   // Calculate vacation pay
   if (adicionais.calcularFeriasVencidas) {
     const periodosFeriasVencidas = parseFloat(adicionais.periodosFeriasVencidas) || 0;
-    feriasVencidas = feriasVencidasCalc(
+    feriasVencidas = calcularFeriasVencidas(
       adicionais.calcularFeriasVencidas,
-      adicionais.periodosFeriasVencidas,
-      salarioBase
+      salarioBase,
+      periodosFeriasVencidas
     );
   }
   
   // Calculate dismissal compensation
   if (adicionais.calcularIndenizacaoDemissao) {
     const valorIndenizacaoDemissao = parseFloat(adicionais.valorIndenizacaoDemissao) || 0;
-    indenizacaoDemissao = indenizacaoDemissaoCalc(
+    indenizacaoDemissao = calcularIndenizacaoDemissao(
       adicionais.calcularIndenizacaoDemissao,
-      adicionais.valorIndenizacaoDemissao,
-      salarioBase
+      valorIndenizacaoDemissao
     );
   }
   
@@ -335,10 +305,10 @@ export function calcularAdicionais(
   if (adicionais.calcularValeTransporte) {
     const valorDiarioVT = parseFloat(adicionais.valorDiarioVT) || 0;
     const diasValeTransporte = parseFloat(adicionais.diasValeTransporte) || 0;
-    valeTransporte = valeTransporteCalc(
+    valeTransporte = calcularValeTransporte(
       adicionais.calcularValeTransporte,
-      adicionais.valorDiarioVT,
-      adicionais.diasValeTransporte
+      valorDiarioVT,
+      diasValeTransporte
     );
   }
   
@@ -346,27 +316,27 @@ export function calcularAdicionais(
   if (adicionais.calcularValeAlimentacao) {
     const valorDiarioVA = parseFloat(adicionais.valorDiarioVA) || 0;
     const diasValeAlimentacao = parseFloat(adicionais.diasValeAlimentacao) || 0;
-    valeAlimentacao = valeAlimentacaoCalc(
+    valeAlimentacao = calcularValeAlimentacao(
       adicionais.calcularValeAlimentacao,
-      adicionais.valorDiarioVA,
-      adicionais.diasValeAlimentacao
+      valorDiarioVA,
+      diasValeAlimentacao
     );
   }
   
   // Calculate transfer allowance
   if (adicionais.calcularAdicionalTransferencia) {
     const percentualAdicionalTransferencia = parseFloat(adicionais.percentualAdicionalTransferencia) || 0;
-    adicionalTransferencia = adicionalTransferenciaCalc(
+    adicionalTransferencia = calcularAdicionalTransferencia(
       adicionais.calcularAdicionalTransferencia,
-      adicionais.percentualAdicionalTransferencia,
-      salarioBase
+      salarioBase,
+      percentualAdicionalTransferencia
     );
   }
   
   // Calculate undue discounts
   if (adicionais.calcularDescontosIndevidos) {
     const valorDescontosIndevidos = parseFloat(adicionais.valorDescontosIndevidos) || 0;
-    descontosIndevidos = descontosIndevidosCalc(
+    descontosIndevidos = calcularDescontosIndevidos(
       adicionais.calcularDescontosIndevidos,
       valorDescontosIndevidos
     );
@@ -375,7 +345,7 @@ export function calcularAdicionais(
   // Calculate salary differences
   if (adicionais.calcularDiferencasSalariais) {
     const valorDiferencasSalariais = parseFloat(adicionais.valorDiferencasSalariais) || 0;
-    diferencasSalariais = diferencasSalariaisCalc(
+    diferencasSalariais = calcularDiferencasSalariais(
       adicionais.calcularDiferencasSalariais,
       valorDiferencasSalariais
     );
@@ -383,7 +353,7 @@ export function calcularAdicionais(
   
   // Calculate custom calculations from array
   if (adicionais.calculosCustom.ativo && adicionais.calculosCustom.itens.length > 0) {
-    return adicionais.calculosCustom.itens.reduce((total, item) => {
+    customCalculo = adicionais.calculosCustom.itens.reduce((total, item) => {
       return total + (item.valor || 0);
     }, 0);
   }

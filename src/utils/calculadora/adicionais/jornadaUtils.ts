@@ -1,3 +1,4 @@
+
 import { Adicionais, HoraExtra } from '@/types/calculadora';
 
 /**
@@ -37,20 +38,19 @@ export const calcularHorasExtras = (salarioBase: number, adicionais: Adicionais)
     }
 
     // Calcula o valor da hora normal
-    const valorHora = salarioBase / 220;
+    const valorHoraNormal = salarioBase / 220;
 
     // Mapeia e calcula o valor de cada hora extra
     const valorTotalHorasExtras = adicionais.horasExtrasCalculos.reduce((total, horasExtrasCalculo: HoraExtra) => {
-    const totalHorasExtras = horasExtrasCalculo.quantidade;
-    const percentual = parseFloat(horasExtrasCalculo.percentual.toString());
-    const valorHora = parseFloat(valorHora.toString());
+      const totalHorasExtras = horasExtrasCalculo.quantidade;
+      const percentual = parseFloat(horasExtrasCalculo.percentual.toString());
 
       if (isNaN(percentual) || isNaN(totalHorasExtras)) {
         console.error("Percentual ou quantidade de horas extras inválidos.");
         return total; // Retorna o total acumulado até o momento
       }
 
-      return total + (valorHora * (percentual / 100) * totalHorasExtras);
+      return total + (valorHoraNormal * (percentual / 100) * totalHorasExtras);
     }, 0);
 
     return valorTotalHorasExtras;

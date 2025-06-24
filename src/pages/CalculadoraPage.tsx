@@ -83,6 +83,17 @@ export function CalculadoraPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause'): 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '' => {
+    const mapping = {
+      'dismissal': 'sem_justa_causa',
+      'resignation': 'pedido_demissao', 
+      'mutual': 'acordo_mutuo',
+      'just_cause': 'justa_causa'
+    } as const;
+    
+    return mapping[value] || '';
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Calculadora Trabalhista</h1>
@@ -132,7 +143,7 @@ export function CalculadoraPage() {
                     dadosContratoUpdates.salarioBase = Number(value) || 0;
                     break;
                   case 'terminationType':
-                    dadosContratoUpdates.motivoDemissao = value as 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
+                    dadosContratoUpdates.motivoDemissao = mapTerminationType(value as 'dismissal' | 'resignation' | 'mutual' | 'just_cause');
                     break;
                 }
                 

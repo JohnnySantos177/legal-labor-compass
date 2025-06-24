@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,8 @@ import {
   Edit, 
   FileText, 
   Share, 
-  Trash2 
+  Trash2,
+  Calculator
 } from 'lucide-react';
 import { CalculoSalvo } from '@/hooks/useCalculosSalvos';
 import { CalculationViewer } from './CalculationViewer';

@@ -1,39 +1,40 @@
+
 import { Resultados, Adicionais } from '@/types/calculadora';
 
 export const resultadosIniciais: Resultados = {
-  verbasRescisorias: {
-    saldoSalario: 0,
-    avisoPrevia: 0,
-    descontoAvisoPrevio: 0,
-    feriasAvisoPrevia: 0,
-    decimoTerceiroAvisoPrevia: 0,
-    decimoTerceiro: 0,
-    ferias: 0,
-    tercoConstitucional: 0,
-    fgts: 0,
-    multaFgts: 0,
-    indenizacaoQuebraContrato: 0,
-    total: 0,
-  },
-  adicionais: {
-    adicionalInsalubridade: 0,
-    adicionalPericulosidade: 0,
-    multa467: 0,
-    multa477: 0,
-    adicionalNoturno: 0,
-    horasExtras: 0,
-    feriasVencidas: 0,
-    indenizacaoDemissao: 0,
-    valeTransporte: 0,
-    valeAlimentacao: 0,
-    adicionalTransferencia: 0,
-    descontosIndevidos: 0,
-    diferencasSalariais: 0,
-    customCalculo: 0,
-    seguroDesemprego: 0,
+  total: 0,
+  detalhamento: {
+    verbas: {
+      salarioProporcional: 0,
+      decimoTerceiro: 0,
+      feriasProporcionais: 0,
+      avisoPrevio: 0,
+      fgts: 0,
+      multaFgts: 0,
+      feriasVencidas: 0,
+      indenizacaoDemissaoIndevida: 0,
+      valeTransporteNaoPago: 0,
+      valeAlimentacaoNaoPago: 0,
+      adicionalTransferencia: 0,
+      descontosIndevidos: 0,
+      diferencasSalariais: 0,
+      tercoConstitucional: 0,
+      total: 0,
+    },
+    adicionais: {
+      insalubridade: 0,
+      periculosidade: 0,
+      noturno: 0,
+      horasExtras: 0,
+    },
+    multas: {
+      art467: 0,
+      art477: 0,
+    },
     salarioFamilia: 0,
-    honorariosAdvocaticios: 0,
-  }
+    seguroDesemprego: 0,
+    calculosPersonalizados: 0,
+  },
 };
 
 export const adicionaisIniciais: Adicionais = {
@@ -76,7 +77,6 @@ export const adicionaisIniciais: Adicionais = {
   valorDescontosIndevidos: '',
   calcularDiferencasSalariais: false,
   valorDiferencasSalariais: '',
-  calcularCustom: false,
   calculosCustom: {
     ativo: false,
     itens: []
@@ -101,6 +101,7 @@ export const adicionaisIniciais: Adicionais = {
 
 // Constantes para cálculos
 export const SALARIO_MINIMO = 1412.00; // Valor para 2024/2025
+export const SALARIO_MINIMO_2024 = 1412.00;
 export const VALOR_MAXIMO_SEGURO_DESEMPREGO = 2259.72;
 export const FAIXA_1_SEGURO_DESEMPREGO = 1968.36;
 export const FAIXA_2_SEGURO_DESEMPREGO = 3279.96;
