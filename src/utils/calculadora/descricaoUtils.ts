@@ -1,4 +1,5 @@
-import { DadosContrato, Adicionais } from '@/types/calculadora';
+
+import { DadosContrato, Adicionais, Resultados } from '@/types/calculadora';
 
 /**
  * Gera uma descrição detalhada dos cálculos com base nos dados do contrato e adicionais.
@@ -60,11 +61,6 @@ export const gerarDescricaoCalculos = (dadosContrato: DadosContrato, adicionais:
     }
   }
 
-  // Remove reference to non-existent property
-  // if (adicionais.descricaoCustom) {
-  //   descricoes.push(adicionais.descricaoCustom);
-  // }
-
   if (adicionais.calcularSeguroDesemprego) {
     descricoes.push('Seguro Desemprego');
   }
@@ -78,4 +74,15 @@ export const gerarDescricaoCalculos = (dadosContrato: DadosContrato, adicionais:
   }
 
   return descricoes.join(', ');
+};
+
+/**
+ * Gets a description for custom calculations based on the results
+ */
+export const getCustomCalculoDescription = (calculos: Resultados): string => {
+  // If there are custom calculations, return a generic description
+  if (calculos.detalhamento.calculosPersonalizados > 0) {
+    return 'Cálculo Personalizado';
+  }
+  return 'Cálculos Personalizados';
 };
