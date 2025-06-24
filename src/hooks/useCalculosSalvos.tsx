@@ -87,9 +87,9 @@ export const useCalculosSalvos = () => {
         .insert({
           user_id: user.id,
           nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
-          dados_contrato: dadosCompletos.dadosContrato as any,
-          adicionais: dadosCompletos.adicionais as any,
-          verbas_rescisorias: dadosCompletos.verbas as any,
+          dados_contrato: dadosCompletos.dadosContrato,
+          adicionais: dadosCompletos.adicionais,
+          verbas_rescisorias: dadosCompletos.verbas,
           total_geral: 0
         })
         .select()
