@@ -1,3 +1,4 @@
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -12,7 +13,7 @@ interface FormContractData {
   admissionDate: string;
   terminationDate: string;
   baseSalary: number;
-  terminationType: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '';
+  terminationType: 'dismissal' | 'resignation' | 'mutual' | 'just_cause';
 }
 
 interface ContractDataFormProps {
@@ -68,7 +69,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
           <Label htmlFor="terminationType">Tipo de Rescisão</Label>
           <Select 
             value={data.terminationType}
-            onValueChange={(value: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo' | '') => 
+            onValueChange={(value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause') => 
               onUpdate('terminationType', value)
             }
           >
@@ -76,10 +77,10 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
               <SelectValue placeholder="Selecione o tipo de rescisão" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="sem_justa_causa">Dispensa sem Justa Causa</SelectItem>
-              <SelectItem value="justa_causa">Dispensa por Justa Causa</SelectItem>
-              <SelectItem value="pedido_demissao">Pedido de Demissão</SelectItem>
-              <SelectItem value="acordo_mutuo">Acordo Mútuo</SelectItem>
+              <SelectItem value="dismissal">Dispensa sem Justa Causa</SelectItem>
+              <SelectItem value="just_cause">Dispensa por Justa Causa</SelectItem>
+              <SelectItem value="resignation">Pedido de Demissão</SelectItem>
+              <SelectItem value="mutual">Acordo Mútuo</SelectItem>
             </SelectContent>
           </Select>
         </div>
