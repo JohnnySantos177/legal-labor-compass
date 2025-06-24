@@ -44,14 +44,14 @@ export const useCalculosSalvos = () => {
         id: calculo.id,
         nome: calculo.nome,
         dataCriacao: calculo.created_at,
-        dadosContrato: calculo.dados_contrato as DadosContrato,
-        adicionais: calculo.adicionais as Adicionais,
-        verbas: calculo.verbas_rescisorias as Verbas,
-        multas: {} as Multas, // Adapte conforme necessário
-        salarioFamilia: {} as SalarioFamilia, // Adapte conforme necessário
-        seguroDesemprego: {} as SeguroDesemprego, // Adapte conforme necessário
-        calculosPersonalizados: [] as CustomCalculo[], // Adapte conforme necessário
-        resultados: {} as Resultados // Adapte conforme necessário
+        dadosContrato: calculo.dados_contrato as unknown as DadosContrato,
+        adicionais: calculo.adicionais as unknown as Adicionais,
+        verbas: calculo.verbas_rescisorias as unknown as Verbas,
+        multas: {} as Multas,
+        salarioFamilia: {} as SalarioFamilia,
+        seguroDesemprego: {} as SeguroDesemprego,
+        calculosPersonalizados: [] as CustomCalculo[],
+        resultados: {} as Resultados
       })) || [];
 
       setCalculosSalvos(calculosMapeados);
@@ -90,7 +90,7 @@ export const useCalculosSalvos = () => {
           dados_contrato: dadosCompletos.dadosContrato,
           adicionais: dadosCompletos.adicionais,
           verbas_rescisorias: dadosCompletos.verbas,
-          total_geral: 0 // Calcule o total baseado nos resultados
+          total_geral: 0
         })
         .select()
         .single();
@@ -99,7 +99,7 @@ export const useCalculosSalvos = () => {
         throw error;
       }
 
-      await carregarCalculos(); // Recarregar a lista
+      await carregarCalculos();
       toast.success('Cálculo salvo com sucesso!');
       return data.id;
     } catch (error: any) {
@@ -122,7 +122,7 @@ export const useCalculosSalvos = () => {
         throw error;
       }
 
-      await carregarCalculos(); // Recarregar a lista
+      await carregarCalculos();
       toast.success('Cálculo removido com sucesso!');
     } catch (error: any) {
       console.error('Erro ao remover cálculo:', error);
@@ -144,7 +144,7 @@ export const useCalculosSalvos = () => {
         throw error;
       }
 
-      await carregarCalculos(); // Recarregar a lista
+      await carregarCalculos();
       toast.success('Cálculo renomeado com sucesso!');
     } catch (error: any) {
       console.error('Erro ao renomear cálculo:', error);

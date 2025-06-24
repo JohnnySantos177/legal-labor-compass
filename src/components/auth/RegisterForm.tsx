@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -132,7 +133,7 @@ export const RegisterForm = () => {
           
           <Button 
             type="submit" 
-            className="w-full bg-juriscalc-blue hover:bg-juriscalc-navy"
+            className="w-full bg-juriscalc-blue hover:bg-juriscalc-navy text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             disabled={loading}
           >
             {loading ? 'Criando Conta...' : 'Criar Conta'}
