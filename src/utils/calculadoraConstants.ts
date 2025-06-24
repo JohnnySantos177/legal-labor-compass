@@ -37,6 +37,17 @@ export const resultadosIniciais: Resultados = {
     seguroDesemprego: 0,
     calculosPersonalizados: 0,
   },
+  dadosContrato: {
+    salarioBase: 0,
+    dataAdmissao: '',
+    dataDemissao: '',
+    motivoDemissao: '',
+    diasTrabalhados: '0',
+    mesesTrabalhados: '0',
+    contratoTempoDeterminado: false,
+    avisoPrevioCumprido: false,
+    fgtsDepositado: false,
+  },
 };
 
 export const adicionaisIniciais: Adicionais = {
@@ -102,7 +113,6 @@ export const adicionaisIniciais: Adicionais = {
     ativo: false,
     itens: []
   },
-  valorCustom: '',
   calcularSeguroDesemprego: false,
   tipoTrabalhador: 'padrao',
   salarioUltimos3Meses: 'sim',

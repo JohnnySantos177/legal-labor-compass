@@ -102,10 +102,14 @@ export const exportToExcel = (data: ExcelExportData, fileName?: string) => {
       });
     } else {
       // Calculate total from verbas and adicionais if totalGeral is not provided
-      const totalVerbas = Object.values(verbas).reduce((sum: number, val) => 
-        sum + (typeof val === 'number' ? val : 0), 0);
-      const totalAdicionais = Object.values(adicionais).reduce((sum: number, val) => 
-        sum + (typeof val === 'number' ? val : 0), 0);
+      const totalVerbas = Object.values(verbas).reduce((sum: number, val) => {
+        const numVal = typeof val === 'number' ? val : 0;
+        return sum + numVal;
+      }, 0);
+      const totalAdicionais = Object.values(adicionais).reduce((sum: number, val) => {
+        const numVal = typeof val === 'number' ? val : 0;
+        return sum + numVal;
+      }, 0);
       const calculatedTotal = totalVerbas + totalAdicionais;
       
       exportData.push({ 

@@ -117,7 +117,10 @@ export function CalculadoraPage() {
                 admissionDate: state.dadosContrato.dataAdmissao,
                 terminationDate: state.dadosContrato.dataDemissao,
                 baseSalary: state.dadosContrato.salarioBase,
-                terminationType: state.dadosContrato.motivoDemissao as 'dismissal' | 'resignation' | 'mutual' | 'just_cause'
+                terminationType: (state.dadosContrato.motivoDemissao === 'sem_justa_causa' ? 'dismissal' :
+                                 state.dadosContrato.motivoDemissao === 'pedido_demissao' ? 'resignation' :
+                                 state.dadosContrato.motivoDemissao === 'acordo_mutuo' ? 'mutual' :
+                                 state.dadosContrato.motivoDemissao === 'justa_causa' ? 'just_cause' : 'dismissal') as 'dismissal' | 'resignation' | 'mutual' | 'just_cause'
               }}
               onUpdate={(field, value) => {
                 const dadosContratoUpdates: Partial<DadosContrato> = {};

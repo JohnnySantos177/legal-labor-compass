@@ -186,10 +186,25 @@ export const SavedCalculations = ({
     // Adicionar o elemento ao documento
     document.body.appendChild(printDiv);
     
-    // Exportar para PDF com dados do cálculo
+    // Exportar para PDF com dados do cálculo estruturados corretamente
     const exportData = {
-      resultados: calculo.resultados,
-      dadosContrato: calculo.dadosContrato
+      verbasRescisorias: calculo.resultados.detalhamento.verbas,
+      adicionais: {
+        ...calculo.resultados.detalhamento.adicionais,
+        ...calculo.resultados.detalhamento.multas,
+        feriasVencidas: calculo.resultados.detalhamento.verbas.feriasVencidas,
+        indenizacaoDemissaoIndevida: calculo.resultados.detalhamento.verbas.indenizacaoDemissaoIndevida,
+        valeTransporteNaoPago: calculo.resultados.detalhamento.verbas.valeTransporteNaoPago,
+        valeAlimentacaoNaoPago: calculo.resultados.detalhamento.verbas.valeAlimentacaoNaoPago,
+        adicionalTransferencia: calculo.resultados.detalhamento.verbas.adicionalTransferencia,
+        descontosIndevidos: calculo.resultados.detalhamento.verbas.descontosIndevidos,
+        diferencasSalariais: calculo.resultados.detalhamento.verbas.diferencasSalariais,
+        calculosPersonalizados: calculo.resultados.detalhamento.calculosPersonalizados,
+        seguroDesemprego: calculo.resultados.detalhamento.seguroDesemprego,
+        salarioFamilia: calculo.resultados.detalhamento.salarioFamilia,
+      },
+      totalGeral: calculo.resultados.total,
+      nome: calculo.nome,
     };
     exportToPDF(exportData);
     
