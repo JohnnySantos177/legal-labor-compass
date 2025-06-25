@@ -47,9 +47,9 @@ export const useCalculosSalvos = () => {
         id: calculo.id,
         nome: calculo.nome,
         dataCriacao: calculo.created_at,
-        dadosContrato: calculo.dados_contrato as DadosContrato,
-        adicionais: (calculo.adicionais as Adicionais) || {} as Adicionais,
-        verbas: (calculo.verbas_rescisorias as Verbas) || {} as Verbas,
+        dadosContrato: (calculo.dados_contrato as unknown as DadosContrato) || {} as DadosContrato,
+        adicionais: (calculo.adicionais as unknown as Adicionais) || {} as Adicionais,
+        verbas: (calculo.verbas_rescisorias as unknown as Verbas) || {} as Verbas,
         multas: {} as Multas,
         salarioFamilia: {} as SalarioFamilia,
         seguroDesemprego: {} as SeguroDesemprego,
@@ -100,9 +100,9 @@ export const useCalculosSalvos = () => {
       const calculoData = {
         user_id: user.id,
         nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
-        dados_contrato: dadosCompletos.dadosContrato,
-        adicionais: dadosCompletos.adicionais,
-        verbas_rescisorias: dadosCompletos.verbas,
+        dados_contrato: dadosCompletos.dadosContrato as any,
+        adicionais: dadosCompletos.adicionais as any,
+        verbas_rescisorias: dadosCompletos.verbas as any,
         total_geral: resultados.total || 0
       };
 

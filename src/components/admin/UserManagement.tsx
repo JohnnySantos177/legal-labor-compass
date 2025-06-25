@@ -82,8 +82,8 @@ export function UserManagement() {
         id: profile.id,
         email: profile.email || 'Não informado',
         nome: profile.nome || 'Não informado',
-        tipo_usuario: profile.tipo_usuario || 'usuario',
-        tipo_plano: profile.tipo_plano || 'padrao',
+        tipo_usuario: (profile.tipo_usuario as 'usuario' | 'admin' | 'admin_mestre') || 'usuario',
+        tipo_plano: (profile.tipo_plano as 'padrao' | 'premium') || 'padrao',
         created_at: profile.created_at,
         is_admin: profile.is_admin || false,
       })) || [];

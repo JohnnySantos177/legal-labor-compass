@@ -228,6 +228,7 @@ export function CalculadoraPage() {
           calculos={calculosSalvos}
           onDelete={removerCalculo}
           onLoad={handleEditarCalculo}
+          onRename={renomearCalculo}
         />
       </div>
     </div>
