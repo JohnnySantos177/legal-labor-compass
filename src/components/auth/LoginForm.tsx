@@ -11,7 +11,7 @@ import { ManualDialog } from '@/components/manual-dialog';
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  const { login, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,7 @@ export function LoginForm() {
     e.preventDefault();
     console.log('Formulário de login submetido');
     
-    if (isSubmitting) return;
+    if (isSubmitting || authLoading) return;
     
     setIsSubmitting(true);
     
@@ -29,7 +29,7 @@ export function LoginForm() {
       const success = await login({ email, password });
       if (success) {
         console.log('Login bem-sucedido, redirecionando...');
-        navigate('/calculadora');
+        // A navegação é feita no hook useAuth
       }
     } catch (error) {
       console.error('Erro no submit do login:', error);
@@ -38,7 +38,8 @@ export function LoginForm() {
     }
   };
 
-  const isLoading = loading || isSubmitting;
+  const isLoading = authLoading || isSubmitting;
+  const canSubmit = email && password && !isLoading;
 
   return (
     <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-white/20">
@@ -60,6 +61,7 @@ export function LoginForm() {
               className="juriscalc-input"
               required
               disabled={isLoading}
+              placeholder="seu@email.com"
             />
           </div>
           
@@ -74,6 +76,7 @@ export function LoginForm() {
                 className="juriscalc-input pr-10"
                 required
                 disabled={isLoading}
+                placeholder="Digite sua senha"
               />
               <Button
                 type="button"
@@ -95,14 +98,10 @@ export function LoginForm() {
           <Button 
             type="submit" 
             className="w-full bg-juriscalc-blue hover:bg-juriscalc-navy"
-            disabled={isLoading}
+            disabled={!canSubmit}
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
-          
-          <div className="text-center text-sm">
-            {/* <span className="text-gray-600">Demo: demo@iuscalc.com / demo123</span> */}
-          </div>
         </form>
 
         {/* Premium Plan Information */}
