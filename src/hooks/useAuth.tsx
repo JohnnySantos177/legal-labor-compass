@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
@@ -33,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (!mounted) return;
         
         console.log('Auth state changed:', event, session?.user?.email || 'no user');
@@ -65,17 +64,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 };
                 setUser(mappedUser);
                 console.log('Usuário mapeado:', mappedUser.email);
+                
+                // Navigate after user is fully set up
+                if (event === 'SIGNED_IN') {
+                  console.log('Redirecionando para /home...');
+                  navigate('/home');
+                }
               }
             } catch (error) {
               console.error('Erro ao buscar perfil:', error);
+            } finally {
+              if (mounted) {
+                setLoading(false);
+              }
             }
           }, 0);
         } else {
           setUser(null);
-        }
-        
-        if (mounted) {
-          setLoading(false);
+          if (mounted) {
+            setLoading(false);
+          }
         }
       }
     );
@@ -94,11 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const login = async (data: LoginData): Promise<boolean> => {
     console.log('Tentando fazer login com:', data.email);
     setError(null);
+    setLoading(true);
     
     try {
       const { data: authData, error } = await supabase.auth.signInWithPassword({
@@ -111,22 +120,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(error.message);
         toast.error(error.message === 'Invalid login credentials' ? 
           'Email ou senha incorretos' : error.message);
+        setLoading(false);
         return false;
       }
 
-      if (authData.user) {
+      if (authData.user && authData.session) {
         console.log('Login bem-sucedido:', authData.user.email);
         toast.success('Login realizado com sucesso!');
-        navigate('/calculadora');
+        // Don't navigate here - let the auth state change handler do it
         return true;
       }
       
+      setLoading(false);
       return false;
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       const errorMessage = error.message || 'Erro no login';
       setError(errorMessage);
       toast.error(errorMessage);
+      setLoading(false);
       return false;
     }
   };

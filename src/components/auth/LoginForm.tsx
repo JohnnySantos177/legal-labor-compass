@@ -28,8 +28,8 @@ export function LoginForm() {
     try {
       const success = await login({ email, password });
       if (success) {
-        console.log('Login bem-sucedido, redirecionando...');
-        // A navegação é feita no hook useAuth
+        console.log('Login bem-sucedido, aguardando redirecionamento...');
+        // Don't navigate here - let the auth context handle it
       }
     } catch (error) {
       console.error('Erro no submit do login:', error);
