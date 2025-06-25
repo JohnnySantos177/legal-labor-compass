@@ -30,25 +30,25 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { User, Users, Edit, Trash2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Interface para o usuário no contexto de gerenciamento
 interface ManagedUser {
   id: string;
   email: string;
-  name: string;
-  role: 'user' | 'admin' | 'super_admin';
-  plan: 'standard' | 'premium';
-  phone?: string;
+  nome: string;
+  tipo_usuario: 'usuario' | 'admin' | 'admin_mestre';
+  tipo_plano: 'padrao' | 'premium';
   created_at: string;
-  trial_end_date?: string;
+  is_admin: boolean;
 }
 
 interface FormData {
   email: string;
-  name: string;
-  role: 'user' | 'admin' | 'super_admin';
-  plan: 'standard' | 'premium';
-  phone: string;
+  nome: string;
+  tipo_usuario: 'usuario' | 'admin' | 'admin_mestre';
+  tipo_plano: 'padrao' | 'premium';
+  is_admin: boolean;
 }
 
 export function UserManagement() {
@@ -59,40 +59,39 @@ export function UserManagement() {
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [formData, setFormData] = useState<FormData>({
     email: '',
-    name: '',
-    role: 'user',
-    plan: 'standard',
-    phone: '',
+    nome: '',
+    tipo_usuario: 'usuario',
+    tipo_plano: 'padrao',
+    is_admin: false,
   });
 
-  // Carregar usuários (simulado)
+  // Carregar usuários reais do Supabase
   const loadUsers = async () => {
     setIsLoading(true);
     try {
-      // Simulação de carregamento de usuários
-      const mockUsers: ManagedUser[] = [
-        {
-          id: '1',
-          email: 'usuario1@exemplo.com',
-          name: 'Usuário 1',
-          role: 'user',
-          plan: 'standard',
-          phone: '(11) 99999-9999',
-          created_at: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          email: 'admin@exemplo.com',
-          name: 'Administrador',
-          role: 'admin',
-          plan: 'premium',
-          phone: '(11) 88888-8888',
-          created_at: new Date().toISOString(),
-        },
-      ];
-      setUsers(mockUsers);
-    } catch (error) {
-      toast.error('Erro ao carregar usuários');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      const mappedUsers: ManagedUser[] = data?.map(profile => ({
+        id: profile.id,
+        email: profile.email || 'Não informado',
+        nome: profile.nome || 'Não informado',
+        tipo_usuario: profile.tipo_usuario || 'usuario',
+        tipo_plano: profile.tipo_plano || 'padrao',
+        created_at: profile.created_at,
+        is_admin: profile.is_admin || false,
+      })) || [];
+
+      setUsers(mappedUsers);
+    } catch (error: any) {
+      console.error('Erro ao carregar usuários:', error);
+      toast.error('Erro ao carregar usuários: ' + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -103,19 +102,33 @@ export function UserManagement() {
     loadUsers();
   }, []);
 
-  const handleCreateUser = async () => {
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+
     try {
-      // Simulação de criação de usuário
-      const newUser: ManagedUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        ...formData,
-        created_at: new Date().toISOString(),
-      };
-      setUsers([...users, newUser]);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          nome: formData.nome,
+          email: formData.email,
+          tipo_usuario: formData.tipo_usuario,
+          tipo_plano: formData.tipo_plano,
+          is_admin: formData.is_admin,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', editingUser.id);
+
+      if (error) {
+        throw error;
+      }
+
+      await loadUsers();
       setIsDialogOpen(false);
-      toast.success('Usuário criado com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao criar usuário');
+      setEditingUser(null);
+      toast.success('Usuário atualizado com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao atualizar usuário:', error);
+      toast.error('Erro ao atualizar usuário: ' + error.message);
     }
   };
 
@@ -123,39 +136,53 @@ export function UserManagement() {
     setEditingUser(user);
     setFormData({
       email: user.email,
-      name: user.name,
-      role: user.role,
-      plan: user.plan,
-      phone: user.phone || '',
+      nome: user.nome,
+      tipo_usuario: user.tipo_usuario,
+      tipo_plano: user.tipo_plano,
+      is_admin: user.is_admin,
     });
     setIsDialogOpen(true);
   };
 
-  const handleUpdateUser = async () => {
-    if (!editingUser) return;
+  const handleDeleteUser = async (userId: string) => {
+    if (userId === currentUser?.id) {
+      toast.error('Você não pode excluir sua própria conta');
+      return;
+    }
 
     try {
-      // Simulação de atualização de usuário
-      const updatedUsers = users.map(u =>
-        u.id === editingUser.id ? { ...u, ...formData } : u
-      );
-      setUsers(updatedUsers);
-      setIsDialogOpen(false);
-      setEditingUser(null);
-      toast.success('Usuário atualizado com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao atualizar usuário');
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+
+      await loadUsers();
+      toast.success('Usuário excluído com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao excluir usuário:', error);
+      toast.error('Erro ao excluir usuário: ' + error.message);
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      // Simulação de exclusão de usuário
-      setUsers(users.filter(u => u.id !== userId));
-      toast.success('Usuário excluído com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao excluir usuário');
-    }
+  const getRoleDisplayName = (role: string) => {
+    const roles: { [key: string]: string } = {
+      'usuario': 'Usuário',
+      'admin': 'Administrador',
+      'admin_mestre': 'Super Admin'
+    };
+    return roles[role] || role;
+  };
+
+  const getPlanDisplayName = (plan: string) => {
+    const plans: { [key: string]: string } = {
+      'padrao': 'Padrão',
+      'premium': 'Premium'
+    };
+    return plans[plan] || plan;
   };
 
   return (
@@ -163,34 +190,30 @@ export function UserManagement() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-juriscalc-navy flex items-center">
           <Users className="w-6 h-6 mr-2" />
-          Gerenciamento de Usuários
+          Gerenciamento de Usuários ({users.length})
         </h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-juriscalc-blue hover:bg-juriscalc-navy">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Usuário
+            <Button className="bg-juriscalc-blue hover:bg-juriscalc-navy" disabled={!editingUser}>
+              <Edit className="w-4 h-4 mr-2" />
+              Editar Usuário
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {editingUser ? 'Editar Usuário' : 'Novo Usuário'}
-              </DialogTitle>
+              <DialogTitle>Editar Usuário</DialogTitle>
               <DialogDescription>
-                {editingUser
-                  ? 'Atualize as informações do usuário'
-                  : 'Preencha as informações para criar um novo usuário'}
+                Atualize as informações do usuário selecionado
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
+                <Label htmlFor="nome">Nome</Label>
                 <Input
-                  id="name"
-                  value={formData.name}
+                  id="nome"
+                  value={formData.nome}
                   onChange={e =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, nome: e.target.value })
                   }
                 />
               </div>
@@ -206,46 +229,36 @@ export function UserManagement() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={e =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="role">Papel</Label>
+                <Label htmlFor="tipo_usuario">Tipo de Usuário</Label>
                 <Select
-                  value={formData.role}
-                  onValueChange={(value: 'user' | 'admin' | 'super_admin') =>
-                    setFormData({ ...formData, role: value })
+                  value={formData.tipo_usuario}
+                  onValueChange={(value: 'usuario' | 'admin' | 'admin_mestre') =>
+                    setFormData({ ...formData, tipo_usuario: value, is_admin: value !== 'usuario' })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o papel" />
+                    <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">Usuário</SelectItem>
+                    <SelectItem value="usuario">Usuário</SelectItem>
                     <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="admin_mestre">Super Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="plan">Plano</Label>
+                <Label htmlFor="tipo_plano">Plano</Label>
                 <Select
-                  value={formData.plan}
-                  onValueChange={(value: 'standard' | 'premium') =>
-                    setFormData({ ...formData, plan: value })
+                  value={formData.tipo_plano}
+                  onValueChange={(value: 'padrao' | 'premium') =>
+                    setFormData({ ...formData, tipo_plano: value })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o plano" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="standard">Padrão</SelectItem>
+                    <SelectItem value="padrao">Padrão</SelectItem>
                     <SelectItem value="premium">Premium</SelectItem>
                   </SelectContent>
                 </Select>
@@ -262,10 +275,10 @@ export function UserManagement() {
                 Cancelar
               </Button>
               <Button
-                onClick={editingUser ? handleUpdateUser : handleCreateUser}
+                onClick={handleUpdateUser}
                 className="bg-juriscalc-blue hover:bg-juriscalc-navy"
               >
-                {editingUser ? 'Atualizar' : 'Criar'}
+                Atualizar
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -273,16 +286,23 @@ export function UserManagement() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-4">Carregando usuários...</div>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-juriscalc-blue mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando usuários...</p>
+        </div>
+      ) : users.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>Nenhum usuário encontrado.</p>
+        </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Papel</TableHead>
+              <TableHead>Tipo</TableHead>
               <TableHead>Plano</TableHead>
-              <TableHead>Telefone</TableHead>
               <TableHead>Data de Criação</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -290,30 +310,56 @@ export function UserManagement() {
           <TableBody>
             {users.map(user => (
               <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
+                <TableCell className="font-medium">{user.nome}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell className="capitalize">{user.role}</TableCell>
-                <TableCell className="capitalize">{user.plan}</TableCell>
-                <TableCell>{user.phone || 'Não informado'}</TableCell>
+                <TableCell>
+                  <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                    user.tipo_usuario === 'admin_mestre' 
+                      ? 'bg-red-100 text-red-800'
+                      : user.tipo_usuario === 'admin'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {getRoleDisplayName(user.tipo_usuario)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                    user.tipo_plano === 'premium' 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {getPlanDisplayName(user.tipo_plano)}
+                  </span>
+                </TableCell>
                 <TableCell>
                   {new Date(user.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteUser(user.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditUser(user)}
+                      title="Editar usuário"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        if (window.confirm('Tem certeza que deseja excluir este usuário?')) {
+                          handleDeleteUser(user.id);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                      title="Excluir usuário"
+                      disabled={user.id === currentUser?.id}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -322,4 +368,4 @@ export function UserManagement() {
       )}
     </div>
   );
-} 
+}

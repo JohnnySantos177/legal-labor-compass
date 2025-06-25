@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { DatabaseManagement } from '@/components/admin/DatabaseManagement';
@@ -6,7 +7,7 @@ import { SecurityManagement } from '@/components/admin/SecurityManagement';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { SystemLogs } from '@/components/admin/SystemLogs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Settings, Database, Shield, BarChart, FileText, ClipboardList } from 'lucide-react';
+import { Users, Settings, Database, Shield, BarChart, ClipboardList } from 'lucide-react';
 
 export function SuperAdminPanel() {
   const [activeTab, setActiveTab] = useState('users');
@@ -28,19 +29,19 @@ export function SuperAdminPanel() {
             Banco de Dados
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="w-4 h-4 mr-2" />
+            <Settings className="w-4 h-4" />
             Configurações
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="w-4 h-4 mr-2" />
+            <Shield className="w-4 h-4" />
             Segurança
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart className="w-4 h-4 mr-2" />
+            <BarChart className="w-4 h-4" />
             Analytics
           </TabsTrigger>
           <TabsTrigger value="logs" className="flex items-center gap-2">
-            <ClipboardList className="w-4 h-4 mr-2" />
+            <ClipboardList className="w-4 h-4" />
             Logs
           </TabsTrigger>
         </TabsList>
@@ -71,4 +72,4 @@ export function SuperAdminPanel() {
       </Tabs>
     </div>
   );
-} 
+}

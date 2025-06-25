@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,36 +25,18 @@ import { exportToPDF } from '@/utils/export/pdfExport';
 import { shareViaWhatsApp, shareViaEmail, generateCalculationText } from '@/utils/export/shareUtils';
 import { formatCurrency } from '@/utils/format';
 
-interface DetalhamentoCalculo {
-  verbas: {
-    [key: string]: number;
-  };
-  adicionais: {
-    [key: string]: number;
-  };
-  multas: {
-    [key: string]: number;
-  };
-  salarioFamilia: number;
-  seguroDesemprego: number;
-  calculosPersonalizados: number;
-}
-
-interface ResultadosCalculo {
-  total: number;
-  detalhamento: DetalhamentoCalculo;
-}
-
 interface SavedCalculationsProps {
   calculos: CalculoSalvo[];
   onDelete: (id: string) => void;
   onLoad: (calculo: CalculoSalvo) => void;
+  onRename: (id: string, novoNome: string) => void;
 }
 
 export const SavedCalculations = ({ 
   calculos, 
   onDelete, 
-  onLoad 
+  onLoad,
+  onRename
 }: SavedCalculationsProps) => {
   const [editandoNome, setEditandoNome] = useState<string | null>(null);
   const [novoNome, setNovoNome] = useState('');
@@ -64,13 +47,9 @@ export const SavedCalculations = ({
     setNovoNome(calculo.nome);
   };
 
-  const salvarNome = (id: string) => {
+  const salvarNome = async (id: string) => {
     if (novoNome.trim()) {
-      const calculoAtualizado = calculos.find(c => c.id === id);
-      if (calculoAtualizado) {
-        calculoAtualizado.nome = novoNome.trim();
-        onLoad(calculoAtualizado);
-      }
+      await onRename(id, novoNome.trim());
       setEditandoNome(null);
       setNovoNome('');
     }
@@ -118,156 +97,35 @@ export const SavedCalculations = ({
         ` : `<p class="text-gray-500">Dados do contrato não disponíveis para este cálculo.</p>`}
       </div>
       
-      <div class="section">
-        <h3>Verbas Rescisórias</h3>
-        ${Object.entries(calculo.resultados.detalhamento.verbas)
-          .filter(([_, value]) => value > 0)
-          .map(([key, value]) => `
-            <div class="result-item">
-              <span class="result-label">${getVerbaDisplayName(key)}:</span>
-              <span class="result-value">${formatCurrency(value)}</span>
-            </div>
-          `).join('')}
-      </div>
-      
-      <div class="section">
-        <h3>Adicionais</h3>
-        ${Object.entries(calculo.resultados.detalhamento.adicionais)
-          .filter(([_, value]) => value > 0)
-          .map(([key, value]) => `
-            <div class="result-item">
-              <span class="result-label">${getAdicionalDisplayName(key)}:</span>
-              <span class="result-value">${formatCurrency(value)}</span>
-            </div>
-          `).join('')}
-      </div>
-      
-      <div class="section">
-        <h3>Multas</h3>
-        ${Object.entries(calculo.resultados.detalhamento.multas)
-          .filter(([_, value]) => value > 0)
-          .map(([key, value]) => `
-            <div class="result-item">
-              <span class="result-label">${getMultaDisplayName(key)}:</span>
-              <span class="result-value">${formatCurrency(value)}</span>
-            </div>
-          `).join('')}
-      </div>
-      
-      <div class="section">
-        <h3>Outros Valores</h3>
-        ${calculo.resultados.detalhamento.salarioFamilia > 0 ? `
-          <div class="result-item">
-            <span class="result-label">Salário-Família:</span>
-            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.salarioFamilia)}</span>
-          </div>
-        ` : ''}
-        ${calculo.resultados.detalhamento.seguroDesemprego > 0 ? `
-          <div class="result-item">
-            <span class="result-label">Seguro-Desemprego:</span>
-            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.seguroDesemprego)}</span>
-          </div>
-        ` : ''}
-        ${calculo.resultados.detalhamento.calculosPersonalizados > 0 ? `
-          <div class="result-item">
-            <span class="result-label">Cálculos Personalizados:</span>
-            <span class="result-value">${formatCurrency(calculo.resultados.detalhamento.calculosPersonalizados)}</span>
-          </div>
-        ` : ''}
-      </div>
-      
       <div class="valor-total">
         <span class="titulo">Valor Total da Reclamação</span>
-        <span class="valor">${formatCurrency(calculo.resultados.total)}</span>
+        <span class="valor">${formatCurrency(calculo.resultados?.total || 0)}</span>
       </div>
     `;
     
     // Adicionar o elemento ao documento
     document.body.appendChild(printDiv);
     
-    // Ensure calculosPersonalizados is always defined
-    const stateWithCalculosPersonalizados = {
-      ...calculo,
-      calculosPersonalizados: calculo.calculosPersonalizados || []
-    };
-    
-    // Fix the horasExtras structure to match ExportData type
-    const horasExtrasData = calculo.adicionais?.horasExtras || { ativo: false, calculos: [] };
-    const normalizedHorasExtras = typeof horasExtrasData === 'number' 
-      ? { ativo: false, calculos: [] }
-      : {
-          ativo: horasExtrasData.ativo || false,
-          calculos: horasExtrasData.calculos || []
-        };
-
     const exportData = {
-      verbasRescisorias: calculo.resultados.detalhamento.verbas,
-      adicionais: {
-        ...calculo.resultados.detalhamento.adicionais,
-        ...calculo.resultados.detalhamento.multas,
-        feriasVencidas: calculo.resultados.detalhamento.verbas.feriasVencidas,
-        indenizacaoDemissaoIndevida: calculo.resultados.detalhamento.verbas.indenizacaoDemissaoIndevida,
-        valeTransporteNaoPago: calculo.resultados.detalhamento.verbas.valeTransporteNaoPago,
-        valeAlimentacaoNaoPago: calculo.resultados.detalhamento.verbas.valeAlimentacaoNaoPago,
-        adicionalTransferencia: calculo.resultados.detalhamento.verbas.adicionalTransferencia,
-        descontosIndevidos: calculo.resultados.detalhamento.verbas.descontosIndevidos,
-        diferencasSalariais: calculo.resultados.detalhamento.verbas.diferencasSalariais,
-        calculosPersonalizados: calculo.resultados.detalhamento.calculosPersonalizados,
-        seguroDesemprego: calculo.resultados.detalhamento.seguroDesemprego,
-        salarioFamilia: calculo.resultados.detalhamento.salarioFamilia,
-      },
-      totalGeral: calculo.resultados.total,
+      verbasRescisorias: calculo.resultados?.detalhamento?.verbas || {},
+      adicionais: calculo.resultados?.detalhamento?.adicionais || {},
+      totalGeral: calculo.resultados?.total || 0,
       nome: calculo.nome,
       timestamp: calculo.dataCriacao,
       nomeEscritorio: nomeEscritorio,
       resultados: calculo.resultados,
       dadosContrato: calculo.dadosContrato,
-      horasExtras: normalizedHorasExtras
+      horasExtras: { ativo: false, calculos: [] }
     };
+    
     exportToPDF(exportData);
     
     // Remover o elemento após a exportação
     setTimeout(() => {
-      document.body.removeChild(printDiv);
+      if (document.body.contains(printDiv)) {
+        document.body.removeChild(printDiv);
+      }
     }, 1000);
-  };
-
-  // Funções auxiliares para formatar os nomes dos itens
-  const getVerbaDisplayName = (key: string) => {
-    const nomes: { [key: string]: string } = {
-      'salarioProporcional': 'Saldo de Salário',
-      'decimoTerceiro': '13º Salário Proporcional',
-      'feriasProporcionais': 'Férias Proporcionais + 1/3',
-      'avisoPrevio': 'Aviso Prévio',
-      'fgts': 'FGTS sobre Verbas',
-      'multaFgts': 'Multa do FGTS (40%)',
-      'feriasVencidas': 'Férias Vencidas + 1/3',
-      'indenizacaoDemissaoIndevida': 'Indenização por Demissão Indevida',
-      'valeTransporteNaoPago': 'Vale Transporte Não Pago',
-      'valeAlimentacaoNaoPago': 'Vale Alimentação Não Pago',
-      'adicionalTransferencia': 'Adicional de Transferência',
-      'descontosIndevidos': 'Descontos Indevidos',
-      'diferencasSalariais': 'Diferenças Salariais'
-    };
-    return nomes[key] || key;
-  };
-
-  const getAdicionalDisplayName = (key: string) => {
-    const nomes: { [key: string]: string } = {
-      'insalubridade': 'Adicional de Insalubridade',
-      'periculosidade': 'Adicional de Periculosidade',
-      'noturno': 'Adicional Noturno',
-      'horasExtras': 'Horas Extras'
-    };
-    return nomes[key] || key;
-  };
-
-  const getMultaDisplayName = (key: string) => {
-    const nomes: { [key: string]: string } = {
-      'art467': 'Multa Art. 467 CLT',
-      'art477': 'Multa Art. 477 CLT'
-    };
-    return nomes[key] || key;
   };
 
   const compartilharCalculo = (calculo: CalculoSalvo) => {
@@ -278,6 +136,7 @@ export const SavedCalculations = ({
       { ...calculo.resultados, dadosContrato: calculo.dadosContrato },
       { dataCalculo: dataCalculo, nomeEscritorio: nomeEscritorio, nomeCalculo: calculo.nome }
     );
+    
     const confirmacao = window.confirm('Escolha o método de compartilhamento:\nOK = WhatsApp\nCancelar = Email');
     
     if (confirmacao) {
