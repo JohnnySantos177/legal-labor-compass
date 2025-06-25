@@ -18,15 +18,30 @@ export const RegisterForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(formData);
+    console.log('Formulário de registro submetido');
+    
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      await register(formData);
+    } catch (error) {
+      console.error('Erro no submit do registro:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
   };
+
+  const isLoading = loading || isSubmitting;
 
   return (
     <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-white/20">
@@ -47,6 +62,7 @@ export const RegisterForm = () => {
               onChange={handleChange('name')}
               className="juriscalc-input"
               required
+              disabled={isLoading}
             />
           </div>
           
@@ -59,6 +75,7 @@ export const RegisterForm = () => {
               onChange={handleChange('email')}
               className="juriscalc-input"
               required
+              disabled={isLoading}
             />
           </div>
           
@@ -72,6 +89,7 @@ export const RegisterForm = () => {
               className="juriscalc-input"
               placeholder="(11) 99999-9999"
               required
+              disabled={isLoading}
             />
           </div>
           
@@ -86,6 +104,7 @@ export const RegisterForm = () => {
                 className="juriscalc-input pr-10"
                 required
                 minLength={6}
+                disabled={isLoading}
               />
               <Button
                 type="button"
@@ -93,6 +112,7 @@ export const RegisterForm = () => {
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4 text-gray-500" />
@@ -114,6 +134,7 @@ export const RegisterForm = () => {
                 className="juriscalc-input pr-10"
                 required
                 minLength={6}
+                disabled={isLoading}
               />
               <Button
                 type="button"
@@ -121,6 +142,7 @@ export const RegisterForm = () => {
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={isLoading}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4 w-4 text-gray-500" />
@@ -134,9 +156,9 @@ export const RegisterForm = () => {
           <Button 
             type="submit" 
             className="w-full bg-juriscalc-blue hover:bg-juriscalc-navy text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? 'Criando Conta...' : 'Criar Conta'}
+            {isLoading ? 'Criando Conta...' : 'Criar Conta'}
           </Button>
         </form>
 

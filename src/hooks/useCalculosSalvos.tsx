@@ -82,29 +82,35 @@ export const useCalculosSalvos = () => {
     }
 
     try {
+      console.log('Salvando cálculo...', { user_id: user.id, nome });
+      
+      const calculoData = {
+        user_id: user.id,
+        nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
+        dados_contrato: dadosCompletos.dadosContrato as any,
+        adicionais: dadosCompletos.adicionais as any,
+        verbas_rescisorias: dadosCompletos.verbas as any,
+        total_geral: 0
+      };
+
       const { data, error } = await supabase
         .from('calculos_salvos')
-        .insert({
-          user_id: user.id,
-          nome: nome || `Cálculo ${new Date().toLocaleDateString('pt-BR')}`,
-          dados_contrato: dadosCompletos.dadosContrato,
-          adicionais: dadosCompletos.adicionais,
-          verbas_rescisorias: dadosCompletos.verbas,
-          total_geral: 0
-        })
+        .insert(calculoData)
         .select()
         .single();
 
       if (error) {
+        console.error('Erro do Supabase:', error);
         throw error;
       }
 
+      console.log('Cálculo salvo com sucesso:', data);
       await carregarCalculos();
       toast.success('Cálculo salvo com sucesso!');
       return data.id;
     } catch (error: any) {
       console.error('Erro ao salvar cálculo:', error);
-      toast.error('Erro ao salvar cálculo');
+      toast.error('Erro ao salvar cálculo: ' + (error.message || 'Erro desconhecido'));
     }
   }, [user, carregarCalculos]);
 

@@ -27,6 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('Inicializando AuthProvider...');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -54,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined
             };
             setUser(mappedUser);
+            console.log('Usuário mapeado:', mappedUser);
           }
         } else {
           setUser(null);
@@ -65,9 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session);
-      if (session) {
-        // The onAuthStateChange will handle the user setup
-      } else {
+      if (!session) {
         setLoading(false);
       }
     });
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (data: LoginData): Promise<boolean> => {
+    console.log('Tentando fazer login com:', data.email);
     setLoading(true);
     setError(null);
     
@@ -86,10 +88,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        console.error('Erro no login:', error);
         throw error;
       }
 
       if (authData.user) {
+        console.log('Login bem-sucedido:', authData.user.email);
         navigate('/calculadora');
         toast.success('Login realizado com sucesso!');
         return true;
@@ -108,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (data: RegisterData): Promise<boolean> => {
+    console.log('Tentando registrar usuário:', data.email);
     setLoading(true);
     setError(null);
     
@@ -135,13 +140,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        console.error('Erro no registro:', error);
         throw error;
       }
       
-      setLoading(false);
+      console.log('Registro realizado com sucesso');
       toast.success('Registro realizado! Verifique seu email para confirmar a conta.');
       return true;
     } catch (error: any) {
+      console.error('Erro ao registrar:', error);
       const errorMessage = error?.message || 'Erro no registro';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -152,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    console.log('Fazendo logout...');
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error('Erro ao fazer logout');
