@@ -30,6 +30,7 @@ import {
 import { toast } from 'sonner';
 import { User, Users, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import iusCalcLogo from '@/assets/IusCalc sem fundo.png';
 
 // Interface para o usuário no contexto de gerenciamento
 interface ManagedUser {

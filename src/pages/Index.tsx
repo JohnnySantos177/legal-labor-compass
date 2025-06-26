@@ -47,7 +47,7 @@ const Index = () => {
       <section className="relative h-[420px] flex items-center justify-center bg-black/70" style={{backgroundImage: 'url(/images/legal-background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative z-10 text-center text-white max-w-2xl mx-auto px-6 py-8 rounded-lg bg-black/60 shadow-lg">
-          <img src="/src/assets/IusCalc sem fundo.png" alt="Logo IUSCALC" className="mx-auto mb-4 w-40 h-auto drop-shadow-lg" />
+          <img src="/images/IusCalcLogo.png" alt="Logo IUSCALC" className="mx-auto mb-4 w-40 h-auto drop-shadow-lg" />
           <h1 className="text-2xl md:text-4xl font-extrabold mb-2 leading-tight drop-shadow">
             Calcule <span className="text-yellow-400">verbas trabalhistas</span>
           </h1>
