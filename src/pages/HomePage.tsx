@@ -1,61 +1,88 @@
 
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calculator, Users, TrendingUp, FileText, Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/utils/format";
+
+interface CalculoSalvo {
+  id: string;
+  nome: string;
+  created_at: string;
+  total_geral: number;
+  dados_contrato?: any;
+}
 
 export function HomePage() {
   const { user } = useAuth();
+  const [calculosSalvos, setCalculosSalvos] = useState<CalculoSalvo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregarDadosReais = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Carregando dados reais do usuário:', user.id);
+        
+        // Buscar cálculos salvos reais do usuário
+        const { data: calculos, error } = await supabase
+          .from('calculos_salvos')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (error) {
+          console.error('Erro ao carregar cálculos:', error);
+        } else {
+          console.log('Cálculos carregados:', calculos?.length || 0);
+          setCalculosSalvos(calculos || []);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDadosReais();
+  }, [user]);
+
+  // Stats baseadas nos dados reais
+  const totalCalculos = calculosSalvos.length;
+  const valorTotalCalculado = calculosSalvos.reduce((sum, calc) => sum + Number(calc.total_geral || 0), 0);
 
   const stats = [
     {
       title: "Cálculos Realizados",
-      value: "1,234",
+      value: totalCalculos.toString(),
       icon: Calculator,
       color: "text-blue-600"
     },
     {
-      title: "Tempo Economizado",
-      value: "45h",
-      icon: Clock,
+      title: "Valor Total Calculado",
+      value: formatCurrency(valorTotalCalculado),
+      icon: TrendingUp,
       color: "text-green-600"
     },
     {
-      title: "Clientes Atendidos",
-      value: "89",
-      icon: Users,
+      title: "Plano Atual",
+      value: user?.plan === 'premium' ? 'Premium' : 'Padrão',
+      icon: Award,
       color: "text-purple-600"
     },
     {
-      title: "Taxa de Precisão",
-      value: "99.9%",
-      icon: Award,
+      title: "Status",
+      value: "Ativo",
+      icon: Clock,
       color: "text-orange-600"
-    }
-  ];
-
-  const recentCalculations = [
-    {
-      id: 1,
-      client: "João Silva vs. Empresa ABC",
-      type: "Verbas Rescisórias",
-      value: "R$ 15.420,00",
-      date: "15/12/2024"
-    },
-    {
-      id: 2,
-      client: "Maria Santos vs. Indústria XYZ",
-      type: "Horas Extras",
-      value: "R$ 8.750,00",
-      date: "14/12/2024"
-    },
-    {
-      id: 3,
-      client: "Pedro Costa vs. Comércio 123",
-      type: "Adicional Noturno",
-      value: "R$ 3.200,00",
-      date: "13/12/2024"
     }
   ];
 
@@ -68,7 +95,7 @@ export function HomePage() {
             Bem-vindo de volta, {user?.name || 'Usuário'}!
           </h1>
           <p className="text-gray-600">
-            Aqui está o resumo da sua atividade hoje.
+            Aqui está o resumo da sua atividade.
           </p>
         </div>
 
@@ -115,11 +142,11 @@ export function HomePage() {
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Meus Cálculos
+                  Meus Cálculos ({totalCalculos})
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <Users className="w-4 h-4 mr-2" />
-                  Gerenciar Clientes
+                  Perfil
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <TrendingUp className="w-4 h-4 mr-2" />
@@ -139,55 +166,76 @@ export function HomePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentCalculations.map((calc) => (
-                    <div
-                      key={calc.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">
-                          {calc.client}
-                        </h4>
-                        <p className="text-sm text-gray-600">{calc.type}</p>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-juriscalc-blue mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Carregando...</p>
+                  </div>
+                ) : calculosSalvos.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>Nenhum cálculo realizado ainda.</p>
+                    <p className="text-sm">Comece criando seu primeiro cálculo!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {calculosSalvos.map((calc) => (
+                      <div
+                        key={calc.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">
+                            {calc.nome}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Cálculo trabalhista
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-juriscalc-navy">
+                            {formatCurrency(Number(calc.total_geral || 0))}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(calc.created_at).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-juriscalc-navy">
-                          {calc.value}
-                        </p>
-                        <p className="text-sm text-gray-500">{calc.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="w-full mt-4">
-                  Ver Todos os Cálculos
+                    ))}
+                  </div>
+                )}
+                <Button asChild variant="outline" className="w-full mt-4">
+                  <Link to="/calculadora">
+                    Ver Todos os Cálculos
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Premium Banner */}
-        <Card className="mt-8 bg-gradient-to-r from-juriscalc-navy to-juriscalc-blue text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold mb-2">
-                  Upgrade para Premium
-                </h3>
-                <p className="text-white/90">
-                  Desbloqueie recursos avançados e tenha cálculos ilimitados
-                </p>
+        {/* Premium Banner - only show for non-premium users */}
+        {user?.plan !== 'premium' && (
+          <Card className="mt-8 bg-gradient-to-r from-juriscalc-navy to-juriscalc-blue text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">
+                    Upgrade para Premium
+                  </h3>
+                  <p className="text-white/90">
+                    Desbloqueie recursos avançados e tenha cálculos ilimitados
+                  </p>
+                </div>
+                <Button 
+                  className="bg-juriscalc-yellow text-juriscalc-navy hover:bg-yellow-300"
+                >
+                  Assinar Agora
+                </Button>
               </div>
-              <Button 
-                className="bg-juriscalc-yellow text-juriscalc-navy hover:bg-yellow-300"
-              >
-                Assinar Agora
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

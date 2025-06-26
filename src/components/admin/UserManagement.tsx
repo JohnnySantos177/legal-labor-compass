@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { User, Users, Edit, Trash2, Plus } from 'lucide-react';
+import { User, Users, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Interface para o usuário no contexto de gerenciamento
@@ -69,6 +69,7 @@ export function UserManagement() {
   const loadUsers = async () => {
     setIsLoading(true);
     try {
+      console.log('Carregando usuários do banco de dados...');
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -88,6 +89,7 @@ export function UserManagement() {
         is_admin: profile.is_admin || false,
       })) || [];
 
+      console.log(`${mappedUsers.length} usuários carregados`);
       setUsers(mappedUsers);
     } catch (error: any) {
       console.error('Erro ao carregar usuários:', error);
@@ -106,6 +108,7 @@ export function UserManagement() {
     if (!editingUser) return;
 
     try {
+      console.log('Atualizando usuário:', editingUser.id);
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -150,7 +153,12 @@ export function UserManagement() {
       return;
     }
 
+    if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
     try {
+      console.log('Excluindo usuário:', userId);
       const { error } = await supabase
         .from('profiles')
         .delete()
@@ -192,97 +200,111 @@ export function UserManagement() {
           <Users className="w-6 h-6 mr-2" />
           Gerenciamento de Usuários ({users.length})
         </h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-juriscalc-blue hover:bg-juriscalc-navy" disabled={!editingUser}>
-              <Edit className="w-4 h-4 mr-2" />
-              Editar Usuário
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Editar Usuário</DialogTitle>
-              <DialogDescription>
-                Atualize as informações do usuário selecionado
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="nome">Nome</Label>
-                <Input
-                  id="nome"
-                  value={formData.nome}
-                  onChange={e =>
-                    setFormData({ ...formData, nome: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={e =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="tipo_usuario">Tipo de Usuário</Label>
-                <Select
-                  value={formData.tipo_usuario}
-                  onValueChange={(value: 'usuario' | 'admin' | 'admin_mestre') =>
-                    setFormData({ ...formData, tipo_usuario: value, is_admin: value !== 'usuario' })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="usuario">Usuário</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="admin_mestre">Super Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="tipo_plano">Plano</Label>
-                <Select
-                  value={formData.tipo_plano}
-                  onValueChange={(value: 'padrao' | 'premium') =>
-                    setFormData({ ...formData, tipo_plano: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o plano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="padrao">Padrão</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsDialogOpen(false);
-                  setEditingUser(null);
-                }}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={loadUsers}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="bg-juriscalc-blue hover:bg-juriscalc-navy" 
+                disabled={!editingUser}
               >
-                Cancelar
+                <Edit className="w-4 h-4 mr-2" />
+                Editar Usuário
               </Button>
-              <Button
-                onClick={handleUpdateUser}
-                className="bg-juriscalc-blue hover:bg-juriscalc-navy"
-              >
-                Atualizar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Editar Usuário</DialogTitle>
+                <DialogDescription>
+                  Atualize as informações do usuário selecionado
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="nome">Nome</Label>
+                  <Input
+                    id="nome"
+                    value={formData.nome}
+                    onChange={e =>
+                      setFormData({ ...formData, nome: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={e =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="tipo_usuario">Tipo de Usuário</Label>
+                  <Select
+                    value={formData.tipo_usuario}
+                    onValueChange={(value: 'usuario' | 'admin' | 'admin_mestre') =>
+                      setFormData({ ...formData, tipo_usuario: value, is_admin: value !== 'usuario' })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="usuario">Usuário</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="admin_mestre">Super Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="tipo_plano">Plano</Label>
+                  <Select
+                    value={formData.tipo_plano}
+                    onValueChange={(value: 'padrao' | 'premium') =>
+                      setFormData({ ...formData, tipo_plano: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o plano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="padrao">Padrão</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    setEditingUser(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleUpdateUser}
+                  className="bg-juriscalc-blue hover:bg-juriscalc-navy"
+                >
+                  Atualizar
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {isLoading ? (
@@ -294,6 +316,9 @@ export function UserManagement() {
         <div className="text-center py-8 text-gray-500">
           <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p>Nenhum usuário encontrado.</p>
+          <Button onClick={loadUsers} className="mt-4">
+            Tentar Novamente
+          </Button>
         </div>
       ) : (
         <Table>
@@ -348,11 +373,7 @@ export function UserManagement() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => {
-                        if (window.confirm('Tem certeza que deseja excluir este usuário?')) {
-                          handleDeleteUser(user.id);
-                        }
-                      }}
+                      onClick={() => handleDeleteUser(user.id)}
                       className="text-red-600 hover:text-red-700"
                       title="Excluir usuário"
                       disabled={user.id === currentUser?.id}
