@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Resultados, DadosContrato } from '@/types/calculadora';
 import { exportToPDF } from '@/utils/export/pdfExport';
@@ -36,22 +37,31 @@ interface ResultadosCalculoProps {
 export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSalvar }: ResultadosCalculoProps) {
   const { total, detalhamento } = resultados;
 
+  // Verbas rescisórias principais
   const verbasRescisoriasItems = [
     { label: 'Saldo de Salário', value: detalhamento.verbas?.salarioProporcional || 0, icon: <DollarSign className="w-4 h-4" /> },
     { label: '13º Salário Proporcional', value: detalhamento.verbas?.decimoTerceiro || 0, icon: <Gift className="w-4 h-4" /> },
     { label: 'Férias Proporcionais + 1/3', value: detalhamento.verbas?.feriasProporcionais || 0, icon: <Clock className="w-4 h-4" /> },
-    { label: 'Aviso Prévio', value: detalhamento.verbas?.avisoPrevio || 0, icon: <FileText className="w-4 h-4" /> },
+    { label: 'Aviso Prévio Indenizado', value: detalhamento.verbas?.avisoPrevio || 0, icon: <FileText className="w-4 h-4" /> },
+  ].filter(item => item.value > 0);
+
+  // Valores do aviso prévio indenizado (separados)
+  const avisoPrevioItems = [
     { label: '13º Proporcional do Aviso Prévio', value: detalhamento.verbas?.decimoTerceiroAvisoPrevio || 0, icon: <Gift className="w-4 h-4" /> },
     { label: 'Férias Proporcionais do Aviso Prévio + 1/3', value: detalhamento.verbas?.feriasAvisoPrevio || 0, icon: <Clock className="w-4 h-4" /> },
+  ].filter(item => item.value > 0);
+
+  // FGTS e multa
+  const fgtsItems = [
     { label: 'FGTS sobre Verbas', value: detalhamento.verbas?.fgts || 0, icon: <Calculator className="w-4 h-4" /> },
-    { label: 'Multa do FGTS', value: detalhamento.verbas?.multaFgts || 0, icon: <AlertTriangle className="w-4 h-4" /> }
-  ];
+    { label: 'Multa do FGTS (40%)', value: detalhamento.verbas?.multaFgts || 0, icon: <AlertTriangle className="w-4 h-4" /> }
+  ].filter(item => item.value > 0);
 
   const adicionaisItems = [
     { label: 'Insalubridade', value: detalhamento.adicionais?.insalubridade || 0, icon: <AlertTriangle className="w-4 h-4" /> },
     { label: 'Periculosidade', value: detalhamento.adicionais?.periculosidade || 0, icon: <AlertTriangle className="w-4 h-4" /> },
     { label: 'Adicional Noturno', value: detalhamento.adicionais?.noturno || 0, icon: <Clock className="w-4 h-4" /> }
-  ];
+  ].filter(item => item.value > 0);
 
   const verbasBeneficiosItems = [
     { label: 'Férias Vencidas + 1/3', value: detalhamento.verbas?.feriasVencidas || 0, icon: <Clock className="w-4 h-4" /> },
@@ -61,18 +71,18 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
     { label: 'Adicional de Transferência', value: detalhamento.verbas?.adicionalTransferencia || 0, icon: <DollarSign className="w-4 h-4" /> },
     { label: 'Descontos Indevidos', value: detalhamento.verbas?.descontosIndevidos || 0, icon: <DollarSign className="w-4 h-4" /> },
     { label: 'Diferenças Salariais', value: detalhamento.verbas?.diferencasSalariais || 0, icon: <DollarSign className="w-4 h-4" /> }
-  ];
+  ].filter(item => item.value > 0);
 
   const multasItems = [
     { label: 'Multa Art. 467 CLT', value: detalhamento.multas?.art467 || 0, icon: <AlertTriangle className="w-4 h-4" /> },
     { label: 'Multa Art. 477 CLT', value: detalhamento.multas?.art477 || 0, icon: <AlertTriangle className="w-4 h-4" /> }
-  ];
+  ].filter(item => item.value > 0);
 
   const outrosItems = [
     { label: 'Salário-Família', value: detalhamento.salarioFamilia || 0, icon: <DollarSign className="w-4 h-4" /> },
     { label: 'Seguro-Desemprego', value: detalhamento.seguroDesemprego || 0, icon: <DollarSign className="w-4 h-4" /> },
     { label: 'Cálculos Personalizados', value: detalhamento.calculosPersonalizados || 0, icon: <Calculator className="w-4 h-4" /> }
-  ];
+  ].filter(item => item.value > 0);
 
   const handleExportar = () => {
     const { dataCalculo, nomeEscritorio } = prepararMetadados();
@@ -110,7 +120,7 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
         <CardTitle className="flex items-center justify-between text-xl font-bold text-gray-800">
           <div className="flex items-center gap-2">
             <Receipt className="w-6 h-6 text-blue-600" />
-          Resultados do Cálculo
+            Resultados do Cálculo
           </div>
           <ResultsActions
             onSalvar={onSalvar}
@@ -129,21 +139,45 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
 
           {/* Sections */}
           <div className="grid gap-6">
-            <CalculationSection
-              title="Verbas Rescisórias"
-              items={verbasRescisoriasItems}
-              icon={<Receipt className="w-5 h-5 text-blue-600" />}
-              className="bg-blue-50"
-            />
+            {/* Verbas Rescisórias Principais */}
+            {verbasRescisoriasItems.length > 0 && (
+              <CalculationSection
+                title="Verbas Rescisórias"
+                items={verbasRescisoriasItems}
+                icon={<Receipt className="w-5 h-5 text-blue-600" />}
+                className="bg-blue-50"
+              />
+            )}
 
-            <div className="bg-indigo-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium mb-4 flex items-center gap-2 text-indigo-800">
-                <Clock className="w-5 h-5" />
-                Adicionais
-              </h3>
-              <div className="space-y-3">
-                {adicionaisItems.map((item, index) =>
-                  item.value > 0 && (
+            {/* Valores do Aviso Prévio Indenizado */}
+            {avisoPrevioItems.length > 0 && (
+              <CalculationSection
+                title="Valores do Aviso Prévio Indenizado"
+                items={avisoPrevioItems}
+                icon={<FileText className="w-5 h-5 text-purple-600" />}
+                className="bg-purple-50"
+              />
+            )}
+
+            {/* FGTS e Multa */}
+            {fgtsItems.length > 0 && (
+              <CalculationSection
+                title="FGTS e Multa"
+                items={fgtsItems}
+                icon={<Calculator className="w-5 h-5 text-green-600" />}
+                className="bg-green-50"
+              />
+            )}
+
+            {/* Adicionais */}
+            {adicionaisItems.length > 0 && (
+              <div className="bg-indigo-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium mb-4 flex items-center gap-2 text-indigo-800">
+                  <Clock className="w-5 h-5" />
+                  Adicionais
+                </h3>
+                <div className="space-y-3">
+                  {adicionaisItems.map((item, index) => (
                     <div key={index} className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
                       <div className="flex items-center gap-2">
                         {item.icon}
@@ -152,39 +186,48 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
                       <Badge className="bg-indigo-600 text-white">
                         {formatCurrency(item.value)}
                       </Badge>
-                  </div>
-                  )
-                )}
-                <HorasExtrasSection
-                  horasExtras={horasExtras}
-                  totalValue={detalhamento.adicionais.horasExtras}
-                />
-            </div>
-          </div>
+                    </div>
+                  ))}
+                  <HorasExtrasSection
+                    horasExtras={horasExtras}
+                    totalValue={detalhamento.adicionais.horasExtras}
+                  />
+                </div>
+              </div>
+            )}
 
-            <CalculationSection
-              title="Verbas e Benefícios"
-              items={verbasBeneficiosItems}
-              icon={<Gift className="w-5 h-5 text-green-600" />}
-              className="bg-green-50"
-            />
+            {/* Verbas e Benefícios */}
+            {verbasBeneficiosItems.length > 0 && (
+              <CalculationSection
+                title="Verbas e Benefícios"
+                items={verbasBeneficiosItems}
+                icon={<Gift className="w-5 h-5 text-green-600" />}
+                className="bg-green-50"
+              />
+            )}
 
-            <CalculationSection
-              title="Multas"
-              items={multasItems}
-              icon={<AlertTriangle className="w-5 h-5 text-red-600" />}
-              className="bg-red-50"
-            />
+            {/* Multas */}
+            {multasItems.length > 0 && (
+              <CalculationSection
+                title="Multas"
+                items={multasItems}
+                icon={<AlertTriangle className="w-5 h-5 text-red-600" />}
+                className="bg-red-50"
+              />
+            )}
 
-            <CalculationSection
-              title="Outros Valores"
-              items={outrosItems}
-              icon={<Calculator className="w-5 h-5 text-purple-600" />}
-              className="bg-purple-50"
-            />
+            {/* Outros Valores */}
+            {outrosItems.length > 0 && (
+              <CalculationSection
+                title="Outros Valores"
+                items={outrosItems}
+                icon={<Calculator className="w-5 h-5 text-purple-600" />}
+                className="bg-purple-50"
+              />
+            )}
           </div>
         </div>
       </CardContent>
     </Card>
   );
-} 
+}

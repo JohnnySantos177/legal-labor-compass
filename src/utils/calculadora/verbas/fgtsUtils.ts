@@ -1,3 +1,4 @@
+
 /**
  * Utilities for calculating FGTS values
  */
@@ -23,8 +24,10 @@ export const calcularFGTS = (
   // Meses completos trabalhados
   const mesesCompletos = Math.floor(mesesTrabalhados);
   const fgtsMesesCompletos = salarioBase * 0.08 * mesesCompletos;
+  
   // FGTS proporcional ao último mês, se houver dias
   const fgtsUltimoMesProporcional = diasNoUltimoMes > 0 ? (salarioBase / 30) * diasNoUltimoMes * 0.08 : 0;
+  
   // FGTS sobre o mês projetado do aviso prévio indenizado
   let fgtsAvisoPrevio = 0;
   if (avisoPrevioIndenizado) {
@@ -34,7 +37,23 @@ export const calcularFGTS = (
       fgtsAvisoPrevio = salarioBase * 0.08; // padrão 1 mês
     }
   }
-  return fgtsMesesCompletos + fgtsUltimoMesProporcional + fgtsAvisoPrevio;
+  
+  const totalFGTS = fgtsMesesCompletos + fgtsUltimoMesProporcional + fgtsAvisoPrevio;
+  
+  console.log('Cálculo FGTS detalhado:', {
+    salarioBase,
+    mesesTrabalhados,
+    mesesCompletos,
+    diasNoUltimoMes,
+    avisoPrevioIndenizado,
+    diasAvisoPrevioProjetado,
+    fgtsMesesCompletos,
+    fgtsUltimoMesProporcional,
+    fgtsAvisoPrevio,
+    totalFGTS
+  });
+  
+  return totalFGTS;
 };
 
 /**
@@ -44,7 +63,19 @@ export const calcularFGTS = (
  * @returns FGTS fine value
  */
 export const calcularMultaFGTS = (valorFGTS: number, tipoRescisao: string): number => {
-  return (tipoRescisao === 'sem_justa_causa' || tipoRescisao === 'rescisao_indireta') 
-    ? valorFGTS * 0.4
-    : 0;
+  let multa = 0;
+  
+  if (tipoRescisao === 'sem_justa_causa' || tipoRescisao === 'rescisao_indireta') {
+    multa = valorFGTS * 0.4; // 40%
+  } else if (tipoRescisao === 'acordo_mutuo') {
+    multa = valorFGTS * 0.2; // 20%
+  }
+  
+  console.log('Cálculo Multa FGTS:', {
+    valorFGTS,
+    tipoRescisao,
+    multa
+  });
+  
+  return multa;
 };

@@ -1,3 +1,4 @@
+
 /**
  * Main calculator for rescission values
  */
@@ -34,7 +35,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
   let tercoConstitucional = 0;
   let fgts = 0;
   let multaFgts = 0;
-  let indenizacaoDemissaoIndevida = 0; // Renamed from indenizacaoQuebraContrato
+  let indenizacaoDemissaoIndevida = 0;
   const valeTransporteNaoPago = 0;
   const valeAlimentacaoNaoPago = 0;
   const adicionalTransferencia = 0;
@@ -42,7 +43,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
   const diferencasSalariais = 0;
   let descontoAvisoPrevio = 0;
 
-  console.log(`Dados do contrato:`, {
+  console.log(`Dados do contrato para cálculo:`, {
     salarioBase,
     diasTrabalhados,
     mesesTrabalhados,
@@ -61,6 +62,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
   switch (motivoDemissao) {
     case 'sem_justa_causa':
     case 'rescisao_indireta':
+      // Calcular aviso prévio
       avisoPrevio = calcularAvisoPrevia(
         salarioBase,
         motivoDemissao,
@@ -68,6 +70,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
         mesesTrabalhados
       );
 
+      // Se aviso prévio não foi cumprido, calcular valores proporcionais do aviso prévio
       if (!avisoPrevioCumprido) {
         // Férias proporcionais do aviso prévio: (Salário/12) + (Salário/12)/3 = (Salário/12) × (4/3)
         feriasAvisoPrevio = (salarioBase / 12) + ((salarioBase / 12) / 3);
@@ -92,29 +95,32 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       );
       tercoConstitucional = calcularTercoConstitucional(feriasProporcionais);
 
-      if (fgtsDepositado) {
-        // If FGTS was deposited, don't include FGTS but include the 40% fine
-        const fgtsParaMulta = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
-        multaFgts = calcularMultaFGTS(fgtsParaMulta, motivoDemissao);
-      } else {
-        // If FGTS was not deposited, include FGTS and the 40% fine
-        // Novo cálculo: incluir mês projetado do aviso prévio indenizado
-        const avisoPrevioIndenizado = !avisoPrevioCumprido;
-        let diasAvisoPrevioProjetado = 0;
-        if (avisoPrevioIndenizado) {
-          // 30 dias + 3 dias por ano completo trabalhado, até 90 dias
-          const diasAdicionais = Math.min(Math.floor(mesesTrabalhados / 12) * 3, 60);
-          diasAvisoPrevioProjetado = 30 + diasAdicionais;
-        }
-        fgts = calcularFGTS(
-          salarioBase,
-          mesesTrabalhados,
-          diasTrabalhados,
-          avisoPrevioIndenizado,
-          diasAvisoPrevioProjetado
-        );
-        multaFgts = calcularMultaFGTS(fgts, motivoDemissao);
+      // Cálculo do FGTS e multa
+      const avisoPrevioIndenizado = !avisoPrevioCumprido;
+      let diasAvisoPrevioProjetado = 0;
+      if (avisoPrevioIndenizado) {
+        // 30 dias + 3 dias por ano completo trabalhado, até 90 dias
+        const diasAdicionais = Math.min(Math.floor(mesesTrabalhados / 12) * 3, 60);
+        diasAvisoPrevioProjetado = 30 + diasAdicionais;
       }
+
+      // Sempre calcular FGTS (seja depositado ou não)
+      fgts = calcularFGTS(
+        salarioBase,
+        mesesTrabalhados,
+        diasTrabalhados,
+        avisoPrevioIndenizado,
+        diasAvisoPrevioProjetado
+      );
+
+      // Calcular multa FGTS (40% para demissão sem justa causa)
+      multaFgts = calcularMultaFGTS(fgts, motivoDemissao);
+
+      // Se FGTS foi depositado, não incluir o valor base do FGTS, apenas a multa
+      if (fgtsDepositado) {
+        fgts = 0; // FGTS já foi depositado, não incluir no cálculo
+      }
+      
       break;
 
     case 'pedido_demissao':
@@ -144,7 +150,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       break;
 
     case 'justa_causa':
-      fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados); // FGTS sobre verbas for justa causa
+      fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
       break;
 
     case 'acordo_mutuo':
@@ -162,7 +168,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       );
       tercoConstitucional = calcularTercoConstitucional(feriasProporcionais);
       fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
-      multaFgts = calcularMultaFGTS(fgts, motivoDemissao);
+      multaFgts = calcularMultaFGTS(fgts, motivoDemissao); // 20% para acordo mútuo
       break;
 
     default:
@@ -184,7 +190,7 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
     indenizacaoDemissaoIndevida -
     descontoAvisoPrevio; // Subtrair o desconto aqui
 
-  console.log(`Valores calculados:`, {
+  console.log(`Valores calculados detalhados:`, {
     saldoSalario,
     avisoPrevio,
     descontoAvisoPrevio,
@@ -208,9 +214,9 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
     avisoPrevio,
     fgts,
     multaFgts,
-    feriasVencidas: feriasAvisoPrevio, // Mapped to férias vencidas (from Aviso Prévio Indenizado)
-    decimoTerceiroAvisoPrevio, // 13º proporcional do aviso prévio indenizado
-    feriasAvisoPrevio, // Férias proporcionais do aviso prévio indenizado
+    feriasVencidas: 0, // Não usado aqui, calculado em outros lugares
+    decimoTerceiroAvisoPrevio,
+    feriasAvisoPrevio,
     indenizacaoDemissaoIndevida,
     valeTransporteNaoPago,
     valeAlimentacaoNaoPago,
