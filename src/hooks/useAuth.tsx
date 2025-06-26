@@ -39,18 +39,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         
         if (session?.user) {
-          // Use setTimeout to prevent blocking the auth state change
+          console.log('Usuário autenticado detectado, buscando perfil...');
+          
+          // Navigate immediately for login events to avoid blocking
+          if (event === 'SIGNED_IN') {
+            console.log('Login detectado, redirecionando imediatamente para /home...');
+            navigate('/home');
+          }
+          
+          // Then fetch profile data asynchronously
           setTimeout(async () => {
             if (!mounted) return;
             
             try {
-              const { data: profile } = await supabase
+              console.log('Buscando perfil do usuário:', session.user.id);
+              const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
+
+              if (profileError) {
+                console.error('Erro ao buscar perfil:', profileError);
+              }
 
               if (profile && mounted) {
+                console.log('Perfil encontrado:', profile);
                 const mappedUser: User = {
                   id: profile.id,
                   email: profile.email || session.user.email || '',
@@ -63,23 +77,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined
                 };
                 setUser(mappedUser);
-                console.log('Usuário mapeado:', mappedUser.email);
-                
-                // Navigate after user is fully set up
-                if (event === 'SIGNED_IN') {
-                  console.log('Redirecionando para /home...');
-                  navigate('/home');
-                }
+                console.log('Usuário mapeado com sucesso:', mappedUser.email, mappedUser.role);
+              } else if (!profile) {
+                console.warn('Perfil não encontrado, criando usuário básico...');
+                // Create a basic user object even without profile
+                const basicUser: User = {
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  name: session.user.email?.split('@')[0] || '',
+                  role: 'user',
+                  plan: 'standard',
+                  phone: 'Não informado',
+                  created_at: new Date().toISOString(),
+                  trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                };
+                setUser(basicUser);
+                console.log('Usuário básico criado:', basicUser.email);
               }
             } catch (error) {
               console.error('Erro ao buscar perfil:', error);
+              // Even if profile fetch fails, create a basic user
+              const basicUser: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                name: session.user.email?.split('@')[0] || '',
+                role: 'user',
+                plan: 'standard',
+                phone: 'Não informado',
+                created_at: new Date().toISOString(),
+                trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+              };
+              setUser(basicUser);
+              console.log('Usuário básico criado após erro:', basicUser.email);
             } finally {
               if (mounted) {
                 setLoading(false);
+                console.log('Loading finalizado');
               }
             }
-          }, 0);
+          }, 100);
         } else {
+          console.log('Nenhum usuário autenticado');
           setUser(null);
           if (mounted) {
             setLoading(false);
@@ -92,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       
-      console.log('Initial session check:', session?.user?.email || 'no session');
+      console.log('Verificação inicial de sessão:', session?.user?.email || 'no session');
       if (!session && mounted) {
         setLoading(false);
       }
@@ -127,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (authData.user && authData.session) {
         console.log('Login bem-sucedido:', authData.user.email);
         toast.success('Login realizado com sucesso!');
-        // Don't navigate here - let the auth state change handler do it
+        // Navigation will be handled by auth state change
         return true;
       }
       
