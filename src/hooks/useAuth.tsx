@@ -53,46 +53,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             try {
               console.log('Buscando perfil do usuário:', session.user.id);
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .maybeSingle();
+              if (user && user.role === 'super_admin') {
+                // Buscar todos os perfis
+                const { data, error } = await supabase.rpc('get_all_profiles');
+              } else {
+                // Buscar apenas o próprio perfil
+                const { data: profile, error: profileError } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
 
-              if (profileError) {
-                console.error('Erro ao buscar perfil:', profileError);
-              }
+                if (profileError) {
+                  console.error('Erro ao buscar perfil:', profileError);
+                }
 
-              if (profile && mounted) {
-                console.log('Perfil encontrado:', profile);
-                const mappedUser: User = {
-                  id: profile.id,
-                  email: profile.email || session.user.email || '',
-                  name: profile.nome || session.user.email?.split('@')[0] || '',
-                  role: profile.is_admin ? 'super_admin' : 'user',
-                  plan: profile.tipo_plano === 'premium' ? 'premium' : 'standard',
-                  phone: profile.nome || 'Não informado',
-                  created_at: profile.created_at || new Date().toISOString(),
-                  trial_end_date: profile.tipo_plano === 'padrao' ? 
-                    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined
-                };
-                setUser(mappedUser);
-                console.log('Usuário mapeado com sucesso:', mappedUser.email, mappedUser.role);
-              } else if (!profile) {
-                console.warn('Perfil não encontrado, criando usuário básico...');
-                // Create a basic user object even without profile
-                const basicUser: User = {
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  name: session.user.email?.split('@')[0] || '',
-                  role: 'user',
-                  plan: 'standard',
-                  phone: 'Não informado',
-                  created_at: new Date().toISOString(),
-                  trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-                };
-                setUser(basicUser);
-                console.log('Usuário básico criado:', basicUser.email);
+                if (profile && mounted) {
+                  console.log('Perfil encontrado:', profile);
+                  const mappedUser: User = {
+                    id: profile.id,
+                    email: profile.email || session.user.email || '',
+                    name: profile.nome || session.user.email?.split('@')[0] || '',
+                    role: profile.tipo_usuario === 'admin_mestre' ? 'super_admin' : profile.tipo_usuario === 'admin' ? 'admin' : 'user',
+                    plan: profile.tipo_plano === 'premium' ? 'premium' : 'standard',
+                    phone: profile.nome || 'Não informado',
+                    created_at: profile.created_at || new Date().toISOString(),
+                    trial_end_date: profile.tipo_plano === 'padrao' ? 
+                      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : undefined
+                  };
+                  setUser(mappedUser);
+                  console.log('Usuário mapeado com sucesso:', mappedUser.email, mappedUser.role);
+                } else if (!profile) {
+                  console.warn('Perfil não encontrado, criando usuário básico...');
+                  // Create a basic user object even without profile
+                  const basicUser: User = {
+                    id: session.user.id,
+                    email: session.user.email || '',
+                    name: session.user.email?.split('@')[0] || '',
+                    role: 'user',
+                    plan: 'standard',
+                    phone: 'Não informado',
+                    created_at: new Date().toISOString(),
+                    trial_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                  };
+                  setUser(basicUser);
+                  console.log('Usuário básico criado:', basicUser.email);
+                }
               }
             } catch (error) {
               console.error('Erro ao buscar perfil:', error);
@@ -295,4 +301,13 @@ export function useAuth() {
     throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
+}
+
+// Função para buscar usuários (Super Admin vê todos, outros só o próprio)
+export async function fetchUsers() {
+  const { data, error } = await supabase.rpc('get_all_profiles');
+  if (error) {
+    throw error;
+  }
+  return data;
 }

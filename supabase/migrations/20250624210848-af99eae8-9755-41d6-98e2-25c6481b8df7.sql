@@ -1,4 +1,3 @@
-
 -- Habilitar RLS nas tabelas que ainda não têm
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.calculos ENABLE ROW LEVEL SECURITY;
@@ -91,3 +90,6 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Adicionar coluna 'resultados' do tipo text na tabela 'calculos_salvos' para armazenar o JSON completo dos resultados do cálculo
+ALTER TABLE public.calculos_salvos ADD COLUMN resultados text;

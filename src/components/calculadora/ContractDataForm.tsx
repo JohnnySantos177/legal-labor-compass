@@ -1,4 +1,3 @@
-
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -68,7 +67,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
         <div>
           <Label htmlFor="terminationType">Tipo de Rescisão</Label>
           <Select 
-            value={data.terminationType}
+            value={data.terminationType || ''}
             onValueChange={(value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause') => 
               onUpdate('terminationType', value)
             }

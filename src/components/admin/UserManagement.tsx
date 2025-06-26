@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -70,10 +69,8 @@ export function UserManagement() {
     setIsLoading(true);
     try {
       console.log('Carregando usuários do banco de dados...');
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Busca via função RPC para liberar todos os perfis ao Super Admin
+      const { data, error } = await supabase.rpc('get_all_profiles');
 
       if (error) {
         throw error;

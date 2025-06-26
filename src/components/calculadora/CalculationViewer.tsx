@@ -198,7 +198,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                     </h4>
                     <div className="grid gap-2">
                       {Object.entries(calculo.resultados.detalhamento.verbas).map(([key, value]) => (
-                        typeof value === 'number' && value > 0 && (
+                        typeof value === 'number' && (
                           <div key={key} className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-yellow-400">
                             <span className="text-gray-700">💼 {getVerbaDisplayName(key)}</span>
                             <Badge variant="secondary" className="font-semibold">
@@ -220,7 +220,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                     </h4>
                     <div className="grid gap-2">
                       {Object.entries(calculo.resultados.detalhamento.adicionais).map(([key, value]) => (
-                        typeof value === 'number' && value > 0 && (
+                        typeof value === 'number' && (
                           <div key={key} className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-blue-400">
                             <span className="text-gray-700">⚡ {getAdicionalDisplayName(key)}</span>
                             <Badge className="bg-blue-600 text-white font-semibold">
@@ -242,7 +242,7 @@ export const CalculationViewer = ({ calculo, onClose }: CalculationViewerProps) 
                     </h4>
                     <div className="grid gap-2">
                       {Object.entries(calculo.resultados.detalhamento.multas).map(([key, value]) => (
-                        typeof value === 'number' && value > 0 && (
+                        typeof value === 'number' && (
                           <div key={key} className="flex justify-between items-center bg-white p-3 rounded border-l-4 border-red-400">
                             <span className="text-gray-700">⚖️ {getMultaDisplayName(key)}</span>
                             <Badge className="bg-red-600 text-white font-semibold">

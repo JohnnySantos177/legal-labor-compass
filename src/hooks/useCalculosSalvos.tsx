@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,18 +42,8 @@ export const useCalculosSalvos = () => {
         throw error;
       }
 
-      const calculosMapeados: CalculoSalvo[] = data?.map(calculo => ({
-        id: calculo.id,
-        nome: calculo.nome,
-        dataCriacao: calculo.created_at,
-        dadosContrato: (calculo.dados_contrato as unknown as DadosContrato) || {} as DadosContrato,
-        adicionais: (calculo.adicionais as unknown as Adicionais) || {} as Adicionais,
-        verbas: (calculo.verbas_rescisorias as unknown as Verbas) || {} as Verbas,
-        multas: {} as Multas,
-        salarioFamilia: {} as SalarioFamilia,
-        seguroDesemprego: {} as SeguroDesemprego,
-        calculosPersonalizados: [] as CustomCalculo[],
-        resultados: {
+      const calculosMapeados: CalculoSalvo[] = data?.map(calculo => {
+        let resultadosParsed: Resultados = {
           total: Number(calculo.total_geral) || 0,
           detalhamento: {
             verbas: (calculo.verbas_rescisorias as any) || {},
@@ -64,8 +53,28 @@ export const useCalculosSalvos = () => {
             seguroDesemprego: 0,
             calculosPersonalizados: 0
           }
-        } as Resultados
-      })) || [];
+        } as Resultados;
+        if (calculo.resultados) {
+          try {
+            resultadosParsed = JSON.parse(calculo.resultados);
+          } catch (e) {
+            // fallback para estrutura antiga
+          }
+        }
+        return {
+          id: calculo.id,
+          nome: calculo.nome,
+          dataCriacao: calculo.created_at,
+          dadosContrato: (calculo.dados_contrato as unknown as DadosContrato) || {} as DadosContrato,
+          adicionais: (calculo.adicionais as unknown as Adicionais) || {} as Adicionais,
+          verbas: (calculo.verbas_rescisorias as unknown as Verbas) || {} as Verbas,
+          multas: {} as Multas,
+          salarioFamilia: {} as SalarioFamilia,
+          seguroDesemprego: {} as SeguroDesemprego,
+          calculosPersonalizados: [] as CustomCalculo[],
+          resultados: resultadosParsed
+        }
+      }) || [];
 
       setCalculosSalvos(calculosMapeados);
     } catch (error: any) {
@@ -103,7 +112,8 @@ export const useCalculosSalvos = () => {
         dados_contrato: dadosCompletos.dadosContrato as any,
         adicionais: dadosCompletos.adicionais as any,
         verbas_rescisorias: dadosCompletos.verbas as any,
-        total_geral: resultados.total || 0
+        total_geral: resultados.total || 0,
+        resultados: JSON.stringify(resultados)
       };
 
       const { data, error } = await supabase
