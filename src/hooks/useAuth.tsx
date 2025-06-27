@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     id: profile.id,
                     email: profile.email || session.user.email || '',
                     name: profile.nome || session.user.email?.split('@')[0] || '',
-                    role: profile.tipo_usuario === 'admin_mestre' ? 'super_admin' : profile.tipo_usuario === 'admin' ? 'admin' : 'user',
+                    role: profile.is_super_admin ? 'super_admin' : profile.tipo_usuario === 'admin' ? 'admin' : 'user',
                     plan: profile.tipo_plano === 'premium' ? 'premium' : 'standard',
                     phone: profile.nome || 'Não informado',
                     created_at: profile.created_at || new Date().toISOString(),
