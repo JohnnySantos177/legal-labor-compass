@@ -23,11 +23,29 @@ export function CalculadoraPage() {
 
   const handleCalcular = () => {
     try {
-      // Criar uma cópia do estado para não modificá-lo diretamente
-      const stateCopy: CalculadoraState = JSON.parse(JSON.stringify(state));
+      console.log('Botão calcular clicado. Estado atual:', state);
       
-      // Garantir que o salário base seja um número
-      stateCopy.dadosContrato.salarioBase = Number(stateCopy.dadosContrato.salarioBase) || 0;
+      // Validações básicas
+      if (!state.dadosContrato.salarioBase || state.dadosContrato.salarioBase <= 0) {
+        toast.error('É necessário informar um salário base válido!');
+        return;
+      }
+
+      if (!state.dadosContrato.dataAdmissao || !state.dadosContrato.dataDemissao) {
+        toast.error('É necessário informar as datas de admissão e demissão!');
+        return;
+      }
+
+      // Criar uma cópia do estado para não modificá-lo diretamente
+      const stateCopy: CalculadoraState = {
+        ...state,
+        dadosContrato: {
+          ...state.dadosContrato,
+          salarioBase: Number(state.dadosContrato.salarioBase) || 0
+        }
+      };
+      
+      console.log('Estado preparado para cálculo:', stateCopy);
       
       // Calcular os resultados
       const resultados = calcular(stateCopy);
@@ -35,10 +53,12 @@ export function CalculadoraPage() {
       // Atualizar o estado com os resultados
       updateState({ resultados });
       
-      console.log('Estado para cálculo:', stateCopy);
-      console.log('Resultados calculados:', resultados);
+      console.log('Cálculo concluído. Resultados:', resultados);
+      toast.success('Cálculo realizado com sucesso!');
+      
     } catch (error) {
       console.error('Erro ao calcular resultados:', error);
+      toast.error('Erro ao realizar o cálculo. Verifique os dados informados.');
     }
   };
 
@@ -58,10 +78,8 @@ export function CalculadoraPage() {
       return;
     }
 
-    // Nome personalizado opcional
     const nomePersonalizado = prompt('Digite um nome para este cálculo (opcional):');
     
-    // Ensure calculosPersonalizados is always defined
     const stateWithCalculosPersonalizados = {
       ...state,
       calculosPersonalizados: state.calculosPersonalizados || []
@@ -71,7 +89,6 @@ export function CalculadoraPage() {
   };
 
   const handleEditarCalculo = (calculo: CalculoSalvo) => {
-    // Carregar os dados do cálculo no formulário
     updateState({
       dadosContrato: calculo.dadosContrato,
       adicionais: calculo.adicionais,
@@ -83,8 +100,6 @@ export function CalculadoraPage() {
     });
     
     toast.success('Cálculo carregado para edição!');
-    
-    // Scroll para o topo da página
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -172,10 +187,10 @@ export function CalculadoraPage() {
                 }
                 
                 updateState({
-                    dadosContrato: {
-                      ...state.dadosContrato,
+                  dadosContrato: {
+                    ...state.dadosContrato,
                     ...dadosContratoUpdates
-                    }
+                  }
                 });
               }}
             />
@@ -201,7 +216,7 @@ export function CalculadoraPage() {
           {/* Botão de Calcular */}
           <div className="bg-white p-6 rounded-lg shadow">
             <button
-              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
               onClick={handleCalcular}
             >
               Calcular

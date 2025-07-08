@@ -1,3 +1,4 @@
+
 // Utility functions for handling calculation data
 
 // Import the necessary functions from verbasRescisoriasUtils
@@ -17,20 +18,25 @@ import { DadosContrato, Adicionais, Resultados } from '@/types/calculadora';
  * @returns Object with all calculated values
  */
 export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adicionais): Resultados => {
+  console.log('=== INICIANDO CÁLCULOS ===');
+  console.log('Dados do contrato:', dadosContrato);
+  console.log('Adicionais:', adicionais);
+  
   const diasTrabalhados = parseInt(dadosContrato.diasTrabalhados) || 0;
   const mesesTrabalhados = parseInt(dadosContrato.mesesTrabalhados) || 0;
+  const salarioBase = Number(dadosContrato.salarioBase) || 0;
   
-  console.info("Calculando com:", {
-    salarioBase: dadosContrato.salarioBase,
+  console.log('Valores processados:', {
+    salarioBase,
     diasTrabalhados,
-    mesesTrabalhados
+    mesesTrabalhados,
+    motivoDemissao: dadosContrato.motivoDemissao
   });
   
   // Calculate rescission values
+  console.log('Calculando verbas rescisórias...');
   const verbasRescisoriasCalculadas = calcularVerbasRescisorias(dadosContrato);
-  
-  // Calculate additional values based on the main salary
-  const salarioBase = dadosContrato.salarioBase || 0;
+  console.log('Verbas rescisórias calculadas:', verbasRescisoriasCalculadas);
   
   // Get all values from verbasRescisorias to pass to calcularAdicionais
   const saldoSalario = verbasRescisoriasCalculadas.salarioProporcional || 0;
@@ -39,7 +45,8 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
   const feriasVerba = verbasRescisoriasCalculadas.feriasProporcionais || 0;
   const tercoConstitucionalVerba = verbasRescisoriasCalculadas.tercoConstitucional || 0;
   
-  // Calculate all additionals using the main function - now passing dadosContrato
+  // Calculate all additionals using the main function
+  console.log('Calculando adicionais...');
   const adicionaisValues = calcularAdicionais(
     salarioBase, 
     adicionais,
@@ -48,8 +55,9 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     decimoTerceiroVerba,
     feriasVerba,
     tercoConstitucionalVerba,
-    dadosContrato // Pass contract data for period calculations
+    dadosContrato
   );
+  console.log('Adicionais calculados:', adicionaisValues);
 
   // Ensure adicionaisValues is always an object
   const adicionaisValuesObj = typeof adicionaisValues === 'number' ? {
@@ -66,14 +74,21 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     adicionalTransferencia: 0,
     descontosIndevidos: 0,
     diferencasSalariais: 0,
-    customCalculo: adicionaisValues, // Use the number value here
+    customCalculo: adicionaisValues,
     seguroDesemprego: 0,
     salarioFamilia: 0,
     honorariosAdvocaticios: 0,
   } : adicionaisValues;
 
+  // Calculate unemployment insurance
+  console.log('Calculando seguro-desemprego...');
   const seguroDesempregoValue = calcularSeguroDesempregoHelper(adicionais, salarioBase, dadosContrato.motivoDemissao);
+  console.log('Seguro-desemprego:', seguroDesempregoValue);
+
+  // Calculate family salary
+  console.log('Calculando salário-família...');
   const salarioFamiliaValue = calcularSalarioFamiliaHelper(adicionais.calcularSalarioFamilia, salarioBase, parseInt(adicionais.quantidadeFilhos) || 0);
+  console.log('Salário-família:', salarioFamiliaValue);
 
   const totalGeralAntesHonorarios = 
     (verbasRescisoriasCalculadas.total || 0) +
@@ -94,6 +109,8 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     seguroDesempregoValue +
     salarioFamiliaValue;
 
+  console.log('Total geral antes dos honorários:', totalGeralAntesHonorarios);
+
   const honorariosAdvocaticiosValue = calcularHonorariosAdvocaticios(
     adicionais.calcularHonorariosAdvocaticios,
     totalGeralAntesHonorarios,
@@ -102,7 +119,11 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     adicionais.incluirTotalGeralHonorarios
   );
 
+  console.log('Honorários advocatícios:', honorariosAdvocaticiosValue);
+
   const totalFinal = totalGeralAntesHonorarios + honorariosAdvocaticiosValue;
+  
+  console.log('TOTAL FINAL:', totalFinal);
   
   // Return the final result
   const resultados: Resultados = {
@@ -119,7 +140,7 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
         decimoTerceiroAvisoPrevio: verbasRescisoriasCalculadas.decimoTerceiroAvisoPrevio || 0,
         feriasAvisoPrevio: verbasRescisoriasCalculadas.feriasAvisoPrevio || 0,
         feriasVencidas: adicionaisValuesObj.feriasVencidas || 0,
-        indenizacaoDemissaoIndevida: adicionaisValuesObj.indenizacaoDemissao || 0,
+        indenizacaoDemissaoIndevida: verbasRescisoriasCalculadas.indenizacaoDemissaoIndevida || 0,
         valeTransporteNaoPago: adicionaisValuesObj.valeTransporte || 0,
         valeAlimentacaoNaoPago: adicionaisValuesObj.valeAlimentacao || 0,
         adicionalTransferencia: adicionaisValuesObj.adicionalTransferencia || 0,
@@ -144,8 +165,8 @@ export const realizarCalculos = (dadosContrato: DadosContrato, adicionais: Adici
     dadosContrato: dadosContrato,
   };
 
-  // Log for debugging
-  console.info("Cálculos realizados:", resultados);
+  console.log('=== RESULTADO FINAL DOS CÁLCULOS ===');
+  console.log(resultados);
   
   return resultados;
 };
