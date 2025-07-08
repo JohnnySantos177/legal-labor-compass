@@ -70,11 +70,14 @@ export const calcularMultaFGTS = (valorFGTS: number, tipoRescisao: string): numb
   } else if (tipoRescisao === 'acordo_mutuo') {
     multa = valorFGTS * 0.2; // 20%
   }
+  // Não há multa para 'justa_causa' e 'pedido_demissao'
   
   console.log('Cálculo Multa FGTS:', {
     valorFGTS,
     tipoRescisao,
-    multa
+    multa,
+    percentualAplicado: tipoRescisao === 'sem_justa_causa' || tipoRescisao === 'rescisao_indireta' ? '40%' : 
+                       tipoRescisao === 'acordo_mutuo' ? '20%' : '0%'
   });
   
   return multa;

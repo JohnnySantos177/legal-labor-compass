@@ -96,10 +96,10 @@ export function ResultadosCalculo({ resultados, horasExtras, dadosContrato, onSa
       description: '8% sobre as verbas rescisórias e aviso prévio'
     },
     { 
-      label: 'Multa do FGTS (40%)', 
+      label: 'Multa do FGTS', 
       value: detalhamento.verbas?.multaFgts || 0, 
       icon: <AlertTriangle className="w-4 h-4" />,
-      description: '40% sobre o saldo do FGTS (demissão sem justa causa)'
+      description: 'Multa sobre o FGTS conforme tipo de rescisão (40% sem justa causa, 20% acordo mútuo)'
     }
   ].filter(item => item.value > 0);
 

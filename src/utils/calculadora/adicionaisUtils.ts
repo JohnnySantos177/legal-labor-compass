@@ -148,11 +148,16 @@ export function calcularSeguroDesempregoHelper(adicionais: Adicionais, salarioBa
   
   // Parse the values properly
   const ultimoSalario = parseFloat(adicionais.ultimoSalario) || salarioBase;
-  const salarioMes1 = parseFloat(adicionais.salarioMes1) || 0;
-  const salarioMes2 = parseFloat(adicionais.salarioMes2) || 0;
-  const mesesTrabalhados = parseInt(adicionais.mesesTrabalhadosUltimoEmprego) || 0;
+  const salarioMes1 = parseFloat(adicionais.salarioMes1) || ultimoSalario;
+  const salarioMes2 = parseFloat(adicionais.salarioMes2) || ultimoSalario;
+  const mesesTrabalhados = parseInt(adicionais.mesesTrabalhadosUltimoEmprego) || 12;
   const tipoTrabalhador = adicionais.tipoTrabalhador || 'padrao';
   const salarioUltimos3Meses = adicionais.salarioUltimos3Meses || 'sim';
+  
+  // Only calculate for eligible termination types
+  if (tipoRescisao !== 'sem_justa_causa' && tipoRescisao !== 'rescisao_indireta') {
+    return 0;
+  }
   
   // Calculate using the updated function
   const { valorTotal } = calcularSeguroDesemprego(
@@ -357,9 +362,10 @@ export function calcularAdicionais(
     }, 0);
   }
   
-  // Calculate unemployment insurance
+  // Calculate unemployment insurance - use the contract's termination type
   if (adicionais.calcularSeguroDesemprego) {
-    seguroDesemprego = calcularSeguroDesempregoHelper(adicionais, salarioBase, 'sem_justa_causa');
+    const tipoRescisao = dadosContrato?.motivoDemissao || 'sem_justa_causa';
+    seguroDesemprego = calcularSeguroDesempregoHelper(adicionais, salarioBase, tipoRescisao);
   }
   
   // Calculate family salary

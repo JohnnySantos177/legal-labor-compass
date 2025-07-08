@@ -116,9 +116,10 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       // Calcular multa FGTS (40% para demissão sem justa causa)
       multaFgts = calcularMultaFGTS(fgts, motivoDemissao);
 
-      // Se FGTS foi depositado, não incluir o valor base do FGTS, apenas a multa
+      // Se FGTS foi depositado, não incluir o valor base do FGTS, mas manter a multa
       if (fgtsDepositado) {
         fgts = 0; // FGTS já foi depositado, não incluir no cálculo
+        // Multa permanece mesmo com FGTS depositado
       }
       
       break;
@@ -139,33 +140,46 @@ export const calcularVerbasRescisorias = (dadosContrato: DadosContrato): Resulta
       tercoConstitucional = calcularTercoConstitucional(feriasProporcionais);
       fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
       
+      // Desconto do aviso prévio quando não cumprido (pedido de demissão)
       if (!avisoPrevioCumprido && !contratoTempoDeterminado) {
         descontoAvisoPrevio = calcularAvisoPrevia(
           salarioBase,
-          motivoDemissao,
-          avisoPrevioCumprido,
+          'sem_justa_causa', // Para calcular o valor padrão do aviso prévio
+          false, // Não cumprido para obter valor cheio
           mesesTrabalhados
         );
       }
       break;
 
     case 'justa_causa':
+      // Em demissão por justa causa, o empregado só tem direito ao FGTS depositado
       fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
+      // Não há direito a: 13º, férias, aviso prévio, multa FGTS
       break;
 
     case 'acordo_mutuo':
+      // Aviso prévio reduzido (50%)
+      avisoPrevio = calcularAvisoPrevia(
+        salarioBase,
+        motivoDemissao,
+        avisoPrevioCumprido,
+        mesesTrabalhados
+      ) * 0.5; // 50% do aviso prévio
+
       decimoTerceiro = calcularDecimoTerceiro(
         salarioBase,
         dadosContrato.dataAdmissao,
         dadosContrato.dataDemissao,
         motivoDemissao
-      );
+      ) * 0.5; // 50% do 13º salário
+
       feriasProporcionais = calcularFerias(
         salarioBase,
         dadosContrato.dataAdmissao,
         dadosContrato.dataDemissao,
         motivoDemissao
-      );
+      ) * 0.5; // 50% das férias
+      
       tercoConstitucional = calcularTercoConstitucional(feriasProporcionais);
       fgts = calcularFGTS(salarioBase, mesesTrabalhados, diasTrabalhados);
       multaFgts = calcularMultaFGTS(fgts, motivoDemissao); // 20% para acordo mútuo
