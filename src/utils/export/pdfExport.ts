@@ -210,6 +210,15 @@ export const exportToPDF = (data: ExportData) => {
             <span class="result-label">Data de Demissão:</span>
             <span class="result-value">${new Date(dadosContrato.dataDemissao).toLocaleDateString('pt-BR')}</span>
           </div>
+          <div class="result-item">
+          <span class="result-label">Tipo de Rescisão:</span>
+          <span class="result-value">${
+            dadosContrato.motivoDemissao === 'sem_justa_causa' ? 'Dispensa sem Justa Causa' :
+            dadosContrato.motivoDemissao === 'justa_causa' ? 'Dispensa por Justa Causa' :
+            dadosContrato.motivoDemissao === 'pedido_demissao' ? 'Pedido de Demissão' :
+    dadosContrato.motivoDemissao === 'acordo_mutuo' ? 'Acordo Mútuo' : 'Não informado'
+  }</span>
+</div>
         ` : `<p class="text-gray-500">Dados do contrato não disponíveis.</p>`}
       </div>
 
