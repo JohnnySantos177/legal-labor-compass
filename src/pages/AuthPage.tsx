@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
+import iusCalcLogo from '@/assets/IusCalc sem fundo.png';
 
 const ResetPasswordForm = () => {
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ export const AuthPage = () => {
     <div className="min-h-screen juriscalc-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <img src="/images/logo.png" alt="IusCalc" className="w-24 h-24 mx-auto mb-4" />
+          <<img src={iusCalcLogo} alt="IusCalc" className="w-24 h-24 mx-auto mb-4" />
           <p className="text-white drop-shadow-lg">Calculadora Jurídica Trabalhista</p>
         </div>
 
