@@ -102,37 +102,6 @@ export function CalculadoraPage() {
     toast.success('Cálculo carregado para edição!');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const mapTerminationType = (value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause') => {
-    switch (value) {
-      case 'dismissal':
-        return 'sem_justa_causa' as const;
-      case 'resignation':
-        return 'pedido_demissao' as const;
-      case 'mutual':
-        return 'acordo_mutuo' as const;
-      case 'just_cause':
-        return 'justa_causa' as const;
-      default:
-        return 'sem_justa_causa' as const;
-    }
-  };
-
-  const mapMotivoDemissaoToTerminationType = (motivoDemissao: string): 'dismissal' | 'resignation' | 'mutual' | 'just_cause' => {
-    switch (motivoDemissao) {
-      case 'sem_justa_causa':
-        return 'dismissal';
-      case 'pedido_demissao':
-        return 'resignation';
-      case 'acordo_mutuo':
-        return 'mutual';
-      case 'justa_causa':
-        return 'just_cause';
-      default:
-        return 'dismissal';
-    }
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Calculadora Trabalhista</h1>
@@ -175,8 +144,8 @@ export function CalculadoraPage() {
                   case 'admissionDate':
                     dadosContratoUpdates.dataAdmissao = value as string;
                     break;
-                  case 'terminationDate':
-                    dadosContratoUpdates.dataDemissao = value as string;
+                  case 'terminationType':
+                    dadosContratoUpdates.motivoDemissao = value as string;
                     break;
                   case 'baseSalary':
                     dadosContratoUpdates.salarioBase = Number(value) || 0;
