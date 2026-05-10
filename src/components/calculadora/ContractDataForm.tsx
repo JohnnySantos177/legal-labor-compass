@@ -68,7 +68,7 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
           <Label htmlFor="terminationType">Tipo de Rescisão</Label>
           <Select 
             value={data.terminationType || ''}
-            onValueChange={(value: 'dismissal' | 'resignation' | 'mutual' | 'just_cause') => 
+            onValueChange={(value: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo') =>
               onUpdate('terminationType', value)
             }
           >
