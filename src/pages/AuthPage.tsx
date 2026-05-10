@@ -120,7 +120,7 @@ export const AuthPage = () => {
     <div className="min-h-screen juriscalc-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <<img src={iusCalcLogo} alt="IusCalc" className="w-24 h-24 mx-auto mb-4" />
+          <img src={iusCalcLogo} alt="IusCalc" className="w-24 h-24 mx-auto mb-4" />
           <p className="text-white drop-shadow-lg">Calculadora Jurídica Trabalhista</p>
         </div>
 
