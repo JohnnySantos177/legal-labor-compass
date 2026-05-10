@@ -158,10 +158,7 @@ export function UserManagement() {
     try {
       console.log('Excluindo usuário:', userId);
       const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-
+        .rpc('delete_user', { user_id: userId });
       if (error) {
         throw error;
       }
