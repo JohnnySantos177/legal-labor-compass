@@ -25,7 +25,6 @@ export function CalculadoraPage() {
     try {
       console.log('Botão calcular clicado. Estado atual:', state);
       
-      // Validações básicas
       if (!state.dadosContrato.salarioBase || state.dadosContrato.salarioBase <= 0) {
         toast.error('É necessário informar um salário base válido!');
         return;
@@ -36,7 +35,11 @@ export function CalculadoraPage() {
         return;
       }
 
-      // Criar uma cópia do estado para não modificá-lo diretamente
+      if (!state.dadosContrato.motivoDemissao) {
+        toast.error('É necessário selecionar o tipo de rescisão!');
+        return;
+      }
+
       const stateCopy: CalculadoraState = {
         ...state,
         dadosContrato: {
@@ -45,15 +48,9 @@ export function CalculadoraPage() {
         }
       };
       
-      console.log('Estado preparado para cálculo:', stateCopy);
-      
-      // Calcular os resultados
       const resultados = calcular(stateCopy);
-      
-      // Atualizar o estado com os resultados
       updateState({ resultados });
       
-      console.log('Cálculo concluído. Resultados:', resultados);
       toast.success('Cálculo realizado com sucesso!');
       
     } catch (error) {
@@ -102,13 +99,13 @@ export function CalculadoraPage() {
     toast.success('Cálculo carregado para edição!');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Calculadora Trabalhista</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          {/* Dados do Contrato */}
           <div className="bg-white p-6 rounded-lg shadow">
             <ContractDataForm 
               data={{
@@ -120,7 +117,7 @@ export function CalculadoraPage() {
                 admissionDate: state.dadosContrato.dataAdmissao,
                 terminationDate: state.dadosContrato.dataDemissao,
                 baseSalary: state.dadosContrato.salarioBase,
-                terminationType: mapMotivoDemissaoToTerminationType(state.dadosContrato.motivoDemissao)
+                terminationType: (state.dadosContrato.motivoDemissao || '') as any
               }}
               onUpdate={(field, value) => {
                 const dadosContratoUpdates: Partial<DadosContrato> = {};
@@ -144,14 +141,14 @@ export function CalculadoraPage() {
                   case 'admissionDate':
                     dadosContratoUpdates.dataAdmissao = value as string;
                     break;
-                  case 'terminationType':
-                    dadosContratoUpdates.motivoDemissao = value as string;
+                  case 'terminationDate':
+                    dadosContratoUpdates.dataDemissao = value as string;
                     break;
                   case 'baseSalary':
                     dadosContratoUpdates.salarioBase = Number(value) || 0;
                     break;
                   case 'terminationType':
-                    dadosContratoUpdates.motivoDemissao = mapTerminationType(value as 'dismissal' | 'resignation' | 'mutual' | 'just_cause');
+                    dadosContratoUpdates.motivoDemissao = value as string;
                     break;
                 }
                 
@@ -165,24 +162,20 @@ export function CalculadoraPage() {
             />
           </div>
 
-          {/* Adicionais Básicos */}
           <div className="bg-white p-6 rounded-lg shadow">
             <AdicionaisBasicos state={state} updateState={updateState} />
           </div>
 
-          {/* Verbas e Benefícios */}
           <div className="bg-white p-6 rounded-lg shadow">
             <VerbasAdicionais state={state} updateState={updateState} />
           </div>
         </div>
 
         <div className="space-y-8">
-          {/* Multas e Outros Adicionais */}
           <div className="bg-white p-6 rounded-lg shadow">
             <MultasOutrosAdicionais state={state} updateState={updateState} />
           </div>
 
-          {/* Botão de Calcular */}
           <div className="bg-white p-6 rounded-lg shadow">
             <button
               className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
@@ -192,7 +185,6 @@ export function CalculadoraPage() {
             </button>
           </div>
 
-          {/* Resultados */}
           {state.resultados && (
             <div className="bg-white p-6 rounded-lg shadow sticky top-4">
               <ResultadosCalculo 
@@ -206,7 +198,6 @@ export function CalculadoraPage() {
         </div>
       </div>
 
-      {/* Área de Cálculos Salvos */}
       <div className="mt-8">
         <SavedCalculations
           calculos={calculosSalvos}
