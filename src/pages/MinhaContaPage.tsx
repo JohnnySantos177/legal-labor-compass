@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Mail, Phone, User, Calendar } from 'lucide-react';
+import { Crown, User, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 export const MinhaContaPage = () => {
   const { user } = useAuth();
@@ -17,18 +18,21 @@ export const MinhaContaPage = () => {
     exportacoesPDF: 0
   });
 
+  const [senhaAtual, setSenhaAtual] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [alterandoSenha, setAlterandoSenha] = useState(false);
+
   useEffect(() => {
     const carregarEstatisticas = async () => {
       if (!user) return;
 
       try {
-        // Carregar número de cálculos salvos
         const { count: calculosSalvos } = await supabase
           .from('calculos_salvos')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id);
 
-        // Carregar número de cálculos realizados
         const { count: calculosRealizados } = await supabase
           .from('calculos')
           .select('*', { count: 'exact', head: true })
@@ -37,7 +41,7 @@ export const MinhaContaPage = () => {
         setStats({
           calculosRealizados: calculosRealizados || 0,
           calculosSalvos: calculosSalvos || 0,
-          exportacoesPDF: 0 // Por enquanto mantemos como 0, pode ser implementado depois
+          exportacoesPDF: 0
         });
       } catch (error) {
         console.error('Erro ao carregar estatísticas:', error);
@@ -46,6 +50,41 @@ export const MinhaContaPage = () => {
 
     carregarEstatisticas();
   }, [user]);
+
+  const handleAlterarSenha = async () => {
+    if (!novaSenha || !confirmarSenha) {
+      toast.error('Preencha todos os campos!');
+      return;
+    }
+
+    if (novaSenha !== confirmarSenha) {
+      toast.error('As senhas não coincidem!');
+      return;
+    }
+
+    if (novaSenha.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres!');
+      return;
+    }
+
+    setAlterandoSenha(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: novaSenha });
+
+      if (error) {
+        toast.error('Erro ao alterar senha: ' + error.message);
+      } else {
+        toast.success('Senha alterada com sucesso!');
+        setSenhaAtual('');
+        setNovaSenha('');
+        setConfirmarSenha('');
+      }
+    } catch (error) {
+      toast.error('Erro inesperado ao alterar senha.');
+    } finally {
+      setAlterandoSenha(false);
+    }
+  };
 
   if (!user) return null;
 
@@ -58,6 +97,7 @@ export const MinhaContaPage = () => {
       <h1 className="text-3xl font-bold text-juriscalc-navy mb-8">Minha Conta</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Informações Pessoais */}
         <Card className="juriscalc-card">
           <CardHeader>
             <CardTitle className="text-juriscalc-navy flex items-center">
@@ -106,6 +146,7 @@ export const MinhaContaPage = () => {
           </CardContent>
         </Card>
 
+        {/* Plano e Assinatura */}
         <Card className="juriscalc-card">
           <CardHeader>
             <CardTitle className="text-juriscalc-navy flex items-center">
@@ -161,6 +202,53 @@ export const MinhaContaPage = () => {
         </Card>
       </div>
 
+      {/* Alterar Senha */}
+      <Card className="juriscalc-card mt-6">
+        <CardHeader>
+          <CardTitle className="text-juriscalc-navy flex items-center">
+            <Lock className="w-5 h-5 mr-2" />
+            Alterar Senha
+          </CardTitle>
+          <CardDescription>
+            Defina uma nova senha para sua conta
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="novaSenha">Nova Senha</Label>
+              <Input
+                id="novaSenha"
+                type="password"
+                placeholder="••••••••"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmarSenha">Confirmar Nova Senha</Label>
+              <Input
+                id="confirmarSenha"
+                type="password"
+                placeholder="••••••••"
+                value={confirmarSenha}
+                onChange={(e) => setConfirmarSenha(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                className="w-full bg-juriscalc-blue hover:bg-juriscalc-navy"
+                onClick={handleAlterarSenha}
+                disabled={alterandoSenha}
+              >
+                {alterandoSenha ? 'Alterando...' : 'Alterar Senha'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Estatísticas */}
       <Card className="juriscalc-card mt-6">
         <CardHeader>
           <CardTitle className="text-juriscalc-navy">Estatísticas de Uso</CardTitle>
