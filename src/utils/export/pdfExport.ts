@@ -216,7 +216,7 @@ export const exportToPDF = (data: ExportData) => {
       <div class="section">
         <h3>Verbas Rescisórias</h3>
         ${Object.entries(resultados.detalhamento.verbas || {})
-          .filter(([_, value]) => (value as number) > 0)
+          .filter(([key, value]) => (value as number) > 0 && key !== 'total')
           .map(([key, value]) => `
             <div class="result-item">
               <span class="result-label">${getVerbaDisplayName(key)}:</span>
