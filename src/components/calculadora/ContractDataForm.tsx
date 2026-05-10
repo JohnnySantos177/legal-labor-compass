@@ -12,7 +12,7 @@ interface FormContractData {
   admissionDate: string;
   terminationDate: string;
   baseSalary: number;
-  terminationType: 'dismissal' | 'resignation' | 'mutual' | 'just_cause';
+  terminationType: 'sem_justa_causa' | 'justa_causa' | 'pedido_demissao' | 'acordo_mutuo';
 }
 
 interface ContractDataFormProps {
@@ -76,10 +76,10 @@ export function ContractDataForm({ data, onUpdate }: ContractDataFormProps) {
               <SelectValue placeholder="Selecione o tipo de rescisão" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="dismissal">Dispensa sem Justa Causa</SelectItem>
-              <SelectItem value="just_cause">Dispensa por Justa Causa</SelectItem>
-              <SelectItem value="resignation">Pedido de Demissão</SelectItem>
-              <SelectItem value="mutual">Acordo Mútuo</SelectItem>
+              <SelectItem value="sem_justa_causa">Dispensa sem Justa Causa</SelectItem>
+              <SelectItem value="justa_causa">Dispensa por Justa Causa</SelectItem>
+              <SelectItem value="pedido_demissao">Pedido de Demissão</SelectItem>
+              <SelectItem value="acordo_mutuo">Acordo Mútuo</SelectItem>
             </SelectContent>
           </Select>
         </div>
