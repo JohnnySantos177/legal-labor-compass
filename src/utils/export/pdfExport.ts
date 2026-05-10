@@ -33,7 +33,11 @@ const getVerbaDisplayName = (key: string) => {
     'valeAlimentacaoNaoPago': 'Vale Alimentação Não Pago',
     'adicionalTransferencia': 'Adicional de Transferência',
     'descontosIndevidos': 'Descontos Indevidos',
-    'diferencasSalariais': 'Diferenças Salariais'
+    'diferencasSalariais': 'Diferenças Salariais',
+    'tercoConstitucional': '1/3 Constitucional sobre Férias',
+    'decimoTerceiroAvisoPrevio': '13º Proporcional do Aviso Prévio',
+    'feriasAvisoPrevio': 'Férias do Aviso Prévio + 1/3',
+    'total': ''
   };
   return nomes[key] || key;
 };
@@ -242,7 +246,7 @@ export const exportToPDF = (data: ExportData) => {
       <div class="section">
         <h3>Multas</h3>
         ${Object.entries(resultados.detalhamento.multas || {})
-          .filter(([_, value]) => (value as number) > 0)
+          .filter(([key, value]) => (value as number) > 0 && key !== 'total')
           .map(([key, value]) => `
             <div class="result-item">
               <span class="result-label">${getMultaDisplayName(key)}:</span>
