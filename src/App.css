@@ -1,113 +1,60 @@
+/* Garante que o root ocupe a tela toda */
 #root {
   min-height: 100vh;
   width: 100%;
 }
 
-/* --- Ajustes para Modo Escuro Global --- */
-.dark body {
-  background-color: #020617; /* Um tom marinho bem escuro/preto */
-  color: #f8fafc;
+/* --- MÁGICA DO MODO ESCURO (FORÇA BRUTA) --- */
+
+/* 1. Força o fundo de TUDO o que for "branco" ou "cinza claro" a ficar escuro */
+.dark body, 
+.dark #root, 
+.dark main,
+.dark .bg-white, 
+.dark .bg-gray-50, 
+.dark .bg-slate-50 {
+  background-color: #020617 !important; /* Azul marinho quase preto */
+  color: #f8fafc !important;
 }
 
-/* Transforma automaticamente elementos brancos em escuros quando em .dark */
-.dark .bg-white {
+/* 2. Força os Cards e elementos internos a ficarem um pouco menos escuros (destaque) */
+.dark .rounded-lg, 
+.dark .border, 
+.dark card,
+.dark [class*="shadow"] {
   background-color: #0f172a !important; 
+  border-color: #1e293b !important;
+}
+
+/* 3. Força TODOS os textos a ficarem brancos/claros */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark p, .dark span, .dark label, .dark div {
   color: #f8fafc !important;
 }
 
-.dark .text-gray-900, 
-.dark .text-gray-700,
-.dark .text-juriscalc-navy {
-  color: #f8fafc !important;
+/* 4. Ajusta os links e ícones para não sumirem */
+.dark a, .dark svg {
+  color: #94a3b8;
 }
 
-/* --- Logo e Animações --- */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.dark a:hover {
+  color: #ffffff;
 }
 
-@keyframes logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* 5. Ajusta os inputs para você conseguir enxergar o que digita */
+.dark input, .dark select, .dark textarea {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border: 1px solid #334155 !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
+/* --- Scrollbar Customizada --- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+.dark ::-webkit-scrollbar-track { background: #020617; }
+::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* --- Scrollbar Customizada (Adaptável) --- */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* --- Comportamento Global --- */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Foco melhorado */
-:focus {
-  outline: 2px solid #1e40af;
-  outline-offset: 2px;
-}
-
-.dark :focus {
-  outline-color: #3b82f6;
-}
-
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
+/* Transição suave para não cansar a vista */
 body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
