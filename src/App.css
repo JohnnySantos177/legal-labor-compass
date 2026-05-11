@@ -3,6 +3,25 @@
   width: 100%;
 }
 
+/* --- Ajustes para Modo Escuro Global --- */
+.dark body {
+  background-color: #020617; /* Um tom marinho bem escuro/preto */
+  color: #f8fafc;
+}
+
+/* Transforma automaticamente elementos brancos em escuros quando em .dark */
+.dark .bg-white {
+  background-color: #0f172a !important; 
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-900, 
+.dark .text-gray-700,
+.dark .text-juriscalc-navy {
+  color: #f8fafc !important;
+}
+
+/* --- Logo e Animações --- */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -17,12 +36,8 @@
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -39,7 +54,7 @@
   color: #888;
 }
 
-/* Custom scrollbar */
+/* --- Scrollbar Customizada (Adaptável) --- */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -50,34 +65,49 @@
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
-/* Smooth scrolling */
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* --- Comportamento Global --- */
 html {
   scroll-behavior: smooth;
 }
 
-/* Better focus outline */
+/* Foco melhorado */
 :focus {
   outline: 2px solid #1e40af;
   outline-offset: 2px;
 }
 
-/* Remove focus outline for mouse users */
+.dark :focus {
+  outline-color: #3b82f6;
+}
+
 :focus:not(:focus-visible) {
   outline: none;
 }
 
-/* Improve text rendering */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
