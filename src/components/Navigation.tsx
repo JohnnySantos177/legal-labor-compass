@@ -44,15 +44,15 @@ export const Navigation = () => {
               IusCalc
             </Link>
             
-            <div className="hidden md:flex space-x-4">
+           <div className="hidden md:flex space-x-4">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all ${
                     location.pathname === item.path
-                      ? 'bg-juriscalc-blue text-white'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-juriscalc-blue/10 hover:text-juriscalc-blue'
+                      ? 'bg-juriscalc-blue text-white shadow-md'
+                      : 'text-juriscalc-navy dark:text-slate-300 hover:bg-juriscalc-blue/10 hover:text-juriscalc-blue'
                   }`}
                 >
                   <item.icon className="w-4 h-4 mr-2" />
@@ -60,7 +60,6 @@ export const Navigation = () => {
                 </Link>
               ))}
             </div>
-          </div>
 
           <div className="flex items-center space-x-2">
             {/* Botão de Tema */}
