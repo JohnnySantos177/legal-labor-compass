@@ -146,30 +146,41 @@ export function UserManagement() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (userId === currentUser?.id) {
-      toast.error('Você não pode excluir sua própria conta');
-      return;
+  if (userId === currentUser?.id) {
+    toast.error('Você não pode excluir sua própria conta');
+    return;
+  }
+
+  // Use o toast de confirmação ou o confirm nativo
+  const confirmed = window.confirm('Tem certeza que deseja excluir este usuário? Esta ação removerá todos os cálculos e dados vinculados e não pode ser desfeita.');
+  
+  if (!confirmed) return;
+
+  // Inicia o loading para dar feedback visual
+  setIsLoading(true); 
+
+  try {
+    console.log('Iniciando exclusão do usuário:', userId);
+    
+    const { error } = await supabase.rpc('delete_user', { user_id: userId });
+
+    if (error) {
+      // Se o erro persistir, o console dirá o motivo exato (ex: violação de FK)
+      console.error('Erro retornado pelo RPC:', error);
+      throw new Error(error.message);
     }
 
-    if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
-      return;
-    }
+    // Atualiza a lista local removendo o usuário deletado sem precisar recarregar tudo do banco
+    setUsers(prev => prev.filter(user => user.id !== userId));
+    toast.success('Usuário excluído com sucesso!');
 
-    try {
-      console.log('Excluindo usuário:', userId);
-      const { error } = await supabase
-        .rpc('delete_user', { user_id: userId });
-      if (error) {
-        throw error;
-      }
-
-      await loadUsers();
-      toast.success('Usuário excluído com sucesso!');
-    } catch (error: any) {
-      console.error('Erro ao excluir usuário:', error);
-      toast.error('Erro ao excluir usuário: ' + error.message);
-    }
-  };
+  } catch (error: any) {
+    console.error('Erro ao excluir usuário:', error);
+    toast.error('Não foi possível excluir o usuário: ' + (error.message || 'Erro desconhecido'));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const getRoleDisplayName = (role: string) => {
     const roles: { [key: string]: string } = {
