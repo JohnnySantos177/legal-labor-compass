@@ -1,60 +1,97 @@
-/* Garante que o root ocupe a tela toda */
+/* App.css - Refinamento de Interface IusCalc */
+
 #root {
   min-height: 100vh;
   width: 100%;
 }
 
-/* --- MÁGICA DO MODO ESCURO (FORÇA BRUTA) --- */
+/* --- Suporte ao Modo Escuro (Baseado em Variáveis) --- */
 
-/* 1. Força o fundo de TUDO o que for "branco" ou "cinza claro" a ficar escuro */
+/* Força o fundo e texto global para respeitar o index.css */
 .dark body, 
-.dark #root, 
-.dark main,
+.dark #root {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Elevação dos Cards: No modo escuro, eles ficam levemente mais claros que o fundo */
 .dark .bg-white, 
-.dark .bg-gray-50, 
-.dark .bg-slate-50 {
-  background-color: #020617 !important; /* Azul marinho quase preto */
-  color: #f8fafc !important;
+.dark .bg-card,
+.dark .juriscalc-card,
+.dark .rounded-lg.border {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* 2. Força os Cards e elementos internos a ficarem um pouco menos escuros (destaque) */
-.dark .rounded-lg, 
-.dark .border, 
-.dark card,
-.dark [class*="shadow"] {
-  background-color: #0f172a !important; 
-  border-color: #1e293b !important;
+/* Ajuste de Tipografia para garantir leitura */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark .juriscalc-label {
+  color: hsl(var(--foreground)) !important;
 }
 
-/* 3. Força TODOS os textos a ficarem brancos/claros */
-.dark h1, .dark h2, .dark h3, .dark h4, .dark p, .dark span, .dark label, .dark div {
-  color: #f8fafc !important;
+.dark p, .dark span:not(.relative) {
+  color: hsl(var(--muted-foreground)) !important;
 }
 
-/* 4. Ajusta os links e ícones para não sumirem */
-.dark a, .dark svg {
-  color: #94a3b8;
+/* --- Estilização de Componentes de Formulário --- */
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: hsl(var(--background)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
-.dark a:hover {
-  color: #ffffff;
+.dark input:focus {
+  border-color: hsl(var(--primary)) !important;
+  outline: none;
+  ring: 2px hsl(var(--primary) / 0.2);
 }
 
-/* 5. Ajusta os inputs para você conseguir enxergar o que digita */
-.dark input, .dark select, .dark textarea {
-  background-color: #1e293b !important;
-  color: #ffffff !important;
-  border: 1px solid #334155 !important;
+/* --- Efeitos Visuais Premium --- */
+
+/* Gradiente na Navbar para tirar o aspecto monocromático */
+nav {
+  background: linear-gradient(to right, #1e3a8a, #1e40af) !important;
 }
 
-/* --- Scrollbar Customizada --- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-.dark ::-webkit-scrollbar-track { background: #020617; }
-::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-.dark ::-webkit-scrollbar-thumb { background: #334155; }
+.dark nav {
+  background: linear-gradient(to right, hsl(var(--background)), #0f172a) !important;
+  border-bottom: 1px solid hsl(var(--border));
+}
 
-/* Transição suave para não cansar a vista */
+/* Transição de cores suave ao alternar o tema */
 body {
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- Scrollbar Adaptável --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
