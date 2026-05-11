@@ -103,35 +103,31 @@ export function UserManagement() {
   }, []);
 
   const handleUpdateUser = async () => {
-    if (!editingUser) return;
+  if (!editingUser) return;
 
-    try {
-      console.log('Atualizando usuário:', editingUser.id);
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          nome: formData.nome,
-          email: formData.email,
-          tipo_usuario: formData.tipo_usuario,
-          tipo_plano: formData.tipo_plano,
-          is_admin: formData.is_admin,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', editingUser.id);
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        nome: formData.nome,
+        email: formData.email,
+        tipo_usuario: formData.tipo_usuario,
+        tipo_plano: formData.tipo_plano,
+        is_premium: formData.tipo_plano === 'premium', // Garante que is_premium acompanhe o plano
+        is_admin: formData.tipo_usuario !== 'usuario',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', editingUser.id);
 
-      if (error) {
-        throw error;
-      }
+    if (error) throw error;
 
-      await loadUsers();
-      setIsDialogOpen(false);
-      setEditingUser(null);
-      toast.success('Usuário atualizado com sucesso!');
-    } catch (error: any) {
-      console.error('Erro ao atualizar usuário:', error);
-      toast.error('Erro ao atualizar usuário: ' + error.message);
-    }
-  };
+    await loadUsers();
+    setIsDialogOpen(false);
+    toast.success('Usuário e plano atualizados!');
+  } catch (error: any) {
+    toast.error('Erro ao atualizar: ' + error.message);
+  }
+};
 
   const handleEditUser = async (user: ManagedUser) => {
     setEditingUser(user);
