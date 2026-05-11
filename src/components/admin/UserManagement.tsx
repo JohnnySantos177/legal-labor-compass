@@ -162,7 +162,7 @@ export function UserManagement() {
   try {
     console.log('Iniciando exclusão do usuário:', userId);
     
-    const { error } = await supabase.rpc('delete_user', { user_id: userId });
+    const { error } = await supabase.rpc('delete_user', { target_user_id: userId });
 
     if (error) {
       // Se o erro persistir, o console dirá o motivo exato (ex: violação de FK)
