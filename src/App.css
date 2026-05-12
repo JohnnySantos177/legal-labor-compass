@@ -1,72 +1,34 @@
-/* App.css - Refinamento de Interface IusCalc */
+/* App.css - Versão Simplificada IusCalc (Foco em Funcionalidade) */
 
 #root {
   min-height: 100vh;
   width: 100%;
 }
 
-/* --- Suporte ao Modo Escuro (Baseado em Variáveis) --- */
-
-/* Força o fundo e texto global para respeitar o index.css */
-.dark body, 
-.dark #root {
-  background-color: hsl(var(--background)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-/* Elevação dos Cards: No modo escuro, eles ficam levemente mais claros que o fundo */
-.dark .bg-white, 
-.dark .bg-card,
-.dark .juriscalc-card,
-.dark .rounded-lg.border {
-  background-color: hsl(var(--card)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--card-foreground)) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Ajuste de Tipografia para garantir leitura */
-.dark h1, .dark h2, .dark h3, .dark h4, .dark .juriscalc-label {
-  color: hsl(var(--foreground)) !important;
-}
-
-.dark p, .dark span:not(.relative) {
-  color: hsl(var(--muted-foreground)) !important;
-}
-
-/* --- Estilização de Componentes de Formulário --- */
-.dark input, 
-.dark select, 
-.dark textarea {
-  background-color: hsl(var(--background)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-.dark input:focus {
-  border-color: hsl(var(--primary)) !important;
-  outline: none;
-  ring: 2px hsl(var(--primary) / 0.2);
-}
-
-/* --- Efeitos Visuais Premium --- */
-
-/* Gradiente na Navbar para tirar o aspecto monocromático */
+/* --- Estilo da Barra de Navegação Superior --- */
 nav {
-  background: linear-gradient(to right, #1e3a8a, #1e40af) !important;
+  /* Usa o fundo gelo definido no index.css */
+  background-color: hsl(var(--background)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
 }
 
-.dark nav {
-  background: linear-gradient(to right, hsl(var(--background)), #0f172a) !important;
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-/* Transição de cores suave ao alternar o tema */
+/* --- Ajustes Globais de Tipografia e Cards --- */
 body {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Scrollbar Adaptável --- */
+.juriscalc-card {
+  @apply bg-white border border-slate-200 shadow-sm;
+}
+
+.juriscalc-label {
+  @apply text-juriscalc-navy font-medium;
+}
+
+/* --- Scrollbar --- */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -75,23 +37,16 @@ body {
   background: #f1f1f1;
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: hsl(var(--background));
-}
-
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+/* --- Inputs --- */
+input, select, textarea {
+  @apply border-slate-300 focus:border-juriscalc-blue focus:ring-juriscalc-blue/20;
 }

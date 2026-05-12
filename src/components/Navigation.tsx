@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Calculator, User, LogOut, Crown, Sun, Moon } from 'lucide-react';
+import { Calculator, User, LogOut, Crown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export const Navigation = () => {
@@ -17,6 +17,7 @@ export const Navigation = () => {
     { path: '/minha-conta', label: 'Minha Conta', icon: User },
   ];
 
+  // Lógica de Admin
   if (user.role === 'admin' || user.role === 'super_admin' || user.tipo_usuario === 'admin_mestre') {
     navItems.push({ path: '/admin', label: 'Admin', icon: Crown });
   }
@@ -24,21 +25,17 @@ export const Navigation = () => {
   const isPremium = user?.tipo_plano === 'premium';
   const isSuperAdmin = user?.role === 'super_admin' || user?.tipo_usuario === 'admin_mestre';
 
+  // Exibir botão de Upgrade apenas para quem não é Premium/Admin
   if (!isPremium && !isSuperAdmin) {
     navItems.push({ path: '/upgrade', label: 'Seja Premium', icon: Crown });
   }
 
-  const toggleTheme = () => {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  };
-
   return (
-    <nav className="bg-white dark:bg-juriscalc-navy shadow-sm border-b dark:border-slate-800 transition-colors duration-300">
+    <nav className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
-            <Link to="/home" className="text-2xl font-bold text-juriscalc-navy dark:text-white">
+            <Link to="/home" className="text-2xl font-bold text-juriscalc-navy">
               IusCalc
             </Link>
             
@@ -50,7 +47,7 @@ export const Navigation = () => {
                   className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all ${
                     location.pathname === item.path
                       ? 'bg-juriscalc-blue text-white shadow-md'
-                      : 'text-juriscalc-navy dark:text-slate-300 hover:bg-juriscalc-blue/10 hover:text-juriscalc-blue'
+                      : 'text-juriscalc-navy hover:bg-juriscalc-blue/10 hover:text-juriscalc-blue'
                   }`}
                 >
                   <item.icon className="w-4 h-4 mr-2" />
@@ -61,16 +58,6 @@ export const Navigation = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-juriscalc-navy dark:text-gray-300"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
