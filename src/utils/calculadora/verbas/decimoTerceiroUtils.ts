@@ -1,28 +1,14 @@
-
 /**
  * Utilities for calculating 13th salary
  */
 import { DadosContrato } from "@/types/calculadora";
 
 /**
- * Calculates the thirteenth salary proportional value based on complete months worked
- * Formula: (Salário Base / 12) × Meses Completos Trabalhados
- * 
- * Steps:
- * 1. Count complete months worked from admission to termination date
- * 2. For each complete month, add 1/12 of the monthly 13th salary
- * 3. Calculate: (Base Salary / 12) × Complete Months Worked
- * 
- * Example:
- * - Base Salary: R$ 1,000.00
- * - Admission: 2024-01-15, Termination: 2024-08-20
- * - Complete Months: 7 months (Jan, Feb, Mar, Apr, May, Jun, Jul)
- * - Calculation: (1000 / 12) × 7 = 583.33
- * - Result: R$ 583.33
- * 
- * @param salarioBase Base salary
- * @param dataAdmissao Admission date
- * @param dataDemissao Termination date
+ * Calculates the thirteenth salary proportional value based on months worked IN THE YEAR OF TERMINATION
+ * Formula: (Salário Base / 12) × Avos de Direito (Frações >= 15 dias dentro do ano civil)
+ * * @param salarioBase Base salary
+ * @param dataAdmissao Admission date (YYYY-MM-DD)
+ * @param dataDemissao Termination date (YYYY-MM-DD)
  * @param tipoRescisao Contract termination type
  * @returns Thirteenth salary proportional value
  */
@@ -33,68 +19,57 @@ export const calcularDecimoTerceiro = (
   tipoRescisao: string
 ): number => {
   // Não tem direito em caso de justa causa
-  if (tipoRescisao === 'justa_causa') {
+  if (tipoRescisao === 'justa_causa' || !dataAdmissao || !dataDemissao) {
     return 0;
   }
   
-  const dataAdmissaoObj = new Date(dataAdmissao);
-  const dataDemissaoObj = new Date(dataDemissao);
+  // Tratamento de string para evitar mutação indesejada por fusos horários locais
+  const [aYear, aMonth, aDay] = dataAdmissao.split('-').map(Number);
+  const [dYear, dMonth, dDay] = dataDemissao.split('-').map(Number);
   
-  // Contar meses completos trabalhados
-  let mesesCompletos = 0;
+  // O direito ao 13º proporcional zera em 1º de janeiro do ano da demissão.
+  // Se ele foi admitido em anos anteriores, começamos a analisar a partir de Janeiro do ano da demissão.
+  // Se foi admitido no próprio ano da demissão, começamos no mês da admissão.
+  const anoAnalise = dYear;
+  const mesInicio = aYear < dYear ? 1 : aMonth;
+  const mesFim = dMonth;
   
-  // Criar data atual para iterar mês a mês
-  const dataAtual = new Date(dataAdmissaoObj.getFullYear(), dataAdmissaoObj.getMonth(), 1);
-  const dataFim = new Date(dataDemissaoObj.getFullYear(), dataDemissaoObj.getMonth(), 1);
+  let avosDireito = 0;
   
-  // Iterar mês a mês contando os meses completos
-  while (dataAtual <= dataFim) {
-    const ultimoDiaDoMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0).getDate();
-    
-    // Verificar se o mês foi trabalhado completamente
-    let inicioMes: Date;
-    let fimMes: Date;
-    
-    if (dataAtual.getTime() === new Date(dataAdmissaoObj.getFullYear(), dataAdmissaoObj.getMonth(), 1).getTime()) {
-      // Primeiro mês - começar da data de admissão
-      inicioMes = dataAdmissaoObj;
-    } else {
-      // Outros meses - começar do dia 1
-      inicioMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+  // Iterar mês a mês dentro do ano corrente da demissão
+  for (let mes = mesInicio; mes <= mesFim; mes++) {
+    let diasTrabalhadosNoMes = 30; // Padrão comercial padrão
+
+    // Caso 1: Primeiro mês de trabalho do contrato (e a admissão ocorreu neste mesmo ano)
+    if (mes === mesInicio && aYear === dYear) {
+      // Conta os dias restantes do mês incluindo o dia da admissão
+      diasTrabalhadosNoMes = 30 - aDay + 1;
     }
-    
-    if (dataAtual.getTime() === dataFim.getTime()) {
-      // Último mês - terminar na data de demissão
-      fimMes = dataDemissaoObj;
-    } else {
-      // Outros meses - terminar no último dia do mês
-      fimMes = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), ultimoDiaDoMes);
+
+    // Caso 2: Mês da demissão (Último mês da análise)
+    if (mes === mesFim) {
+      // Os dias computados são limitados ao exato dia do afastamento
+      diasTrabalhadosNoMes = dDay;
+
+      // Subcaso: Se a admissão e a demissão ocorreram exatamente dentro do mesmíssimo mês e ano
+      if (mesInicio === mesFim && aYear === dYear) {
+        diasTrabalhadosNoMes = dDay - aDay + 1;
+      }
     }
-    
-    // Calcular dias trabalhados no mês
-    const diasTrabalhados = Math.floor((fimMes.getTime() - inicioMes.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    
-    // Considerar mês completo se trabalhou mais de 15 dias
-    if (diasTrabalhados > 15) {
-      mesesCompletos++;
+
+    // Regra do Art. 1º, § 2º da Lei 4.090/1962: fração igual ou superior a 15 dias garante 1 avo (1/12)
+    if (diasTrabalhadosNoMes >= 15) {
+      avosDireito++;
     }
-    
-    console.log(`Mês ${dataAtual.getMonth() + 1}/${dataAtual.getFullYear()}: ${diasTrabalhados} dias trabalhados ${diasTrabalhados > 15 ? '(mês completo)' : '(mês incompleto)'}`);
-    
-    // Avançar para o próximo mês
-    dataAtual.setMonth(dataAtual.getMonth() + 1);
+
+    console.log(`[IusCalc Debug] Mês ${mes}/${anoAnalise}: ${diasTrabalhadosNoMes} dias apurados. ${diasTrabalhadosNoMes >= 15 ? 'Ganhou avo' : 'Perdeu avo'}`);
   }
   
-  // Garantir que não seja negativo ou zero
-  if (mesesCompletos <= 0) {
-    mesesCompletos = 1;
-  }
+  // Aplicar a fórmula: (Salário Base / 12) × Avos de Direito
+  const valorPorAvo = salarioBase / 12;
+  const decimoTerceiroProporcional = valorPorAvo * avosDireito;
   
-  // Aplicar a fórmula: (Salário Base / 12) × Meses Completos Trabalhados
-  const valorMensal13 = salarioBase / 12;
-  const decimoTerceiroProporcional = valorMensal13 * mesesCompletos;
+  console.log(`[IusCalc Resultado] Ano Rescisão: ${anoAnalise} | Avos Totais: ${avosDireito}/12 | Valor Final: R$ ${decimoTerceiroProporcional.toFixed(2)}`);
   
-  console.log(`Cálculo 13º salário: Salário Base (${salarioBase}) / 12 = ${valorMensal13.toFixed(2)} × ${mesesCompletos} meses completos = ${decimoTerceiroProporcional.toFixed(2)}`);
-  
-  return decimoTerceiroProporcional;
+  return Number(decimoTerceiroProporcional.toFixed(2));
 };
