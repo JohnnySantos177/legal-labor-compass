@@ -34,11 +34,12 @@ export const CalculationResult = ({ result, onSave }: CalculationResultProps) =>
                 Salvar
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-juriscalc-blue"
-            >
+           <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-juriscalc-blue"
+          >
               <Download className="w-4 h-4 mr-2" />
               Exportar
             </Button>
