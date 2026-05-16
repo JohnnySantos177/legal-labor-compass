@@ -34,15 +34,16 @@ export const CalculationResult = ({ result, onSave }: CalculationResultProps) =>
                 Salvar
               </Button>
             )}
-           <Button
+          <Button
             type="button"
             variant="outline"
             size="sm"
             className="text-juriscalc-blue"
+            onClick={() => window.print()}
           >
-              <Download className="w-4 h-4 mr-2" />
-              Exportar
-            </Button>
+            <Download className="w-4 h-4 mr-2" />
+            Exportar
+          </Button>
           </div>
         </CardTitle>
       </CardHeader>
