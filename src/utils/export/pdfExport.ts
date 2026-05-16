@@ -23,7 +23,7 @@ const getVerbaDisplayName = (key: string) => {
   const nomes: { [key: string]: string } = {
     'salarioProporcional': 'Saldo de Salário',
     'decimoTerceiro': '13º Salário Proporcional',
-    'feriasProporcionais': 'Férias Proporcionais + 1/3',
+    'feriasProporcionais': 'Férias Proporcionais',
     'avisoPrevio': 'Aviso Prévio',
     'fgts': 'FGTS sobre Verbas',
     'multaFgts': 'Multa do FGTS (40%)',
